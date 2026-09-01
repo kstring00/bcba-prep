@@ -1,0 +1,302 @@
+/* ---------------------------------------------------------------
+   Bookshelf navigation — geometry + chrome.
+
+   3D model (all CSS transforms, no WebGL):
+
+     .shelf-row        perspective container
+       .book           transform-style: preserve-3d
+                       transform-origin: top center
+                       transform: rotateX(BOOK_TILT)      (~ -86deg)
+         .face--cover  full size of .book, in the XY plane, at the front
+         .face--spine  full width x SPINE_DEPTH tall
+                       transform-origin: top center
+                       transform: rotateX(90deg)          hinges forward
+                                                          off the cover's
+                                                          top edge
+
+   Sign derivation (CSS: +y is down, +z is toward the viewer):
+     rotateX(t) maps (0,y,0) -> (0, y*cos t, y*sin t).
+     Spine at rotateX(+90deg) about its top edge sends its bottom edge to
+     z = +SPINE_DEPTH, i.e. a ledge standing toward the viewer, with its
+     face normal (0,0,1) -> (0,-1,0) (pointing up).
+     The book at rotateX(-86deg) then maps that normal to
+     (0, -cos86, +sin86) ~ (0,-0.07,+1): the spine faces the viewer, and
+     the cover's normal (0,0,1) -> (0,+0.998,-0.07) is edge-on.
+     Local "up" on the spine maps back to screen-up, so spine text renders
+     upright and unmirrored. Flipping either sign mirrors the text or
+     swings the cover in front of the spine.
+   --------------------------------------------------------------- */
+
+:root {
+  --bg: #1c1a17;
+  --bg-raised: #211f1b;
+  --ink: #f2ede4;
+  --ink-dim: #9a9186;
+  --rule: #302c27;
+
+  --spine-depth: 46px;
+  --book-tilt: -83deg;
+  --book-tilt-hover: -76deg;
+  --perspective: 1600px;
+
+  --shelf-gap: 34px;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (max-width: 640px) {
+  :root {
+    /* Closer viewing distance: the effect has to read at 380px wide. */
+    --perspective: 1000px;
+    --shelf-gap: 26px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* TikTok's in-app browser likes to offer a horizontal pan; deny it. */
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 20px 96px;
+}
+
+/* ---------------- header ---------------- */
+
+.site-header {
+  padding: 56px 0 44px;
+}
+
+.site-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 6vw, 34px);
+  letter-spacing: -0.01em;
+  margin: 0 0 10px;
+}
+
+.site-tagline {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 46ch;
+}
+
+/* ---------------- shelf ---------------- */
+
+.shelf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shelf-item {
+  margin-bottom: var(--shelf-gap);
+}
+
+.shelf-row {
+  position: relative;
+  height: var(--spine-depth);
+  perspective: var(--perspective);
+  perspective-origin: 50% 0%;
+}
+
+/* The single permitted soft contact shadow, sitting under the spine. */
+.shelf-row::after {
+  content: "";
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  top: calc(var(--spine-depth) - 4px);
+  height: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  filter: blur(6px);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.book-box {
+  position: absolute;
+  inset: 0;
+  /* Comfortable thumb target even though the spine art is 46px. */
+  min-height: 44px;
+}
+
+.book {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: top center;
+  will-change: transform;
+}
+
+.face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  backface-visibility: hidden;
+}
+
+.face--cover {
+  height: 100%;
+  border-radius: 2px;
+  /* Clips the cover text to the box while the box is still growing. Safe to
+     clip here: this is a leaf face, so it flattens nothing that needs 3D. */
+  overflow: hidden;
+}
+
+.face--spine {
+  height: var(--spine-depth);
+  transform-origin: top center;
+  transform: rotateX(90deg);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-radius: 2px 2px 0 0;
+  /* Cloth-bound books have a slightly darker head and tail edge. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.spine-letter {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  opacity: 0.72;
+  flex: 0 0 auto;
+  width: 1.6em;
+}
+
+.spine-title {
+  font-family: var(--font-serif);
+  font-size: clamp(15px, 3.6vw, 18px);
+  letter-spacing: 0.005em;
+  flex: 1 1 auto;
+  text-align: center;
+  /* Never wrap to a second line on a 46px spine. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spine-rule {
+  flex: 0 0 auto;
+  width: 1.6em;
+}
+
+/* ---------------- domain page ---------------- */
+
+.domain-cover-row {
+  position: relative;
+  height: 190px;
+  perspective: var(--perspective);
+  perspective-origin: 50% 0%;
+  margin-top: 8px;
+}
+
+.cover-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 22px;
+}
+
+.cover-letter {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  opacity: 0.72;
+}
+
+.cover-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(24px, 6.5vw, 34px);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.domain-body {
+  padding: 40px 2px 0;
+}
+
+.content-slot {
+  border-top: 1px solid var(--rule);
+  padding-top: 28px;
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 48px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 3px;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+/* ---------------- reduced motion ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf-row,
+  .domain-cover-row {
+    perspective: none;
+  }
+
+  .book {
+    transform: none !important;
+    transform-style: flat;
+  }
+
+  .face--spine {
+    transform: none !important;
+  }
+
+  .shelf-row .face--cover {
+    display: none;
+  }
+
+  .shelf-row::after {
+    display: none;
+  }
+
+  * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}
