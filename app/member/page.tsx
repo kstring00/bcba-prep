@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BeeMark } from "@/components/BeeMark";
 import {
   AuthSession,
   refreshStoredSession,
@@ -54,7 +55,7 @@ export default function MemberPage() {
 
         <div className={styles.hero}>
           <p className={styles.script}>Your library</p>
-          <h1>Welcome to your BCBA Prep account.</h1>
+          <h1>Welcome to BCBA Prep by Bee the Behavior Bae.</h1>
           <p>
             You’re signed in as <strong>{session.user.email ?? "your account"}</strong>.
             This is the home that will hold the domains connected to your purchases.
@@ -62,7 +63,9 @@ export default function MemberPage() {
         </div>
 
         <div className={styles.libraryCard}>
-          <div className={styles.monogram}>B</div>
+          <div className={styles.monogram} aria-hidden="true">
+            <BeeMark size={34} />
+          </div>
           <div>
             <p className={styles.eyebrow}>Member access is active</p>
             <h2>Your purchased domains will appear here.</h2>
