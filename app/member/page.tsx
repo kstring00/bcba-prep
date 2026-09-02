@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BeeMark } from "@/components/BeeMark";
 import { domains } from "@/lib/domains";
@@ -12,7 +12,7 @@ import {
 } from "@/lib/supabase/auth-client";
 import styles from "./member.module.css";
 
-function CircleIcon({ children }: { children: React.ReactNode }) {
+function CircleIcon({ children }: { children: ReactNode }) {
   return <span className={styles.circleIcon}>{children}</span>;
 }
 
@@ -118,9 +118,9 @@ export default function MemberPage() {
             </section>
           </aside>
 
-          <main className={styles.libraryPanel}>
+          <section className={styles.libraryPanel} aria-labelledby="purchased-domains-title">
             <CircleIcon>▤</CircleIcon>
-            <h2>Your purchased domains</h2>
+            <h2 id="purchased-domains-title">Your purchased domains</h2>
             <div className={styles.ornament} aria-hidden="true">
               <span />
               <BeeMark size={22} />
@@ -143,7 +143,7 @@ export default function MemberPage() {
             <Link href="/" className={styles.primaryCta}>
               Explore the domain library <span aria-hidden="true">→</span>
             </Link>
-          </main>
+          </section>
 
           <aside className={styles.rightRail}>
             <section className={styles.panel}>
