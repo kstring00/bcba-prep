@@ -21,6 +21,22 @@ no image files at all).
   not read as a rectangle of tint.
 - `components/Icons.tsx`, `components/Motifs.tsx` — all line art, inline.
 
+## Product model
+
+The store is domain-first. Mock exams, study guides, and resource materials
+are not separate storefront categories: they live inside the purchased domain
+experience. Customers can buy individual domains or multi-domain bundles, then
+sign in to access only the domains they own.
+
+The member library is designed to stay on-site. Browser software cannot fully
+prevent operating-system screenshots, so the protection model is layered:
+private storage, entitlement checks, short-lived delivery, no public source
+URLs, no-download presentation, print/copy deterrence, and personalized
+watermarking so leaked material can be traced to an account.
+
+See `BACKEND_HANDOFF.md` for the implementation contract and the security
+model intended for Supabase + Stripe.
+
 ## Status
 
 Stack, detail view, cart and checkout. The study-content reader is not built.
@@ -48,7 +64,7 @@ reviewer is not a design decision.
 
 ```sh
 npm install
-cp .env.example .env.local   # then fill in your Stripe keys
+cp .env.example .env.local   # then fill in your Stripe/Supabase keys
 npm run dev
 ```
 
