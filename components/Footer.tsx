@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BeeMark } from "./BeeMark";
+import brandStyles from "./Brand.module.css";
 
 export function Footer() {
   return (
@@ -12,7 +13,7 @@ export function Footer() {
             aria-label="BCBA Prep by Bee the Behavior Bae"
           >
             <span
-              className="brand-mark"
+              className={`brand-mark ${brandStyles.mark}`}
               style={{ color: "var(--gold)" }}
               aria-hidden="true"
             >
@@ -20,7 +21,10 @@ export function Footer() {
             </span>
             <span className="brand-name" style={{ color: "var(--on-night)" }}>
               BCBA Prep
-              <small style={{ color: "var(--on-night-dim)" }}>
+              <small
+                className={brandStyles.tagline}
+                style={{ color: "var(--on-night-dim)" }}
+              >
                 by Bee the Behavior Bae
               </small>
             </span>
