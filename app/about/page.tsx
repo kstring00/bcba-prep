@@ -147,7 +147,6 @@ export default function AboutPage() {
         />
         <div className="bleed-inner">
           <div className="section-head">
-            <p className="script">The work behind the materials</p>
             <Ornament />
             <h2 className="display">
               Premium Resources. <span className="accent">Built the Hard Way.</span>
