@@ -1,0 +1,264 @@
+.hero {
+  padding: clamp(28px, 3.8vw, 48px) 0 clamp(30px, 4vw, 52px) !important;
+}
+
+.heroGrid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(190px, 280px) !important;
+  gap: clamp(28px, 4vw, 58px) !important;
+  align-items: center !important;
+}
+
+.heroCopy {
+  max-width: 820px;
+}
+
+.heroCopy :global(.script) {
+  font-size: clamp(30px, 3.2vw, 42px) !important;
+  margin-bottom: 2px !important;
+}
+
+.heroCopy :global(h1.display) {
+  max-width: 15ch;
+  font-size: clamp(42px, 5vw, 68px) !important;
+  line-height: 0.96 !important;
+  margin: 0 !important;
+}
+
+.heroCopy :global(.ornament) {
+  margin: 18px 0 14px !important;
+}
+
+.lede {
+  max-width: 58ch !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+
+.portrait {
+  width: min(100%, 245px) !important;
+  aspect-ratio: 4 / 5 !important;
+  max-height: 310px !important;
+  margin-left: auto !important;
+  padding: 8px !important;
+}
+
+.stats :global(.stats-inner) {
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
+}
+
+.stats :global(.stat) {
+  gap: 12px !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
+.resources {
+  padding: clamp(30px, 4vw, 48px) 0 !important;
+  text-align: left !important;
+}
+
+.resourcesInner {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(30px, 5vw, 72px);
+  align-items: center;
+}
+
+.resourcesHeading {
+  min-width: 0;
+}
+
+.resourcesHeading :global(.section-head) {
+  justify-content: flex-start !important;
+  gap: 14px !important;
+}
+
+.resourcesHeading :global(.section-head .ornament:last-child) {
+  display: none;
+}
+
+.resourcesHeading :global(h2.display) {
+  font-size: clamp(30px, 3.4vw, 44px) !important;
+  line-height: 1 !important;
+}
+
+.resourcesCopy {
+  display: grid;
+  gap: 10px;
+}
+
+.resourcesCopy :global(.section-sub) {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+
+.split {
+  grid-template-columns: minmax(0, 43%) minmax(0, 57%) !important;
+}
+
+.story {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 31%) !important;
+  gap: 22px !important;
+  padding: clamp(30px, 3.4vw, 44px) clamp(26px, 3vw, 42px) !important;
+}
+
+.story :global(.script) {
+  font-size: 28px !important;
+}
+
+.story :global(h2.display) {
+  font-size: clamp(24px, 2.6vw, 34px) !important;
+  line-height: 1.02 !important;
+  margin-bottom: 14px !important;
+}
+
+.story :global(p:not(.script):not(.signature)) {
+  margin-bottom: 9px !important;
+  line-height: 1.65 !important;
+}
+
+.story :global(.signature) {
+  margin-top: 14px !important;
+  font-size: 30px !important;
+}
+
+.storyArt {
+  max-width: 190px;
+  justify-self: end;
+  align-self: center;
+}
+
+.philosophy {
+  padding: clamp(30px, 3.4vw, 44px) clamp(26px, 3.2vw, 46px) !important;
+}
+
+.philosophy :global(.script) {
+  font-size: 30px !important;
+}
+
+.philosophy :global(h2.display) {
+  font-size: clamp(25px, 2.9vw, 38px) !important;
+  margin: 2px 0 24px !important;
+  line-height: 1 !important;
+}
+
+.steps {
+  gap: 4px !important;
+}
+
+.steps :global(.step-icon) {
+  width: 42px !important;
+  height: 42px !important;
+  margin-bottom: 8px !important;
+}
+
+.steps :global(.step-name) {
+  font-size: 17px !important;
+  margin-bottom: 5px !important;
+}
+
+.steps :global(.step > p:last-child) {
+  font-size: 10px !important;
+  line-height: 1.45 !important;
+}
+
+.closing :global(.closing-inner) {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+
+.closing :global(.cta) {
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  gap: 16px !important;
+}
+
+.closing :global(.cta-icon) {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.closing :global(.cta h2) {
+  font-size: clamp(19px, 2vw, 25px) !important;
+}
+
+.closing :global(.cta p) {
+  margin-bottom: 10px !important;
+}
+
+.closing :global(.btn) {
+  min-height: 42px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+@media (max-width: 900px) {
+  .heroGrid,
+  .resourcesInner,
+  .split {
+    grid-template-columns: 1fr !important;
+  }
+
+  .heroCopy :global(h1.display) {
+    max-width: 12ch;
+  }
+
+  .portrait {
+    width: 190px !important;
+    max-height: 235px !important;
+    margin: 0 auto !important;
+  }
+
+  .resourcesInner {
+    gap: 20px;
+  }
+
+  .story {
+    grid-template-columns: 1fr minmax(110px, 170px) !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero {
+    padding-top: 24px !important;
+  }
+
+  .heroGrid {
+    gap: 22px !important;
+  }
+
+  .heroCopy :global(h1.display) {
+    max-width: 100%;
+    font-size: clamp(38px, 11vw, 52px) !important;
+  }
+
+  .portrait {
+    display: none !important;
+  }
+
+  .resourcesHeading :global(.section-head .ornament) {
+    display: none;
+  }
+
+  .story {
+    grid-template-columns: 1fr !important;
+  }
+
+  .storyArt {
+    display: none;
+  }
+
+  .philosophy :global(.steps) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 20px 12px !important;
+  }
+
+  .closing :global(.cta) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .closing :global(.cta-icon) {
+    display: none !important;
+  }
+}
