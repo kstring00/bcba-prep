@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BeeMark } from "@/components/BeeMark";
 import {
   getStoredSession,
   requestPasswordReset,
@@ -96,7 +97,7 @@ export default function SignInPage() {
             <p className={styles.eyebrow}>Your study library</p>
             <h1>
               Welcome back to
-              <span> BCBA Prep by Bryana.</span>
+              <span> BCBA Prep by Bee the Behavior Bae.</span>
             </h1>
             <p className={styles.lede}>
               Sign in to return to the domains and study materials connected to
@@ -105,7 +106,9 @@ export default function SignInPage() {
             </p>
 
             <div className={styles.promise}>
-              <span className={styles.promiseMark}>B</span>
+              <span className={styles.promiseMark}>
+                <BeeMark size={28} />
+              </span>
               <div>
                 <strong>One account. One library.</strong>
                 <p>
