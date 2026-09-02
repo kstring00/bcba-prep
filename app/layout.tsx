@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Parisienne } from "next/font/google";
 import { CartPanel } from "@/components/CartPanel";
 import { Footer } from "@/components/Footer";
+import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CartProvider } from "@/lib/cart-context";
@@ -58,6 +59,7 @@ export default function RootLayout({
           <Footer />
           <CartPanel />
         </CartProvider>
+        <MicrosoftClarity />
       </body>
     </html>
   );
