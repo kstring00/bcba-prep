@@ -1,5 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#0D0B09"/>
-  <text x="16" y="22" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
-        font-size="17" fill="#C9A961" letter-spacing="-1.5">BP</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#F8F3EC"/>
+  <g fill="none" stroke="#A8874A" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M29 23.7c-4.9-8.5-12.9-11.6-17.5-7.5-4.5 4-1.8 12 7.7 16.4" stroke-width="2.8"/>
+    <path d="M35 23.7c4.9-8.5 12.9-11.6 17.5-7.5 4.5 4 1.8 12-7.7 16.4" stroke-width="2.8"/>
+    <path d="M26 25.5c-7.2-2.7-13.4-.8-14.7 4.5-1.2 5.3 4.1 9.5 12.6 9.7M38 25.5c7.2-2.7 13.4-.8 14.7 4.5 1.2 5.3-4.1 9.5-12.6 9.7" stroke-width="2.4"/>
+    <path d="M32 19.4c-6.4 0-10.8 6-9.3 14.4 1.5 9 5.4 15.7 9.3 18.9 3.9-3.2 7.8-9.9 9.3-18.9 1.5-8.4-2.9-14.4-9.3-14.4Z" stroke-width="3"/>
+    <path d="M24.3 30.7h15.4M24.5 37.6h15M26.7 44.3h10.6" stroke-width="2.2"/>
+    <path d="M28.3 20.5c-1.9-4.3-4.6-6.7-7.4-7.2M35.7 20.5c1.9-4.3 4.6-6.7 7.4-7.2" stroke-width="2.2"/>
+  </g>
+  <circle cx="20.4" cy="13.1" r="2" fill="#A8874A"/>
+  <circle cx="43.6" cy="13.1" r="2" fill="#A8874A"/>
+  <circle cx="28.7" cy="25.2" r="1.5" fill="#A8874A"/>
+  <circle cx="35.3" cy="25.2" r="1.5" fill="#A8874A"/>
 </svg>
