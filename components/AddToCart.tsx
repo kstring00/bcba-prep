@@ -79,7 +79,14 @@ export function AddToCart({
     }
 
     const source = sourceRef?.current ?? buttonRef.current;
-    const target = document.querySelector<HTMLElement>("[data-cart-target]");
+    // There are two cart controls in the DOM — one in the fixed rail, one in
+    // the mobile top bar — and exactly one of them is displayed. Take the
+    // first with a real box: a `display: none` element measures 0x0, and
+    // aiming the flight at it would fling the product to the top-left
+    // corner on every phone.
+    const target = [
+      ...document.querySelectorAll<HTMLElement>("[data-cart-target]"),
+    ].find((el) => el.getBoundingClientRect().width > 0);
     if (!source || !target) {
       add(product.id);
       return;

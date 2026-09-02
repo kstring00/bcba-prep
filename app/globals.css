@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------
-   BCBA prep — stack geometry + chrome.
+   BCBA Prep — stack geometry + chrome.
 
    THE 3D MODEL (CSS transforms only; no WebGL, no assets)
 
@@ -23,14 +23,14 @@
         spine normal (0,-1,0)  ->  (0, -cos100, +sin100) ~ (0,+0.17,+0.98)
           the spine faces the viewer, angled very slightly down.
         spine bottom (0,0,+d)  ->  y' = +0.98d
-          the spine reads as a ~63px band below the hinge.
+          the spine reads as a band below the hinge.
         cover bottom (0,H,0)   ->  y' = -0.17H,  z' = -0.98H
           the cover recedes UP and BACK.
 
    That last line is the whole point of going PAST -90deg. At -83deg the
    cover recedes down and back, which is the view from *below* a pile. Past
    -90deg it recedes up and back, so you are looking DOWN on the stack and a
-   sliver of each book's top face is visible above its spine. That top-face
+   lit sliver of each book's top board shows above its spine. That top-face
    visibility is what makes it read as a physical pile rather than a row of
    rectangles.
 
@@ -46,38 +46,76 @@
    --------------------------------------------------------------- */
 
 :root {
-  --bg: #141210;
-  --bg-raised: #1a1815;
-  --ink: #ece5d8;
-  --ink-dim: #8d8579;
-  --ink-faint: #5f594f;
-  --rule: #2b2620;
-  --foil: #c9a961;
+  color-scheme: dark;
 
-  --spine-depth: 64px;
+  --bg: #0d0b09;
+  --bg-raised: #14120f;
+  --bg-sunk: #080706;
+  --ink: #ebe3d4;
+  --ink-dim: #8b8378;
+  --ink-faint: #5c564c;
+  --rule: #241f1a;
+  --rule-strong: #322b23;
+  --foil: #c9a961;
+  --foil-dim: rgba(201, 169, 97, 0.34);
+  --vignette: 0.56;
+  --grain: 0.045;
+
+  --rail-w: 118px;
+  --spine-depth: 84px;
   --book-tilt: -100deg;
   --perspective: 1400px;
+  --stack-gap: 10px;
+  --taper-w: 0px;
+  --jog: 1;
+  --measure: 1560px;
 
-  --stack-gap: 30px;
-  --measure: 1180px;
-  /* Per-step width taper down the pile. Halved on narrow viewports, where a
-     5px step would take a quarter of the width off the bottom book. */
-  --taper-w: 5px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/*
+  Light mode. Every surface colour in the app is a token, so the whole theme
+  is this one block — the cloth colours of the books are deliberately NOT
+  tokens and stay put, the way a real binding does under a different lamp.
+*/
+:root[data-theme="paper"] {
+  color-scheme: light;
+
+  --bg: #f0ebe1;
+  --bg-raised: #e7e1d5;
+  --bg-sunk: #ded7c9;
+  --ink: #23201b;
+  --ink-dim: #61594d;
+  --ink-faint: #8b8275;
+  --rule: #d3cabb;
+  --rule-strong: #bfb5a4;
+  --foil: #8a6d28;
+  --foil-dim: rgba(138, 109, 40, 0.3);
+  --vignette: 0.16;
+  --grain: 0.03;
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --measure: 1100px;
+    --spine-depth: 76px;
+  }
 }
 
 @media (max-width: 900px) {
   :root {
+    --rail-w: 0px;
     --perspective: 900px;
-    --spine-depth: 58px;
-    --stack-gap: 24px;
-    --taper-w: 2.5px;
+    --spine-depth: 68px;
+    --stack-gap: 8px;
+    /* A 40px jog is a tenth of a 380px screen. Rein it in. */
+    --jog: 0.4;
   }
 }
 
 @media (max-width: 480px) {
   :root {
-    --spine-depth: 54px;
-    --stack-gap: 20px;
+    --spine-depth: 60px;
   }
 }
 
@@ -101,17 +139,36 @@ body {
   overflow-x: hidden;
 }
 
-/* A single low-opacity grain plate over the whole page. This is the only
-   texture in the design — solid cloth tones plus grain, never a gradient
-   pretending to be a weave. */
-body::before {
+/*
+  Two full-page plates: grain, then a vignette.
+
+  The vignette is the one gradient in the design, and it is deliberate. It is
+  a lighting device for the whole page — the stack is lit from above and
+  falls off into the corners — not a texture faking cloth on a surface. Book
+  faces stay flat colour.
+*/
+body::before,
+body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 9999;
   pointer-events: none;
-  opacity: 0.05;
+}
+
+body::before {
+  z-index: 9998;
+  opacity: var(--grain);
   background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body::after {
+  z-index: 9997;
+  background: radial-gradient(
+    132% 96% at 52% 44%,
+    transparent 30%,
+    rgba(0, 0, 0, calc(var(--vignette) * 0.42)) 68%,
+    rgba(0, 0, 0, var(--vignette)) 100%
+  );
 }
 
 a {
@@ -127,24 +184,26 @@ button {
   cursor: pointer;
 }
 
-.shell {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: 0 24px 120px;
-}
-
 /* ---------------- type ---------------- */
 
-.serif {
-  font-family: var(--font-serif);
-  font-weight: 400;
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0;
 }
 
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
+.eyebrow--foil {
+  color: var(--foil);
+}
+
+.rule-short {
+  width: 26px;
+  height: 1px;
+  background: var(--rule-strong);
+  margin: 0;
+  border: 0;
 }
 
 .hairline {
@@ -153,73 +212,353 @@ button {
   margin: 0;
 }
 
-.hairline--foil {
-  border-top-color: rgba(201, 169, 97, 0.32);
+/* ---------------- app shell ---------------- */
+
+.app {
+  min-height: 100vh;
 }
 
-/* ---------------- masthead + rails ---------------- */
+.navrail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--rail-w);
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 26px 0 22px;
+  z-index: 120;
+  background: var(--bg);
+}
 
-.masthead {
+.monogram {
+  font-family: var(--font-serif);
+  font-size: 27px;
+  line-height: 1;
+  color: var(--foil);
+  letter-spacing: -0.06em;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.rail-spacer {
+  flex: 1 1 auto;
+}
+
+.rail-dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  margin: 34px 0;
+  list-style: none;
+  padding: 0;
+}
+
+.rail-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  border: 1px solid var(--ink-faint);
+  transition: all 220ms var(--ease);
+}
+
+.rail-dot[data-on="true"] {
+  width: 8px;
+  height: 8px;
+  border-color: var(--foil);
+  background: var(--foil-dim);
+}
+
+.rail-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rail-links a,
+.rail-links button {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 160ms var(--ease);
+}
+
+.rail-links a:hover,
+.rail-links button:hover {
+  color: var(--foil);
+}
+
+.rail-count {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--foil);
+  color: var(--bg-sunk);
+  font-size: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.rail-toggle {
+  margin-top: 22px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-faint);
+  transition: color 160ms var(--ease);
+}
+
+.rail-toggle:hover {
+  color: var(--foil);
+}
+
+/* Mobile: the rail becomes a top bar. */
+.railbar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .navrail {
+    display: none;
+  }
+
+  .railbar {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .railbar nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.main {
+  margin-left: var(--rail-w);
+}
+
+.shell {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 clamp(20px, 3.4vw, 54px) 110px;
+}
+
+/* ---------------- hero ---------------- */
+
+.hero {
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: start;
-  gap: 24px;
-  padding: 44px 0 30px;
+  grid-template-columns:
+    minmax(210px, 300px)
+    minmax(0, 1fr)
+    minmax(190px, 268px);
+  grid-template-rows: auto 1fr;
+  gap: clamp(24px, 3.6vw, 66px);
+  padding-top: 44px;
+  min-height: calc(100vh - 44px);
+}
+
+.hero-intro {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+/* Sits at the foot of the left column, as a colophon does. */
+.hero-badge {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  padding-bottom: 34px;
+  min-width: 0;
+}
+
+.hero-stack {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  min-width: 0;
+}
+
+.hero-note {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  text-align: right;
+  min-width: 0;
+}
+
+/* The lower note sits against the middle of the pile, not at its foot. */
+.hero-note > :last-child {
+  margin-top: 45%;
 }
 
 .site-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(24px, 4vw, 32px);
-  letter-spacing: -0.012em;
+  font-size: clamp(34px, 3.4vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.022em;
   margin: 0;
 }
 
-.rails {
-  display: grid;
-  grid-template-columns: minmax(160px, 230px) minmax(0, 1fr) minmax(140px, 200px);
-  gap: 48px;
-  align-items: start;
-  padding-bottom: 40px;
-}
-
-/* The stack column must be allowed to shrink. Its spine labels are
-   white-space: nowrap, so without an explicit zero minimum the column takes
-   its min-content width and blows the right rail off the page. */
-.rails > * {
-  min-width: 0;
-}
-
-.rail {
-  font-size: 13px;
-  line-height: 1.6;
+.site-edition {
+  font-family: var(--font-serif);
+  font-size: 17px;
   color: var(--ink-dim);
-  position: sticky;
-  top: 40px;
+  margin: 8px 0 0;
 }
 
-.rail p {
-  margin: 10px 0 0;
+.lede {
+  margin: 26px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.19em;
+  line-height: 1.9;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
-.rail--right {
-  text-align: right;
+.lede-body {
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--ink-dim);
 }
 
-/* Above the stack on mobile, not beside it. */
+.explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 26px;
+  font-size: 10px;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--foil);
+  min-height: 44px;
+}
+
+.explore:hover {
+  color: var(--ink);
+}
+
+/* 6E badge card */
+
+.badge-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.badge-shield {
+  width: 46px;
+  height: 54px;
+  flex: 0 0 auto;
+  border: 1px solid var(--foil-dim);
+  border-radius: 3px 3px 22px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--foil);
+}
+
+.badge-title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+
+.badge-body {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
+.rail-note {
+  font-size: 11px;
+  letter-spacing: 0.19em;
+  line-height: 1.95;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0;
+}
+
+.rail-sub {
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
 @media (max-width: 900px) {
-  .rails {
-    grid-template-columns: 1fr;
-    gap: 22px;
+  /*
+    One column, and the pile comes second — ahead of the colophon and the
+    side notes. Most arrivals are from a TikTok in-app browser, so the thing
+    being sold should not sit under a screen and a half of front matter.
+  */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-top: 24px;
+    min-height: 0;
   }
 
-  .rail {
-    position: static;
-    top: auto;
+  .hero-intro {
+    order: 1;
   }
 
-  .rail--right {
+  .hero-stack {
+    order: 2;
+  }
+
+  .hero-badge {
+    order: 3;
+    padding-bottom: 0;
+  }
+
+  .hero-note {
+    order: 4;
     text-align: left;
+  }
+
+  .hero-note > :last-child {
+    margin-top: 22px;
+  }
+
+  .hero-note .rule-short {
+    margin-left: 0 !important;
+  }
+
+  .lede {
+    margin-top: 22px;
   }
 }
 
@@ -233,34 +572,47 @@ button {
 
 .stack-item {
   margin-bottom: var(--stack-gap);
-  /* The book above must paint over the receding top face of the book below,
-     the way a real pile occludes itself. Set per item in JS, descending. */
   position: relative;
 }
 
 .stack-row {
-  /* --i is the book's index in the pile, set inline. */
-  width: calc(100% - var(--i, 0) * var(--taper-w) * 2);
+  /* --i is the book's index in the pile; --dx its horizontal jog and --dw
+     its width jog, so the pile sits like a hand-stacked one rather than a
+     ruler-aligned one. Both come from a fixed table set inline, not from
+     random, so the layout is identical on server and client.
+
+     The jog is SUBTRACTED from the width as well as added to the margin.
+     Without that a jogged book overhangs the container, and because the
+     body clips overflow-x the bleed is invisible to a scroll-width check
+     while being perfectly visible on a phone. */
+  width: calc(
+    100% - var(--i, 0) * var(--taper-w) * 2 - var(--dx, 0px) * var(--jog) -
+      var(--dw, 0px) * var(--jog)
+  );
+  margin-left: calc(var(--dx, 0px) * var(--jog));
   position: relative;
   height: var(--spine-depth);
   perspective: var(--perspective);
   perspective-origin: 50% 0%;
-  margin: 0 auto;
 }
 
-/* The one permitted shadow: soft contact, cast onto the book beneath. */
+/* The one contact shadow, cast onto the book beneath. */
 .stack-row::after {
   content: "";
   position: absolute;
-  left: 4%;
-  right: 4%;
-  top: calc(var(--spine-depth) - 6px);
-  height: 12px;
-  background: rgba(0, 0, 0, 0.42);
-  filter: blur(9px);
+  left: 2%;
+  right: 2%;
+  top: calc(var(--spine-depth) - 8px);
+  height: 16px;
+  background: rgba(0, 0, 0, 0.62);
+  filter: blur(10px);
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
+}
+
+:root[data-theme="paper"] .stack-row::after {
+  background: rgba(60, 48, 32, 0.34);
 }
 
 .book-box {
@@ -297,52 +649,140 @@ button {
   transform: rotateX(90deg);
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 0 22px;
+  gap: 20px;
+  padding: 0 26px 0 0;
   border-radius: 1px 1px 0 0;
-  /* Thin lit edge along the head of the spine, and shade at the tail.
-     Reads as a bound edge catching the light — not a gradient. */
+  /* Lit head, shaded tail. A bound edge catching light — not a gradient. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
 }
 
-.spine-letter {
-  font-family: var(--font-serif);
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  opacity: 0.75;
+/* The blind-stamped rule inboard of the spine edge. */
+.spine-rule {
   flex: 0 0 auto;
-  width: 1.4em;
+  width: 1px;
+  align-self: stretch;
+  margin: 15px 0 15px 22px;
+  background: currentColor;
+  opacity: 0.5;
 }
 
-.spine-label {
+.spine-text {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding-left: 20px;
+  /* The eyebrow sits ABOVE the name. These are spans, so without this they
+     run together on one line. */
+  display: flex;
+  flex-direction: column;
+}
+
+.spine-eyebrow {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.78;
+  margin: 0 0 5px;
+  white-space: nowrap;
+}
+
+.spine-name {
+  display: block;
   font-family: var(--font-serif);
-  font-size: clamp(16px, 2.4vw, 20px);
-  letter-spacing: 0.005em;
-  flex: 1 1 auto;
+  font-size: clamp(17px, 1.65vw, 25px);
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.spine-weight {
-  flex: 0 0 auto;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  opacity: 0.66;
-  font-variant-numeric: tabular-nums;
+.spine-motif {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  opacity: 0.42;
 }
 
-@media (max-width: 480px) {
-  /* Letter and short label only. */
-  .spine-weight {
+.spine-motif svg {
+  width: min(220px, 100%);
+  height: 46px;
+}
+
+.spine-edition {
+  flex: 0 0 auto;
+  text-align: right;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+/* The board on top of the pile is the one you read the edition off. */
+.spine-edition[data-lead="true"] {
+  font-size: 25px;
+  line-height: 1;
+  opacity: 1;
+}
+
+.spine-edition small {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  line-height: 1.4;
+  margin-top: 3px;
+  opacity: 0.72;
+}
+
+/* The exam weight rides under the edition mark, quiet. */
+.spine-weight {
+  flex: 0 0 auto;
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .spine-motif {
     display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .spine-rule {
+    margin-left: 16px;
+  }
+
+  .spine-text {
+    padding-left: 15px;
   }
 
   .face--spine {
-    padding: 0 16px;
     gap: 12px;
+    padding-right: 18px;
+  }
+
+  /* Let the name take the room the motif gave up. */
+  .spine-name {
+    font-size: clamp(16px, 4.6vw, 21px);
+  }
+
+  .spine-text {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .spine-weight,
+  .spine-edition small {
+    display: none;
   }
 }
 
@@ -350,30 +790,26 @@ button {
 
 .detail {
   display: grid;
-  grid-template-columns: minmax(280px, 42%) 1fr;
-  gap: 64px;
+  grid-template-columns: minmax(280px, 44%) minmax(0, 1fr);
+  gap: clamp(30px, 5vw, 76px);
   align-items: start;
-  padding-top: 12px;
+  /* Room for the board edge, which stands proud of the cover's top. */
+  padding-top: 72px;
 }
 
 @media (max-width: 900px) {
   .detail {
     grid-template-columns: 1fr;
-    gap: 36px;
+    gap: 34px;
+    padding-top: 44px;
   }
 }
 
 .detail-cover-stage {
   position: relative;
-  height: 380px;
+  height: clamp(300px, 42vw, 440px);
   perspective: var(--perspective);
   perspective-origin: 50% 40%;
-}
-
-@media (max-width: 900px) {
-  .detail-cover-stage {
-    height: 300px;
-  }
 }
 
 .cover-inner {
@@ -382,57 +818,72 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 28px 26px;
+  padding: 30px 28px;
+}
+
+.cover-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .cover-letter {
-  font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 10px;
   letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.cover-motif {
+  opacity: 0.34;
+  width: 150px;
+}
+
+.cover-motif svg {
+  width: 100%;
+  height: 40px;
 }
 
 .cover-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(20px, 2.6vw, 27px);
-  line-height: 1.18;
+  font-size: clamp(21px, 2.5vw, 30px);
+  line-height: 1.16;
   margin: 0;
 }
 
 .cover-band {
   border-top: 1px solid currentColor;
-  opacity: 0.45;
-  padding-top: 10px;
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  opacity: 0.66;
+  padding-top: 11px;
+  margin-top: 13px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.detail-body {
-  padding-top: 6px;
-}
-
 .detail-letter {
-  font-family: var(--font-serif);
-  font-size: 12px;
+  font-size: 10px;
   letter-spacing: 0.24em;
+  text-transform: uppercase;
   color: var(--foil);
 }
 
 .detail-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(28px, 4.4vw, 42px);
-  line-height: 1.12;
-  letter-spacing: -0.015em;
-  margin: 14px 0 22px;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 16px 0 24px;
 }
 
 .weight-line {
   font-size: 14px;
   line-height: 1.65;
   color: var(--ink-dim);
-  margin: 0 0 30px;
+  margin: 0 0 32px;
 }
 
 .weight-line strong {
@@ -444,8 +895,8 @@ button {
 .contents-slot {
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
-  padding: 24px 0;
-  margin-bottom: 30px;
+  padding: 26px 0;
+  margin-bottom: 32px;
   color: var(--ink-dim);
   font-size: 14px;
   line-height: 1.7;
@@ -454,7 +905,7 @@ button {
 .buy-row {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
   flex-wrap: wrap;
 }
 
@@ -467,33 +918,41 @@ button {
 
 .price--todo {
   color: var(--ink-faint);
-  font-size: 15px;
+  font-size: 14px;
 }
+
+/* ---------------- controls ---------------- */
 
 .btn {
   min-height: 46px;
-  padding: 12px 26px;
-  border: 1px solid var(--foil);
+  padding: 13px 26px;
+  border: 1px solid var(--foil-dim);
   color: var(--foil);
   border-radius: 1px;
-  font-size: 13px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: 0.19em;
   text-transform: uppercase;
-  transition: background-color 160ms ease, color 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 170ms var(--ease), color 170ms var(--ease),
+    border-color 170ms var(--ease);
 }
 
 .btn:hover {
+  border-color: var(--foil);
   background: var(--foil);
-  color: #17140f;
+  color: var(--bg-sunk);
 }
 
 .btn--solid {
   background: var(--foil);
-  color: #17140f;
+  border-color: var(--foil);
+  color: var(--bg-sunk);
 }
 
 .btn--solid:hover {
-  background: #d8b970;
+  filter: brightness(1.1);
 }
 
 .btn:disabled {
@@ -502,10 +961,11 @@ button {
 }
 
 .btn--quiet {
-  border-color: var(--rule);
+  border-color: var(--rule-strong);
   color: var(--ink-dim);
   text-transform: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  font-size: 12px;
 }
 
 .btn--quiet:hover {
@@ -515,9 +975,10 @@ button {
 }
 
 .back-link {
-  display: inline-block;
-  margin-top: 52px;
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 50px;
+  font-size: 12px;
   color: var(--ink-dim);
   border-bottom: 1px solid var(--rule);
   padding-bottom: 3px;
@@ -529,21 +990,21 @@ button {
   border-bottom-color: var(--foil);
 }
 
-/* ---------------- bundle card ---------------- */
+/* ---------------- bundle ---------------- */
 
 .bundle {
-  margin: 46px 0 8px;
+  margin: 64px 0 0;
   border: 1px solid var(--rule);
   border-radius: 1px;
-  padding: 30px 28px;
+  padding: 32px clamp(20px, 2.4vw, 34px);
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 26px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
   align-items: center;
   background: var(--bg-raised);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
   .bundle {
     grid-template-columns: 1fr;
   }
@@ -551,81 +1012,26 @@ button {
 
 .bundle-title {
   font-family: var(--font-serif);
-  font-size: clamp(20px, 3vw, 26px);
-  margin: 8px 0 8px;
+  font-weight: 400;
+  font-size: clamp(21px, 2.6vw, 28px);
+  margin: 10px 0 10px;
 }
 
 .bundle-note {
   margin: 0;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--ink-dim);
-  max-width: 46ch;
+  max-width: 48ch;
+  overflow-wrap: anywhere;
 }
 
 /* ---------------- cart ---------------- */
 
-/* In normal flow inside the header, NOT position:fixed. A fixed element
-   inside any 3D-transformed ancestor gets that ancestor as its containing
-   block and stops tracking the viewport. The header sits outside the stack's
-   transformed subtree and is sticky instead. */
-.cart-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 10px 16px;
-  border: 1px solid var(--rule);
-  border-radius: 1px;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-}
-
-.cart-button:hover {
-  color: var(--ink);
-  border-color: var(--ink-faint);
-}
-
-.cart-badge {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--foil);
-  color: #17140f;
-  font-size: 11px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.cart-ring {
-  position: absolute;
-  inset: -6px;
-  border: 1px solid var(--foil);
-  border-radius: 3px;
-  pointer-events: none;
-}
-
-.sticky-bar {
-  position: sticky;
-  top: 0;
-  z-index: 60;
-  background: var(--bg);
-  display: flex;
-  justify-content: flex-end;
-  padding: 14px 0 10px;
-}
-
 .scrim {
   position: fixed;
   inset: 0;
-  background: rgba(8, 7, 6, 0.6);
+  background: rgba(6, 5, 4, 0.66);
   z-index: 200;
 }
 
@@ -634,20 +1040,20 @@ button {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(420px, 100vw);
+  width: min(430px, 100vw);
   background: var(--bg-raised);
   border-left: 1px solid var(--rule);
   z-index: 201;
   display: flex;
   flex-direction: column;
-  padding: 26px 24px;
+  padding: 28px 26px;
 }
 
 .cart-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .cart-lines {
@@ -667,9 +1073,6 @@ button {
   align-items: center;
 }
 
-/* Product names are long, and while they are [[TODO_]] tokens they have no
-   spaces at all. Without this the text column takes its min-content width
-   and pushes the quantity control off the edge of the panel. */
 .cart-line > div:first-child {
   min-width: 0;
 }
@@ -681,17 +1084,15 @@ button {
   overflow-wrap: anywhere;
 }
 
-.cart-line-kind {
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--foil);
+.cart-line-price {
+  font-size: 12.5px;
+  color: var(--ink-faint);
 }
 
 .qty {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule-strong);
   border-radius: 1px;
 }
 
@@ -702,7 +1103,7 @@ button {
 }
 
 .qty button:hover {
-  color: var(--ink);
+  color: var(--foil);
 }
 
 .qty span {
@@ -719,15 +1120,20 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 18px;
-  font-size: 14px;
+  margin: 18px 0;
 }
 
 .cart-empty {
   color: var(--ink-dim);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.65;
   padding: 40px 0;
+}
+
+.cart-error {
+  color: #d98b6a;
+  font-size: 13px;
+  margin: 0 0 12px;
 }
 
 /* The element that flies from the product into the cart. */
@@ -736,25 +1142,32 @@ button {
   z-index: 190;
   pointer-events: none;
   border-radius: 1px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 /* ---------------- footer + legal ---------------- */
 
 .footer {
   border-top: 1px solid var(--rule);
-  margin-top: 90px;
-  padding-top: 30px;
+  margin-top: 96px;
+  padding-top: 32px;
   font-size: 12px;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--ink-faint);
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
 }
 
 .footer-links {
   display: flex;
-  gap: 22px;
+  gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
 }
 
 .footer-links a {
@@ -762,39 +1175,43 @@ button {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .footer-links a:hover {
-  color: var(--ink);
+  color: var(--foil);
 }
 
 .disclaimer {
-  max-width: 74ch;
+  max-width: 78ch;
   margin: 0 0 10px;
 }
 
 .prose {
   max-width: 68ch;
-  padding-top: 24px;
+  padding-top: 48px;
 }
 
 .prose h1 {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(26px, 4vw, 36px);
-  margin: 0 0 22px;
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.02em;
+  margin: 0 0 24px;
 }
 
 .prose h2 {
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: 19px;
-  margin: 34px 0 10px;
+  margin: 36px 0 10px;
 }
 
 .prose p {
   font-size: 14px;
-  line-height: 1.75;
+  line-height: 1.8;
   color: var(--ink-dim);
   margin: 0 0 14px;
 }
@@ -826,7 +1243,7 @@ button {
 
   .detail-cover-stage {
     height: auto;
-    min-height: 220px;
+    min-height: 260px;
   }
 
   * {

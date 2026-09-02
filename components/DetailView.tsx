@@ -56,7 +56,7 @@ export function DetailView({ domain }: { domain: Domain }) {
             : { duration: 0.36, delay: 0.3, ease: [0.22, 0.61, 0.36, 1] }
         }
       >
-        <span className="detail-letter">{domain.letter}</span>
+        <span className="detail-letter">Domain {domain.letter}</span>
         <h1 className="detail-title">{domain.title}</h1>
 
         <p className="weight-line">

@@ -3,13 +3,16 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="footer">
-      <nav className="footer-links">
-        <Link href="/terms">Terms</Link>
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/refunds">Refunds</Link>
-      </nav>
+      <div className="footer-top">
+        <nav className="footer-links">
+          <Link href="/terms">Terms</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/refunds">Refunds</Link>
+        </nav>
+        <p className="eyebrow">Science. Ethics. Impact.</p>
+      </div>
 
-      {/* Non-affiliation. Must stay above the fold of the footer, not buried. */}
+      {/* Non-affiliation. Stays at the top of the footer body, not buried. */}
       <p className="disclaimer">[[TODO_DISCLAIMER]]</p>
 
       <p className="disclaimer">

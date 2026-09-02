@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -22,8 +23,15 @@ type CartValue = {
   clear: () => void;
   open: boolean;
   setOpen: (open: boolean) => void;
-  /** Set by the flight animation so the cart button can react to impact. */
-  registerImpact: (fn: (velocity: number) => void) => void;
+  /**
+   * Subscribe a cart control to flight impacts. Returns an unsubscribe.
+   *
+   * This is a SET, not a single slot. Two cart controls are mounted at once
+   * — one in the fixed rail, one in the mobile top bar — and only one of
+   * them is displayed at any width. A single-slot registry silently hands
+   * the knock to whichever mounted last, which is the hidden one.
+   */
+  registerImpact: (fn: (velocity: number) => void) => () => void;
   impact: (velocity: number) => void;
 };
 
@@ -36,9 +44,7 @@ const CartContext = createContext<CartValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [open, setOpen] = useState(false);
-  const [impactFn, setImpactFn] = useState<{ current: (v: number) => void }>({
-    current: () => {},
-  });
+  const impactListeners = useRef(new Set<(velocity: number) => void>());
 
   const add = useCallback((productId: string) => {
     setLines((prev) => {
@@ -67,13 +73,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clear = useCallback(() => setLines([]), []);
 
   const registerImpact = useCallback((fn: (velocity: number) => void) => {
-    setImpactFn({ current: fn });
+    const listeners = impactListeners.current;
+    listeners.add(fn);
+    return () => {
+      listeners.delete(fn);
+    };
   }, []);
 
-  const impact = useCallback(
-    (velocity: number) => impactFn.current(velocity),
-    [impactFn],
-  );
+  const impact = useCallback((velocity: number) => {
+    for (const listener of impactListeners.current) listener(velocity);
+  }, []);
 
   const count = lines.reduce((sum, l) => sum + l.quantity, 0);
 

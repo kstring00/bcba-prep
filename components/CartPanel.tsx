@@ -62,7 +62,7 @@ export function CartPanel() {
             aria-label="Cart"
           >
             <div className="cart-head">
-              <p className="eyebrow">Cart</p>
+              <p className="eyebrow eyebrow--foil">Cart</p>
               <button
                 type="button"
                 className="btn btn--quiet"
@@ -90,7 +90,7 @@ export function CartPanel() {
                           <span className="cart-line-kind">Complete set</span>
                         ) : null}
                         <p className="cart-line-name">{product.name}</p>
-                        <span style={{ color: "var(--ink-faint)", fontSize: 13 }}>
+                        <span className="cart-line-price">
                           {price ?? "Price to be set"}
                         </span>
                       </div>
@@ -122,16 +122,14 @@ export function CartPanel() {
             )}
 
             <div className="cart-foot">
-              <hr className="hairline hairline--foil" />
+              <hr className="hairline" />
               <div className="cart-total">
                 <span className="eyebrow">Subtotal</span>
                 <span className="price">
                   {formatPrice(subtotal) ?? "—"}
                 </span>
               </div>
-              {error ? (
-                <p style={{ color: "#d98b6a", fontSize: 13 }}>{error}</p>
-              ) : null}
+              {error ? <p className="cart-error">{error}</p> : null}
               <button
                 type="button"
                 className="btn btn--solid"

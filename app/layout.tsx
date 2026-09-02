@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Newsreader } from "next/font/google";
-import Link from "next/link";
-import { CartButton } from "@/components/CartButton";
 import { CartPanel } from "@/components/CartPanel";
 import { Footer } from "@/components/Footer";
+import { NavRail } from "@/components/NavRail";
 import { PageTransition } from "@/components/PageTransition";
 import { CartProvider } from "@/lib/cart-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import "./globals.css";
 
 // Self-hosted by next/font at build time: the files are emitted into this
@@ -22,12 +22,12 @@ const SANS_STACK =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 export const metadata: Metadata = {
-  title: "[[TODO_SITE_TITLE]]",
-  description: "[[TODO_SITE_TAGLINE]]",
+  title: "BCBA Prep — Sixth Edition",
+  description: "[[TODO_SITE_META_DESCRIPTION]]",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#141210",
+  themeColor: "#0D0B09",
   width: "device-width",
   initialScale: 1,
   // TikTok's in-app browser will zoom on a mistap; let it.
@@ -42,29 +42,22 @@ export default function RootLayout({
   return (
     <html lang="en" className={newsreader.variable}>
       <body style={{ "--font-sans": SANS_STACK } as React.CSSProperties}>
-        <CartProvider>
-          <div className="shell">
-            {/* Sticky, not fixed. A fixed element inside a 3D-transformed
-                ancestor takes that ancestor as its containing block and stops
-                tracking the viewport; this bar lives outside the stack's
-                transformed subtree either way. */}
-            <div className="sticky-bar">
-              <CartButton />
+        <ThemeProvider>
+          <CartProvider>
+            <div className="app">
+              {/* The rail is fixed but carries no 3D transform, so the cart
+                  button inside it is a valid flight target and stays put. */}
+              <NavRail />
+              <div className="main">
+                <div className="shell">
+                  <PageTransition>{children}</PageTransition>
+                  <Footer />
+                </div>
+              </div>
             </div>
-
-            <header className="masthead">
-              <p className="site-title">
-                <Link href="/">[[TODO_SITE_TITLE]]</Link>
-              </p>
-            </header>
-            <hr className="hairline hairline--foil" />
-
-            <PageTransition>{children}</PageTransition>
-
-            <Footer />
-          </div>
-          <CartPanel />
-        </CartProvider>
+            <CartPanel />
+          </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

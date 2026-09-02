@@ -23,6 +23,23 @@ const FOIL_LIGHT = "#C9A961";
 /** Foil on the two light cloths (bone, stone) — dark ink, not gold. */
 const FOIL_DARK = "#3A3428";
 
+/**
+ * True for the two pale cloths. They need dark stamping and a darker lit
+ * edge, so several places in the UI branch on this rather than re-deriving
+ * it from the hex each time.
+ */
+export function isLightCloth(domain: Domain): boolean {
+  return domain.foil === FOIL_DARK;
+}
+
+/**
+ * The domain name is stamped a shade lighter than the rule and eyebrow, the
+ * way foil catches more light than the blind-stamped lines around it.
+ */
+export function nameColor(domain: Domain): string {
+  return isLightCloth(domain) ? "#2E2A21" : "#E7DEC9";
+}
+
 export const domains: Domain[] = [
   {
     letter: "A",
@@ -31,7 +48,7 @@ export const domains: Domain[] = [
     short: "Foundations",
     questions: 8,
     percent: 5,
-    cloth: "#DED5C4", // bone
+    cloth: "#DCD3BF", // bone
     foil: FOIL_DARK,
   },
   {
@@ -41,7 +58,7 @@ export const domains: Domain[] = [
     short: "Principles",
     questions: 24,
     percent: 14,
-    cloth: "#1E2C44", // navy
+    cloth: "#1E3050", // navy
     foil: FOIL_LIGHT,
   },
   {
@@ -51,7 +68,7 @@ export const domains: Domain[] = [
     short: "Measurement",
     questions: 21,
     percent: 12,
-    cloth: "#2C3823", // forest
+    cloth: "#3A4426", // olive
     foil: FOIL_LIGHT,
   },
   {
@@ -61,7 +78,7 @@ export const domains: Domain[] = [
     short: "Experimental Design",
     questions: 13,
     percent: 7,
-    cloth: "#16171A", // ink
+    cloth: "#141519", // ink
     foil: FOIL_LIGHT,
   },
   {
@@ -71,7 +88,7 @@ export const domains: Domain[] = [
     short: "Ethics",
     questions: 22,
     percent: 13,
-    cloth: "#5A2A1E", // oxblood
+    cloth: "#613321", // oxblood
     foil: FOIL_LIGHT,
   },
   {
@@ -81,7 +98,7 @@ export const domains: Domain[] = [
     short: "Assessment",
     questions: 23,
     percent: 13,
-    cloth: "#B8B2A6", // stone
+    cloth: "#C3BDB1", // stone
     foil: FOIL_DARK,
   },
   {
@@ -91,7 +108,7 @@ export const domains: Domain[] = [
     short: "Behavior Change",
     questions: 25,
     percent: 14,
-    cloth: "#1B3A38", // teal
+    cloth: "#1D3B36", // teal
     foil: FOIL_LIGHT,
   },
   {
@@ -101,7 +118,7 @@ export const domains: Domain[] = [
     short: "Interventions",
     questions: 20,
     percent: 11,
-    cloth: "#3B1F35", // plum
+    cloth: "#43213C", // plum
     foil: FOIL_LIGHT,
   },
   {
@@ -111,7 +128,7 @@ export const domains: Domain[] = [
     short: "Supervision",
     questions: 19,
     percent: 11,
-    cloth: "#22242A", // charcoal
+    cloth: "#292B31", // charcoal
     foil: FOIL_LIGHT,
   },
 ];

@@ -3,6 +3,8 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import type { Domain } from "@/lib/domains";
+import { nameColor } from "@/lib/domains";
+import { Motif } from "./Motifs";
 import {
   BOOK_TILT,
   BOOK_TRANSITION,
@@ -23,7 +25,7 @@ type Props = {
    * one object folding open between routes.
    */
   variant: "stack" | "cover";
-  /** Position in the pile. Drives the taper. */
+  /** Position in the pile. Drives the taper and the edition mark. */
   index?: number;
 };
 
@@ -32,6 +34,7 @@ export function Book({ domain, variant, index = 0 }: Props) {
   const compact = useCompactViewport();
   const rowRef = useRef<HTMLDivElement>(null);
   const isCover = variant === "cover";
+  const ink = nameColor(domain);
 
   // Progress as this book crosses the viewport: 0 entering at the bottom,
   // 1 leaving at the top.
@@ -57,7 +60,6 @@ export function Book({ domain, variant, index = 0 }: Props) {
     [taperZ, taperZ + SCROLL_Z_LIFT],
   );
 
-  // Reduced motion, or the detail page: no scroll coupling at all.
   const stackStyle =
     reduceMotion || isCover
       ? { rotateX: reduceMotion ? 0 : BOOK_TILT, z: taperZ }
@@ -93,26 +95,30 @@ export function Book({ domain, variant, index = 0 }: Props) {
         style={isCover ? undefined : stackStyle}
         transition={reduceMotion ? { duration: 0 } : BOOK_TRANSITION}
       >
-        {/* Cover face: full size of the book, at the front. */}
+        {/*
+          Cover face: full size of the book, at the front.
+
+          In the pile this is the top board, lit from above, so it sits a
+          shade BRIGHTER than the spine rather than in shade. Opened flat on
+          the detail page it is the front cover at full strength.
+        */}
         <motion.div
           className="face face--cover"
           style={{ background: domain.cloth, color: domain.foil }}
-          // In the pile the cover is the receding top face of the book, so it
-          // sits in shade. Opened, it is lit fully.
           initial={
             isCover && !reduceMotion
-              ? { opacity: 0, filter: "brightness(0.62)" }
+              ? { opacity: 0, filter: "brightness(1.14)" }
               : false
           }
-          animate={{ opacity: 1, filter: `brightness(${isCover ? 1 : 0.62})` }}
+          animate={{ opacity: 1, filter: `brightness(${isCover ? 1 : 1.14})` }}
           transition={
             reduceMotion ? { duration: 0 } : { ...BOOK_TRANSITION, duration: 0.34 }
           }
         >
           {isCover ? (
             // `layout` here is scale correction, not motion: the parent box
-            // animates from a 64px spine to a full cover, and without an
-            // inverse transform this text stretches for the whole flight.
+            // animates from a spine-sized band to a full cover, and without
+            // an inverse transform this text stretches for the whole flight.
             <motion.div
               layout
               className="cover-inner"
@@ -124,11 +130,19 @@ export function Book({ domain, variant, index = 0 }: Props) {
                   : { ...BOOK_TRANSITION, opacity: { duration: 0.3, delay: 0.24 } }
               }
             >
-              <span className="cover-letter">{domain.letter}</span>
+              <div className="cover-head">
+                <span className="cover-letter">Domain {domain.letter}</span>
+                <span className="cover-motif">
+                  <Motif slug={domain.slug} />
+                </span>
+              </div>
               <div>
-                <h2 className="cover-title">{domain.title}</h2>
+                <h2 className="cover-title" style={{ color: ink }}>
+                  {domain.title}
+                </h2>
                 <div className="cover-band">
-                  {domain.questions} questions &middot; {domain.percent}%
+                  {domain.questions} questions &middot; {domain.percent}% of the
+                  exam
                 </div>
               </div>
             </motion.div>
@@ -141,26 +155,40 @@ export function Book({ domain, variant, index = 0 }: Props) {
           It stays visible on the detail page rather than fading out. Once the
           book has folded open the same face is seen almost edge-on and reads
           as the board thickness along the head of the book — without it the
-          three-quarter cover is a flat parallelogram. Only its text is
-          dropped; a 7px band cannot carry type.
+          three-quarter cover is a flat parallelogram. Only its contents are
+          dropped; a few pixels of band cannot carry type.
         */}
         <motion.div
           className="face face--spine"
           style={{ background: domain.cloth, color: domain.foil }}
-          animate={{
-            opacity: 1,
-            filter: `brightness(${isCover ? 1.14 : 1})`,
-          }}
+          animate={{ opacity: 1, filter: `brightness(${isCover ? 1.16 : 1})` }}
           transition={
             reduceMotion ? { duration: 0 } : { duration: 0.26, ease: "linear" }
           }
         >
           {!isCover ? (
             <>
-              <span className="spine-letter">{domain.letter}</span>
-              <span className="spine-label">{domain.short}</span>
+              <span className="spine-rule" aria-hidden="true" />
+              <span className="spine-text">
+                <span className="spine-eyebrow">Domain {domain.letter} &mdash;</span>
+                <span className="spine-name" style={{ color: ink }}>
+                  {domain.short}
+                </span>
+              </span>
+              <span className="spine-motif" aria-hidden="true">
+                <Motif slug={domain.slug} />
+              </span>
               <span className="spine-weight">
                 {domain.questions} &middot; {domain.percent}%
+              </span>
+              {/* The topmost board carries the full edition mark. */}
+              <span
+                className="spine-edition"
+                data-lead={index === 0}
+                aria-hidden="true"
+              >
+                6E
+                {index === 0 ? <small>Sixth Edition</small> : null}
               </span>
             </>
           ) : null}
