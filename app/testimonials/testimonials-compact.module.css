@@ -1,0 +1,87 @@
+.shell {
+  padding-top: clamp(28px, 3.6vw, 48px) !important;
+}
+
+.hero {
+  max-width: 1180px !important;
+  margin: 0 auto;
+}
+
+.title {
+  white-space: nowrap;
+  font-size: clamp(44px, 5.1vw, 70px) !important;
+  line-height: 0.96 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.ornament {
+  margin: 18px auto 12px !important;
+}
+
+.intro {
+  max-width: 68ch !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.leaveNoteCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 18px;
+  padding: 0 22px;
+  border: 1px solid rgba(151, 119, 160, 0.58);
+  border-radius: 999px;
+  color: #876a91;
+  background: rgba(255, 252, 247, 0.68);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px rgba(81, 59, 70, 0.05);
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.leaveNoteCta:hover {
+  transform: translateY(-2px);
+  color: #fff;
+  background: #9677a0;
+}
+
+.wall,
+.emptyWall {
+  margin-top: clamp(28px, 3.3vw, 42px) !important;
+}
+
+.emptyWall {
+  min-height: 330px !important;
+}
+
+@media (max-width: 980px) {
+  .title {
+    white-space: normal;
+    font-size: clamp(42px, 7vw, 62px) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .shell {
+    padding-top: 28px !important;
+  }
+
+  .title {
+    font-size: clamp(38px, 11vw, 52px) !important;
+    line-height: 1 !important;
+  }
+
+  .intro {
+    font-size: 13px !important;
+  }
+
+  .wall,
+  .emptyWall {
+    margin-top: 26px !important;
+  }
+}
