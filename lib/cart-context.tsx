@@ -9,28 +9,22 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getProduct, type Product } from "./products";
+import { BUNDLE_ID, getLicensePricing, getProduct } from "./products";
 
-export type CartLine = { productId: string; quantity: number };
+export type CartLine = { productId: string; quantity: 1 };
 
 type CartValue = {
   lines: CartLine[];
   count: number;
-  subtotal: number | null;
+  subtotal: number;
+  regularSubtotal: number;
+  savings: number;
+  pricingLabel: string | null;
   add: (productId: string) => void;
-  setQuantity: (productId: string, quantity: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
   open: boolean;
   setOpen: (open: boolean) => void;
-  /**
-   * Subscribe a cart control to flight impacts. Returns an unsubscribe.
-   *
-   * This is a SET, not a single slot. Two cart controls are mounted at once
-   * — one in the fixed rail, one in the mobile top bar — and only one of
-   * them is displayed at any width. A single-slot registry silently hands
-   * the knock to whichever mounted last, which is the hidden one.
-   */
   registerImpact: (fn: (velocity: number) => void) => () => void;
   impact: (velocity: number) => void;
 };
@@ -38,8 +32,9 @@ type CartValue = {
 const CartContext = createContext<CartValue | null>(null);
 
 /**
- * In-memory only, for the length of the session. No localStorage or
- * sessionStorage anywhere — a reload starts an empty cart, by design.
+ * The cart holds unique personal-use licenses, not quantities of files.
+ * A domain can appear once. Adding the complete-library license replaces
+ * individual domains; adding an individual domain removes the complete set.
  */
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -48,26 +43,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback((productId: string) => {
     setLines((prev) => {
-      const existing = prev.find((l) => l.productId === productId);
-      if (existing) {
-        return prev.map((l) =>
-          l.productId === productId ? { ...l, quantity: l.quantity + 1 } : l,
-        );
+      const product = getProduct(productId);
+      if (!product) return prev;
+
+      if (productId === BUNDLE_ID) {
+        return [{ productId: BUNDLE_ID, quantity: 1 }];
       }
-      return [...prev, { productId, quantity: 1 }];
+
+      const withoutBundle = prev.filter((line) => line.productId !== BUNDLE_ID);
+      if (withoutBundle.some((line) => line.productId === productId)) {
+        return withoutBundle;
+      }
+
+      return [...withoutBundle, { productId, quantity: 1 }];
     });
   }, []);
 
-  const setQuantity = useCallback((productId: string, quantity: number) => {
-    setLines((prev) =>
-      quantity <= 0
-        ? prev.filter((l) => l.productId !== productId)
-        : prev.map((l) => (l.productId === productId ? { ...l, quantity } : l)),
-    );
-  }, []);
-
   const remove = useCallback((productId: string) => {
-    setLines((prev) => prev.filter((l) => l.productId !== productId));
+    setLines((prev) => prev.filter((line) => line.productId !== productId));
   }, []);
 
   const clear = useCallback(() => setLines([]), []);
@@ -84,27 +77,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     for (const listener of impactListeners.current) listener(velocity);
   }, []);
 
-  const count = lines.reduce((sum, l) => sum + l.quantity, 0);
-
-  // Null until every line has a real price. Prices are placeholders today, so
-  // the UI must render "—" rather than a wrong number.
-  const subtotal = useMemo(() => {
-    let total = 0;
-    for (const line of lines) {
-      const product: Product | undefined = getProduct(line.productId);
-      if (!product || product.price === null) return null;
-      total += product.price * line.quantity;
-    }
-    return total;
-  }, [lines]);
+  const pricing = useMemo(
+    () => getLicensePricing(lines.map((line) => line.productId)),
+    [lines],
+  );
 
   const value = useMemo(
     () => ({
       lines,
-      count,
-      subtotal,
+      count: pricing.entitlementSlugs.length,
+      subtotal: pricing.total,
+      regularSubtotal: pricing.regularTotal,
+      savings: pricing.savings,
+      pricingLabel: pricing.label,
       add,
-      setQuantity,
       remove,
       clear,
       open,
@@ -114,10 +100,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }),
     [
       lines,
-      count,
-      subtotal,
+      pricing,
       add,
-      setQuantity,
       remove,
       clear,
       open,
