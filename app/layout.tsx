@@ -29,7 +29,7 @@ const SANS_STACK =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 export const metadata: Metadata = {
-  title: "BCBA Prep by Bryana Utley",
+  title: "BCBA Prep by Bee the Behavior Bae",
   description: "[[TODO_SITE_META_DESCRIPTION]]",
 };
 
