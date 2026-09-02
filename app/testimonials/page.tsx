@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BeeMark } from "@/components/BeeMark";
 import { TestimonialForm } from "./TestimonialForm";
 import styles from "./testimonials.module.css";
+import compact from "./testimonials-compact.module.css";
 
 const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL ??
@@ -67,23 +68,25 @@ export default async function TestimonialsPage() {
       <div className={styles.floralLeft} aria-hidden="true" />
       <div className={styles.floralRight} aria-hidden="true" />
 
-      <div className={styles.shell}>
-        <header className={styles.hero}>
-          <p className={styles.script}>Kind Words</p>
-          <h1>What Students Are Saying</h1>
-          <div className={styles.ornament} aria-hidden="true">
+      <div className={`${styles.shell} ${compact.shell}`}>
+        <header className={`${styles.hero} ${compact.hero}`}>
+          <h1 className={compact.title}>What Students Are Saying</h1>
+          <div className={`${styles.ornament} ${compact.ornament}`} aria-hidden="true">
             <span />
             <BeeMark size={28} />
             <span />
           </div>
-          <p className={styles.intro}>
+          <p className={`${styles.intro} ${compact.intro}`}>
             Notes shared by students who chose to tell Bee what they loved.
             Every testimonial below is reviewed before it is published.
           </p>
+          <a href="#leave-a-note" className={compact.leaveNoteCta}>
+            Leave a Note <span aria-hidden="true">↓</span>
+          </a>
         </header>
 
         {testimonials.length > 0 ? (
-          <div className={styles.wall} aria-label="Approved student testimonials">
+          <div className={`${styles.wall} ${compact.wall}`} aria-label="Approved student testimonials">
             {testimonials.map((testimonial, index) => (
               <article
                 className={`${styles.note} ${noteClasses[index % noteClasses.length]}`}
@@ -99,7 +102,7 @@ export default async function TestimonialsPage() {
             ))}
           </div>
         ) : (
-          <div className={styles.emptyWall}>
+          <div className={`${styles.emptyWall} ${compact.emptyWall}`}>
             <div className={styles.emptyPaper}>
               <span className={styles.pin} aria-hidden="true" />
               <p className={styles.emptyScript}>The wall is ready.</p>
@@ -122,7 +125,7 @@ export default async function TestimonialsPage() {
           <span className={styles.closingLine} aria-hidden="true" />
         </div>
 
-        <section className={styles.submitSection}>
+        <section className={styles.submitSection} id="leave-a-note">
           <div
             className={styles.formCard}
             style={{
