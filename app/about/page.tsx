@@ -5,23 +5,20 @@ import { useState } from "react";
 import { Florals, Ornament } from "@/components/Florals";
 import {
   ArrowRight,
-  Bag,
   BookIcon,
   Brain,
   Chart,
   Envelope,
-  Globe,
   Pencil,
   People,
   Sparkle,
-  Tablet,
   Target,
   Trophy,
 } from "@/components/Icons";
 
 /*
-  Section headings, card blurbs and the five philosophy steps are transcribed
-  from the reference design the owner supplied.
+  Section headings and the five philosophy steps are transcribed/adapted from
+  the reference direction the owner supplied.
 
   Everything that is a CHECKABLE CLAIM about the business or a person is a
   [[TODO_]] token instead — the four stat figures, the personal story, and
@@ -45,33 +42,6 @@ const STATS = [
     icon: <Target />,
     value: "[[TODO_STAT_FRAMEWORK]]",
     label: "Pass-Focused Framework",
-  },
-];
-
-const CARDS = [
-  {
-    icon: <Bag />,
-    title: "Mock Exams",
-    body: "Realistic, high-quality practice exams that mirror the actual BCBA® test experience.",
-    cta: "Explore mocks",
-    href: "/mock-exams",
-    thumb: "[[TODO_IMAGE_MOCK_EXAMS]]",
-  },
-  {
-    icon: <Tablet />,
-    title: "Visual Study Guides",
-    body: "Concise, beautifully designed notes that make complex topics easy to understand.",
-    cta: "View study guides",
-    href: "/study-guides",
-    thumb: "[[TODO_IMAGE_STUDY_GUIDES]]",
-  },
-  {
-    icon: <Globe />,
-    title: "Coaching & Resources",
-    body: "Personalized guidance, study plans, and support to keep you on track and confident.",
-    cta: "Learn more",
-    href: "/resources",
-    thumb: "[[TODO_IMAGE_COACHING]]",
   },
 ];
 
@@ -129,18 +99,18 @@ export default function AboutPage() {
           <div>
             <p className="script">Hi, I&rsquo;m Bryana</p>
             <h1 className="display">
-              Your BCBA Prep
+              BCBA Prep Materials,
               <br />
-              Mentor &amp; Guide
+              Built With Intention
             </h1>
             <Ornament />
             <p className="about-lede">
               I created BCBA Prep by Bryana to help future BCBAs{" "}
               <span className="accent">
-                study smarter, feel prepared, and pass with confidence.
+                study smarter, feel prepared, and walk into exam day with confidence.
               </span>{" "}
-              Everything here is built from real exam expectations&mdash;so you
-              can focus on what truly matters.
+              Each domain brings together the materials I created for that part
+              of the exam, so your studying stays focused in one place.
             </p>
           </div>
 
@@ -169,7 +139,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ---------- resources ---------- */}
+      {/* ---------- the work behind the materials ---------- */}
       <section className="resources bleed">
         <Florals
           variant="corner-right"
@@ -177,32 +147,25 @@ export default function AboutPage() {
         />
         <div className="bleed-inner">
           <div className="section-head">
+            <p className="script">The work behind the materials</p>
             <Ornament />
             <h2 className="display">
-              Premium Resources. <span className="accent">Proven Results.</span>
+              Premium Resources. <span className="accent">Built the Hard Way.</span>
             </h2>
             <Ornament />
           </div>
           <p className="section-sub">
-            High-yield tools and coaching designed to help you master the BACB
-            <sup>&reg;</sup> exam.
+            These materials were not assembled overnight. They are the fruit of
+            long hours spent studying, organizing, writing, revising, and
+            designing until the information felt clear, useful, and worth
+            studying from.
           </p>
-
-          <div className="cards">
-            {CARDS.map((c) => (
-              <article className="card" key={c.title}>
-                <span className="card-badge">{c.icon}</span>
-                <div className="card-thumb">{c.thumb}</div>
-                <div>
-                  <h3>{c.title}</h3>
-                  <p>{c.body}</p>
-                  <Link href={c.href} className="link-arrow">
-                    {c.cta} <ArrowRight />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+          <p className="section-sub">
+            There are no separate mock-exam, study-guide, or coaching products
+            to chase around the site. Choose the domain you need, and your
+            purchase gives you access to the materials Bryana created for that
+            domain&mdash;kept together as one focused body of work.
+          </p>
         </div>
       </section>
 
@@ -288,12 +251,12 @@ export default function AboutPage() {
               <Envelope />
             </span>
             <div>
-              <h2 className="display">Ready to Start Your Journey?</h2>
+              <h2 className="display">Ready to Choose Your Next Domain?</h2>
               <p>
-                Let&rsquo;s build your path to becoming a BCBA&mdash;together.
+                Start with the part of the exam you&rsquo;re ready to work on next.
               </p>
               <Link href="/" className="btn btn--solid">
-                Explore resources <ArrowRight />
+                Explore the domains <ArrowRight />
               </Link>
             </div>
           </div>
