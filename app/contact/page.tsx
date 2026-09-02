@@ -52,31 +52,32 @@ export default function ContactPage() {
           <div className={styles.intro}>
             <p className={styles.eyebrow}>Questions are welcome</p>
             <h1>
-              Get in touch with
-              <span> Bryana.</span>
+              Get in touch with <span>Bryana.</span>
             </h1>
             <p className={styles.lede}>
               Have a question about a domain, what is included, your purchase, or
-              the study materials? Send a note here and it will be saved directly
-              to the BCBA Prep contact inbox for Bryana to review.
+              the study materials? Send a note and Bryana can review it from the
+              BCBA Prep contact inbox.
             </p>
 
-            <div className={styles.noteCard}>
-              <p className={styles.script}>A real person is reading this</p>
-              <h2>What can you ask about?</h2>
-              <ul>
-                <li>What comes with a specific domain</li>
-                <li>Questions before purchasing</li>
-                <li>Access or account questions</li>
-                <li>Feedback about the study materials</li>
-              </ul>
+            <div className={styles.shopPrompt}>
+              <p className={styles.script}>Already know what you need?</p>
+              <h2>You do not need to contact us before purchasing.</h2>
+              <p>
+                Every domain page shows what that purchase is built around. If
+                you are ready to study, go straight to the library and choose
+                your domain.
+              </p>
+              <Link href="/" className={styles.shopLink}>
+                Explore the domains <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
 
           <div className={styles.formCard}>
             <div className={styles.formHead}>
-              <p className={styles.script}>Send Bryana a note</p>
-              <h2>How can I help?</h2>
+              <p className={styles.script}>Still have a question?</p>
+              <h2>Send Bryana a note.</h2>
               <p>Share a little context so she can give you a useful answer.</p>
             </div>
 
@@ -126,7 +127,7 @@ export default function ContactPage() {
                 <span>Your message</span>
                 <textarea
                   name="message"
-                  rows={7}
+                  rows={6}
                   minLength={10}
                   maxLength={5000}
                   placeholder="Tell Bryana what you need help with..."
