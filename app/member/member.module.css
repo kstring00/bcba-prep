@@ -1,0 +1,182 @@
+.page {
+  min-height: calc(100vh - var(--header-h));
+  background:
+    radial-gradient(circle at 84% 10%, rgba(139, 113, 148, 0.1), transparent 28%),
+    var(--cream);
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(30px, 5vw, 64px) var(--pad) clamp(70px, 8vw, 110px);
+}
+
+.topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.back,
+.signOut {
+  color: var(--ink-dim);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.back:hover,
+.signOut:hover {
+  color: var(--mauve-deep);
+}
+
+.hero {
+  max-width: 760px;
+  margin-top: clamp(50px, 8vw, 100px);
+}
+
+.script {
+  margin: 0;
+  color: var(--mauve-light);
+  font-family: var(--font-script);
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1;
+}
+
+.hero h1 {
+  margin: 8px 0 18px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(48px, 6.4vw, 82px);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+}
+
+.hero > p:last-child {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--ink-body);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.libraryCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(22px, 4vw, 46px);
+  align-items: center;
+  margin-top: clamp(42px, 6vw, 72px);
+  padding: clamp(26px, 4vw, 44px);
+  border: 1px solid var(--gold-dim);
+  border-radius: 26px;
+  background: rgba(253, 250, 245, 0.86);
+  box-shadow: 0 24px 70px rgba(45, 31, 40, 0.07);
+}
+
+.monogram {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  color: var(--gold-deep);
+  font-family: var(--font-display);
+  font-size: 38px;
+  background: rgba(248, 243, 236, 0.8);
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: var(--gold-deep);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.libraryCard h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.5vw, 42px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.libraryCard p:not(.eyebrow) {
+  max-width: 58ch;
+  margin: 10px 0 0;
+  color: var(--ink-dim);
+  line-height: 1.65;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--mauve-light);
+  border-radius: 999px;
+  color: var(--mauve-deep);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 180ms var(--ease), color 180ms var(--ease), transform 180ms var(--ease);
+}
+
+.cta:hover {
+  color: #fff;
+  background: var(--mauve-deep);
+  transform: translateY(-2px);
+}
+
+.note {
+  max-width: 76ch;
+  margin: 26px 0 0;
+  color: var(--ink-faint);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - var(--header-h));
+  color: var(--mauve-deep);
+  font-family: var(--font-display);
+  font-size: 28px;
+}
+
+@media (max-width: 820px) {
+  .libraryCard {
+    grid-template-columns: auto 1fr;
+  }
+
+  .cta {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .libraryCard {
+    grid-template-columns: 1fr;
+  }
+
+  .monogram {
+    width: 58px;
+    height: 58px;
+    font-size: 31px;
+  }
+
+  .hero h1 {
+    font-size: clamp(43px, 14vw, 60px);
+  }
+}
