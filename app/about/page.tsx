@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { Florals, Ornament } from "@/components/Florals";
 import {
   ArrowRight,
@@ -21,9 +20,8 @@ import {
   the reference direction the owner supplied.
 
   Everything that is a CHECKABLE CLAIM about the business or a person is a
-  [[TODO_]] token instead — the four stat figures, the personal story, and
-  the testimonials. Those are Bee's to write; inventing a number or putting
-  words in a named reviewer's mouth is not a design decision.
+  [[TODO_]] token instead — the four stat figures and the personal story are
+  Bee's to write; inventing a number or personal claim is not a design decision.
 */
 
 const STATS = [
@@ -73,21 +71,7 @@ const STEPS = [
   },
 ];
 
-const TESTIMONIALS = [
-  "[[TODO_TESTIMONIAL_1]]",
-  "[[TODO_TESTIMONIAL_2]]",
-  "[[TODO_TESTIMONIAL_3]]",
-];
-
-const ATTRIBUTIONS = [
-  "[[TODO_TESTIMONIAL_1_NAME]]",
-  "[[TODO_TESTIMONIAL_2_NAME]]",
-  "[[TODO_TESTIMONIAL_3_NAME]]",
-];
-
 export default function AboutPage() {
-  const [quote, setQuote] = useState(0);
-
   return (
     <>
       {/* ---------- hero ---------- */}
@@ -213,39 +197,21 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ---------- testimonial + CTA ---------- */}
+      {/* ---------- CTA ---------- */}
       <section className="closing bleed">
         <Florals
           variant="corner-right"
           className="floral floral--corner-right"
         />
         <div className="closing-inner">
-          <figure className="quote">
-            <span className="quote-mark" aria-hidden="true">
-              &ldquo;
-            </span>
-            <div>
-              <p>{TESTIMONIALS[quote]}</p>
-              <cite>&mdash; {ATTRIBUTIONS[quote]}</cite>
-              <div className="dots" role="tablist" aria-label="Testimonials">
-                {TESTIMONIALS.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    role="tab"
-                    className="dot"
-                    aria-current={i === quote}
-                    aria-label={`Testimonial ${i + 1}`}
-                    onClick={() => setQuote(i)}
-                  />
-                ))}
-              </div>
-            </div>
-          </figure>
-
-          <div className="closing-rule" aria-hidden="true" />
-
-          <div className="cta">
+          <div
+            className="cta"
+            style={{
+              gridColumn: "1 / -1",
+              width: "min(720px, 100%)",
+              justifySelf: "center",
+            }}
+          >
             <span className="cta-icon" aria-hidden="true">
               <Envelope />
             </span>
