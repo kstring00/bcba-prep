@@ -11,6 +11,7 @@ import brandStyles from "./Brand.module.css";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
+  { href: "/testimonials", label: "Testimonials" },
   { href: "/contact", label: "Contact" },
 ];
 
