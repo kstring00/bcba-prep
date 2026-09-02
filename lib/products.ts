@@ -3,13 +3,17 @@ import { domains } from "./domains";
 /**
  * Sellable items.
  *
- * THIS FILE IS THE SERVER-SIDE SOURCE OF TRUTH FOR PRICING.
+ * THIS FILE IS THE SERVER-SIDE SOURCE OF TRUTH FOR PRICING AND ACCESS GRANTS.
  *
  * `app/api/checkout/route.ts` resolves every cart line back to an entry here
  * and sends only the `priceId` to Stripe. Nothing a client posts about money
- * is ever trusted — the client sends product ids and quantities, nothing more.
+ * or access is trusted — the client sends product ids and quantities only.
  * `price` below exists to render a number in the UI; it is never used to
  * charge anyone.
+ *
+ * Products grant DOMAIN ENTITLEMENTS, not downloadable files. Every resource,
+ * mock exam, study guide, quiz, chart, and future material for a purchased
+ * domain lives behind that domain entitlement in the member library.
  */
 export type Product = {
   id: string;
@@ -19,13 +23,10 @@ export type Product = {
   priceId: string;
   /** Display amount in cents (USD). Never sent to Stripe. */
   price: number | null;
-  /** Set on single-domain modules; absent on the bundle. */
+  /** Set on single-domain modules; absent on bundles. */
   domainSlug?: string;
-  /**
-   * The bundle is a first-class product, not an upsell: it is the
-   * most-requested item and gets its own card in the stack and its own
-   * treatment in the cart.
-   */
+  /** Domains unlocked when payment for this product is fulfilled. */
+  entitlementSlugs: string[];
   kind: "module" | "bundle";
 };
 
@@ -42,6 +43,7 @@ const modules: Product[] = domains.map((domain) => ({
   priceId: `[[TODO_PRODUCT_${domain.letter}_PRICE_ID]]`,
   price: null, // [[TODO_PRODUCT_MODULE_PRICE]] — amount in cents (USD)
   domainSlug: domain.slug,
+  entitlementSlugs: [domain.slug],
   kind: "module",
 }));
 
@@ -51,6 +53,7 @@ const bundle: Product = {
   description: "[[TODO_PRODUCT_BUNDLE_DESCRIPTION]]",
   priceId: "[[TODO_PRODUCT_BUNDLE_PRICE_ID]]",
   price: null, // [[TODO_PRODUCT_BUNDLE_PRICE]] — amount in cents (USD)
+  entitlementSlugs: domains.map((domain) => domain.slug),
   kind: "bundle",
 };
 
@@ -66,6 +69,14 @@ export function getProductForDomain(slug: string): Product | undefined {
 
 export function getBundle(): Product {
   return bundle;
+}
+
+/**
+ * Server-side helper for fulfilment. Never accept entitlement slugs from the
+ * browser or Stripe metadata; derive them from the product catalogue here.
+ */
+export function getEntitlementSlugs(productId: string): string[] {
+  return getProduct(productId)?.entitlementSlugs ?? [];
 }
 
 /** Display helper. Returns null while the price is still a placeholder. */
