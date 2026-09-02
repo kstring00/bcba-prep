@@ -11,6 +11,7 @@ import {
   signOut,
 } from "@/lib/supabase/auth-client";
 import styles from "./member.module.css";
+import compact from "./member-compact.module.css";
 
 function CircleIcon({ children }: { children: ReactNode }) {
   return <span className={styles.circleIcon}>{children}</span>;
@@ -48,14 +49,14 @@ export default function MemberPage() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.heroWash} aria-hidden="true">
-        <div className={styles.heroFloral} />
-        <div className={styles.heroBee}>
-          <BeeMark size={34} />
+      <div className={`${styles.heroWash} ${compact.heroWash}`} aria-hidden="true">
+        <div className={`${styles.heroFloral} ${compact.heroFloral}`} />
+        <div className={`${styles.heroBee} ${compact.heroBee}`}>
+          <BeeMark size={30} />
         </div>
       </div>
 
-      <div className={styles.shell}>
+      <div className={`${styles.shell} ${compact.shell}`}>
         <div className={styles.topline}>
           <Link href="/" className={styles.back}>
             <span aria-hidden="true">←</span> Browse all domains
@@ -65,8 +66,8 @@ export default function MemberPage() {
           </button>
         </div>
 
-        <header className={styles.hero}>
-          <p className={styles.script}>Your library</p>
+        <header className={`${styles.hero} ${compact.hero}`}>
+          <p className={`${styles.script} ${compact.script}`}>Your library</p>
           <h1>
             Welcome to BCBA Prep
             <br />
