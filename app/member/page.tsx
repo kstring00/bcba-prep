@@ -68,11 +68,7 @@ export default function MemberPage() {
 
         <header className={`${styles.hero} ${compact.hero}`}>
           <p className={`${styles.script} ${compact.script}`}>Your library</p>
-          <h1>
-            Welcome to BCBA Prep
-            <br />
-            by Bee the Behavior Bae.
-          </h1>
+          <h1>Welcome to BCBA Prep by Bee the Behavior Bae.</h1>
           <p>
             You’re signed in as <strong>{session.user.email ?? "your account"}</strong>.
           </p>
