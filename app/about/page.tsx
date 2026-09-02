@@ -14,6 +14,7 @@ import {
   Target,
   Trophy,
 } from "@/components/Icons";
+import compact from "./about-compact.module.css";
 
 /*
   Section headings and the five philosophy steps are transcribed/adapted from
@@ -74,21 +75,17 @@ const STEPS = [
 export default function AboutPage() {
   return (
     <>
-      {/* ---------- hero ---------- */}
-      <section className="about-hero bleed">
+      {/* ---------- compact hero ---------- */}
+      <section className={`about-hero bleed ${compact.hero}`}>
         <Florals variant="hero-left" className="floral floral--hero-left" />
         <Florals variant="hero-right" className="floral floral--hero-right" />
 
-        <div className="bleed-inner about-hero-grid">
-          <div>
+        <div className={`bleed-inner about-hero-grid ${compact.heroGrid}`}>
+          <div className={compact.heroCopy}>
             <p className="script">Hi, I&rsquo;m Bee</p>
-            <h1 className="display">
-              BCBA Prep Materials,
-              <br />
-              Built With Intention
-            </h1>
+            <h1 className="display">BCBA Prep Materials, Built With Intention</h1>
             <Ornament />
-            <p className="about-lede">
+            <p className={`about-lede ${compact.lede}`}>
               I created BCBA Prep by Bee the Behavior Bae to help future BCBAs{" "}
               <span className="accent">
                 study smarter, feel prepared, and walk into exam day with confidence.
@@ -98,14 +95,14 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="portrait">
+          <div className={`portrait ${compact.portrait}`}>
             <div className="portrait-inner">[[TODO_PORTRAIT_BEE]]</div>
           </div>
         </div>
       </section>
 
       {/* ---------- stats ---------- */}
-      <section className="stats" aria-label="At a glance">
+      <section className={`stats ${compact.stats}`} aria-label="At a glance">
         <div className="stats-inner">
           {STATS.map((s) => (
             <div className="stat" key={s.label}>
@@ -124,66 +121,63 @@ export default function AboutPage() {
       </section>
 
       {/* ---------- premium resources ---------- */}
-      <section className="resources bleed">
+      <section className={`resources bleed ${compact.resources}`}>
         <Florals
           variant="corner-right"
           className="floral floral--corner-right"
         />
-        <div className="bleed-inner">
-          <div className="section-head">
-            <Ornament />
-            <h2 className="display">
-              Premium Resources. <span className="accent">Built the Hard Way.</span>
-            </h2>
-            <Ornament />
+        <div className={`bleed-inner ${compact.resourcesInner}`}>
+          <div className={compact.resourcesHeading}>
+            <div className="section-head">
+              <Ornament />
+              <h2 className="display">
+                Premium Resources. <span className="accent">Built the Hard Way.</span>
+              </h2>
+              <Ornament />
+            </div>
           </div>
-          <p className="section-sub">
-            These materials were not assembled overnight. They are the fruit of
-            long hours spent studying, organizing, writing, revising, and
-            designing until the information felt clear, useful, and worth
-            studying from.
-          </p>
-          <p className="section-sub">
-            There are no separate mock-exam, study-guide, or coaching products
-            to chase around the site. Choose the domain you need, and your
-            purchase gives you access to the materials Bee created for that
-            domain&mdash;kept together as one focused body of work.
-          </p>
+
+          <div className={compact.resourcesCopy}>
+            <p className="section-sub">
+              These materials were not assembled overnight. They are the fruit of
+              long hours spent studying, organizing, writing, revising, and
+              designing until the information felt clear, useful, and worth
+              studying from.
+            </p>
+            <p className="section-sub">
+              There are no separate mock-exam, study-guide, or coaching products
+              to chase around the site. Choose the domain you need, and your
+              purchase gives you access to the materials Bee created for that
+              domain&mdash;kept together as one focused body of work.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ---------- story + philosophy ---------- */}
-      <section className="split">
-        <div className="story">
+      <section className={`split ${compact.split}`}>
+        <div className={`story ${compact.story}`}>
           <div>
             <p className="script script--gold">My Story</p>
-            <h2 className="display">
-              Why I Built
-              <br />
-              BCBA Prep by Bee the Behavior Bae
-            </h2>
+            <h2 className="display">Why I Built BCBA Prep by Bee the Behavior Bae</h2>
             <p>[[TODO_STORY_PARAGRAPH_1]]</p>
             <p>[[TODO_STORY_PARAGRAPH_2]]</p>
             <p className="signature" aria-hidden="true">
               Bee
             </p>
           </div>
-          <div className="story-art">
+          <div className={`story-art ${compact.storyArt}`}>
             <div className="story-art-inner">[[TODO_IMAGE_STUDIO]]</div>
           </div>
         </div>
 
-        <div className="philosophy bleed">
+        <div className={`philosophy bleed ${compact.philosophy}`}>
           <Florals variant="band-right" className="floral floral--band-right" />
           <div style={{ position: "relative", zIndex: 2 }}>
             <p className="script">My Teaching Philosophy</p>
-            <h2 className="display">
-              You Don&rsquo;t Need More Hours.
-              <br />
-              You Need a Better System.
-            </h2>
+            <h2 className="display">You Don&rsquo;t Need More Hours. You Need a Better System.</h2>
 
-            <ol className="steps">
+            <ol className={`steps ${compact.steps}`}>
               {STEPS.map((s, i) => (
                 <li className="step" key={s.name}>
                   <span className="step-icon">{s.icon}</span>
@@ -198,7 +192,7 @@ export default function AboutPage() {
       </section>
 
       {/* ---------- CTA ---------- */}
-      <section className="closing bleed">
+      <section className={`closing bleed ${compact.closing}`}>
         <Florals
           variant="corner-right"
           className="floral floral--corner-right"
