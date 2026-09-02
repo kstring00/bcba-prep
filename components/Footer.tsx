@@ -37,16 +37,32 @@ export function Footer() {
           </nav>
         </div>
 
-        {/* Non-affiliation. Stays at the top of the footer body, not buried. */}
-        <p className="disclaimer">[[TODO_DISCLAIMER]]</p>
+        <p className="disclaimer">
+          <strong style={{ color: "var(--on-night)" }}>About these materials.</strong>{" "}
+          BCBA Prep by Bee the Behavior Bae creates original study materials
+          designed to help future BCBAs organize complex concepts, study with
+          intention, and prepare with greater confidence. Each resource is
+          built from Bee&apos;s own study process, experience, and hard work to
+          make exam preparation clearer and more approachable.
+        </p>
+
+        <p className="disclaimer">
+          <strong style={{ color: "var(--on-night)" }}>Educational disclaimer.</strong>{" "}
+          BCBA Prep by Bee the Behavior Bae is an independent educational
+          resource and is not affiliated with, endorsed by, or sponsored by the
+          Behavior Analyst Certification Board (BACB<sup>&reg;</sup>). These
+          materials are intended to support independent study and exam
+          preparation and do not guarantee examination eligibility,
+          examination performance, or a passing score. Users remain
+          responsible for reviewing current BACB requirements, policies, and
+          official examination information.
+        </p>
 
         <p className="disclaimer">
           BACB<sup>&reg;</sup> and BCBA<sup>&reg;</sup> are registered marks of
           the Behavior Analyst Certification Board. They are used here only to
-          identify the examination these materials are written for.
+          identify the examination these materials are written to support.
         </p>
-
-        <p className="disclaimer">[[TODO_ABOUT_POSITIONING]]</p>
       </div>
     </footer>
   );
