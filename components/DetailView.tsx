@@ -13,6 +13,7 @@ import { Book } from "./Book";
 import type { Domain } from "@/lib/domains";
 import { SCORED_ITEMS } from "@/lib/domains";
 import { formatPrice, getProductForDomain } from "@/lib/products";
+import detailStyles from "./DetailView.module.css";
 
 export function DetailView({ domain }: { domain: Domain }) {
   const reduceMotion = useReducedMotion();
@@ -41,7 +42,7 @@ export function DetailView({ domain }: { domain: Domain }) {
     <article className="shell detail">
       <motion.div
         ref={stageRef}
-        className="detail-cover-stage"
+        className={`detail-cover-stage ${detailStyles.coverStage}`}
         style={
           reduceMotion
             ? undefined
@@ -49,6 +50,9 @@ export function DetailView({ domain }: { domain: Domain }) {
         }
       >
         <Book domain={domain} variant="cover" />
+        <p className={detailStyles.dragHint} aria-hidden="true">
+          <span>Click + drag</span> to gently tilt the hardcover
+        </p>
       </motion.div>
 
       <motion.div
