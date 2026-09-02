@@ -25,7 +25,7 @@
   z-index: 1;
   max-width: 1320px;
   margin: 0 auto;
-  padding: clamp(28px, 4vw, 58px) var(--pad) clamp(60px, 7vw, 100px);
+  padding: clamp(24px, 3.4vw, 46px) var(--pad) clamp(52px, 6vw, 86px);
 }
 
 .back {
@@ -46,19 +46,18 @@
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(460px, 1.1fr);
-  gap: clamp(48px, 8vw, 118px);
-  align-items: start;
-  padding-top: clamp(44px, 7vw, 88px);
+  grid-template-columns: minmax(0, 0.88fr) minmax(500px, 1.12fr);
+  gap: clamp(42px, 6vw, 86px);
+  align-items: center;
+  padding-top: clamp(30px, 4.8vw, 62px);
 }
 
 .intro {
-  max-width: 610px;
-  padding-top: 14px;
+  max-width: 650px;
 }
 
 .eyebrow {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   color: var(--gold-deep);
   font-size: 10px;
   font-weight: 700;
@@ -68,12 +67,12 @@
 
 .intro h1 {
   margin: 0;
-  max-width: 8ch;
+  max-width: 11ch;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: clamp(52px, 6.3vw, 88px);
+  font-size: clamp(48px, 5.2vw, 76px);
   font-weight: 400;
-  letter-spacing: -0.038em;
+  letter-spacing: -0.036em;
   line-height: 0.98;
 }
 
@@ -82,16 +81,17 @@
 }
 
 .lede {
-  max-width: 53ch;
-  margin: 28px 0 0;
+  max-width: 50ch;
+  margin: 24px 0 0;
   color: var(--ink-body);
-  font-size: clamp(15px, 1.15vw, 17px);
-  line-height: 1.82;
+  font-size: clamp(15px, 1.05vw, 17px);
+  line-height: 1.75;
 }
 
-.noteCard {
-  margin-top: 38px;
-  padding: 28px 0 0;
+.shopPrompt {
+  max-width: 530px;
+  margin-top: 30px;
+  padding-top: 24px;
   border-top: 1px solid var(--gold-dim);
 }
 
@@ -99,63 +99,61 @@
   margin: 0;
   color: var(--mauve-light);
   font-family: var(--font-script);
-  font-size: 31px;
+  font-size: 28px;
   line-height: 1;
 }
 
-.noteCard h2,
+.shopPrompt h2,
 .formHead h2 {
-  margin: 5px 0 12px;
+  margin: 6px 0 10px;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: clamp(31px, 3vw, 42px);
+  font-size: clamp(29px, 2.5vw, 38px);
   font-weight: 400;
   line-height: 1.08;
 }
 
-.noteCard ul {
-  display: grid;
-  gap: 10px;
-  margin: 18px 0 0;
-  padding: 0;
-  list-style: none;
-  color: var(--ink-dim);
-}
-
-.noteCard li {
-  position: relative;
-  padding-left: 24px;
-  line-height: 1.55;
-}
-
-.noteCard li::before {
-  content: "✦";
-  position: absolute;
-  left: 0;
-  top: 1px;
-  color: var(--gold-deep);
-  font-size: 10px;
-}
-
-.formCard {
-  border: 1px solid rgba(198, 166, 103, 0.42);
-  border-radius: 28px;
-  padding: clamp(28px, 4vw, 44px);
-  background: rgba(253, 250, 245, 0.94);
-  box-shadow: 0 28px 90px rgba(45, 31, 40, 0.1);
-  backdrop-filter: blur(12px);
-}
-
+.shopPrompt p:not(.script),
 .formHead > p:last-child {
   margin: 0;
   color: var(--ink-dim);
   line-height: 1.65;
 }
 
+.shopLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--mauve-deep);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: transform 180ms var(--ease), background 180ms var(--ease);
+}
+
+.shopLink:hover {
+  transform: translateY(-2px);
+  background: var(--mauve);
+}
+
+.formCard {
+  border: 1px solid rgba(198, 166, 103, 0.42);
+  border-radius: 28px;
+  padding: clamp(26px, 3.5vw, 40px);
+  background: rgba(253, 250, 245, 0.94);
+  box-shadow: 0 28px 90px rgba(45, 31, 40, 0.1);
+  backdrop-filter: blur(12px);
+}
+
 .form {
   display: grid;
-  gap: 18px;
-  margin-top: 30px;
+  gap: 16px;
+  margin-top: 26px;
 }
 
 .row {
@@ -192,12 +190,12 @@
 
 .form input,
 .form select {
-  min-height: 54px;
+  min-height: 52px;
   padding: 0 16px;
 }
 
 .form textarea {
-  min-height: 170px;
+  min-height: 150px;
   padding: 15px 16px;
   resize: vertical;
   line-height: 1.6;
@@ -222,8 +220,8 @@
     linear-gradient(45deg, transparent 50%, var(--mauve-deep) 50%),
     linear-gradient(135deg, var(--mauve-deep) 50%, transparent 50%);
   background-position:
-    calc(100% - 20px) 23px,
-    calc(100% - 15px) 23px;
+    calc(100% - 20px) 22px,
+    calc(100% - 15px) 22px;
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
 }
@@ -232,8 +230,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 58px;
-  margin-top: 4px;
+  min-height: 56px;
+  margin-top: 2px;
   padding: 0 20px;
   border-radius: 13px;
   color: #fff;
@@ -277,26 +275,27 @@
 }
 
 .privacy {
-  margin: 22px 0 0;
-  padding-top: 18px;
+  margin: 18px 0 0;
+  padding-top: 16px;
   border-top: 1px solid var(--rule);
   color: var(--ink-faint);
   font-size: 11px;
   line-height: 1.65;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 980px) {
   .layout {
     grid-template-columns: 1fr;
-    gap: 44px;
+    gap: 38px;
+    align-items: start;
   }
 
   .intro {
-    max-width: 720px;
+    max-width: 760px;
   }
 
   .intro h1 {
-    max-width: 10ch;
+    max-width: 12ch;
   }
 
   .formCard {
@@ -311,11 +310,11 @@
   }
 
   .layout {
-    padding-top: 34px;
+    padding-top: 30px;
   }
 
   .intro h1 {
-    font-size: clamp(44px, 14vw, 64px);
+    font-size: clamp(44px, 13vw, 62px);
   }
 
   .row {
@@ -325,5 +324,10 @@
   .formCard {
     border-radius: 22px;
     padding: 22px 18px 24px;
+  }
+
+  .shopLink {
+    width: 100%;
+    justify-content: space-between;
   }
 }
