@@ -6,6 +6,7 @@ import { useState } from "react";
 import { BeeMark } from "./BeeMark";
 import { CartButton } from "./CartButton";
 import { Menu } from "./Icons";
+import brandStyles from "./Brand.module.css";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -24,12 +25,12 @@ export function SiteHeader() {
         className="brand"
         aria-label="BCBA Prep by Bee the Behavior Bae"
       >
-        <span className="brand-mark" aria-hidden="true">
+        <span className={`brand-mark ${brandStyles.mark}`} aria-hidden="true">
           <BeeMark size={38} />
         </span>
         <span className="brand-name">
           BCBA Prep
-          <small>by Bee the Behavior Bae</small>
+          <small className={brandStyles.tagline}>by Bee the Behavior Bae</small>
         </span>
       </Link>
 
