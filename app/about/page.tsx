@@ -22,8 +22,8 @@ import {
 
   Everything that is a CHECKABLE CLAIM about the business or a person is a
   [[TODO_]] token instead — the four stat figures, the personal story, and
-  the testimonials. Those are Bryana's to write; inventing a number or
-  putting words in a named reviewer's mouth is not a design decision.
+  the testimonials. Those are Bee's to write; inventing a number or putting
+  words in a named reviewer's mouth is not a design decision.
 */
 
 const STATS = [
@@ -97,7 +97,7 @@ export default function AboutPage() {
 
         <div className="bleed-inner about-hero-grid">
           <div>
-            <p className="script">Hi, I&rsquo;m Bryana</p>
+            <p className="script">Hi, I&rsquo;m Bee</p>
             <h1 className="display">
               BCBA Prep Materials,
               <br />
@@ -105,7 +105,7 @@ export default function AboutPage() {
             </h1>
             <Ornament />
             <p className="about-lede">
-              I created BCBA Prep by Bryana to help future BCBAs{" "}
+              I created BCBA Prep by Bee the Behavior Bae to help future BCBAs{" "}
               <span className="accent">
                 study smarter, feel prepared, and walk into exam day with confidence.
               </span>{" "}
@@ -115,7 +115,7 @@ export default function AboutPage() {
           </div>
 
           <div className="portrait">
-            <div className="portrait-inner">[[TODO_PORTRAIT_BRYANA]]</div>
+            <div className="portrait-inner">[[TODO_PORTRAIT_BEE]]</div>
           </div>
         </div>
       </section>
@@ -139,7 +139,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ---------- the work behind the materials ---------- */}
+      {/* ---------- premium resources ---------- */}
       <section className="resources bleed">
         <Florals
           variant="corner-right"
@@ -162,7 +162,7 @@ export default function AboutPage() {
           <p className="section-sub">
             There are no separate mock-exam, study-guide, or coaching products
             to chase around the site. Choose the domain you need, and your
-            purchase gives you access to the materials Bryana created for that
+            purchase gives you access to the materials Bee created for that
             domain&mdash;kept together as one focused body of work.
           </p>
         </div>
@@ -176,12 +176,12 @@ export default function AboutPage() {
             <h2 className="display">
               Why I Built
               <br />
-              BCBA Prep by Bryana
+              BCBA Prep by Bee the Behavior Bae
             </h2>
             <p>[[TODO_STORY_PARAGRAPH_1]]</p>
             <p>[[TODO_STORY_PARAGRAPH_2]]</p>
             <p className="signature" aria-hidden="true">
-              Bryana
+              Bee
             </p>
           </div>
           <div className="story-art">
