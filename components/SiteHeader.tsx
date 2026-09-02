@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { BeeMark } from "./BeeMark";
 import { CartButton } from "./CartButton";
 import { Menu } from "./Icons";
 
@@ -18,13 +19,17 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <Link href="/" className="brand" aria-label="BCBA Prep by Bryana Utley">
+      <Link
+        href="/"
+        className="brand"
+        aria-label="BCBA Prep by Bee the Behavior Bae"
+      >
         <span className="brand-mark" aria-hidden="true">
-          BP
+          <BeeMark size={38} />
         </span>
         <span className="brand-name">
           BCBA Prep
-          <small>by Bryana</small>
+          <small>by Bee the Behavior Bae</small>
         </span>
       </Link>
 
