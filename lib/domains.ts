@@ -1,81 +1,123 @@
+/**
+ * The nine BACB Test Content Outline domains.
+ *
+ * These titles, short labels, question counts and percentages were supplied
+ * by the project owner as verified against the BACB source document. Do not
+ * paraphrase, reorder, or regenerate them.
+ *
+ * Counts sum to 175 scored items; percentages are of that 175.
+ */
 export type Domain = {
-  slug: string; // url segment, e.g. "measurement"
-  letter: string; // "A" through "I"
-  title: string;
-  color: string; // spine background
-  textColor: string; // text on spine and cover
+  letter: string;
+  slug: string;
+  title: string; // full official name
+  short: string; // display label on the spine
+  questions: number;
+  percent: number;
+  cloth: string; // spine/cover color
+  foil: string; // accent + text color
 };
 
-// Domain names and slugs come from the current BACB Test Content Outline.
-// They are intentionally NOT guessed here — the project owner supplies them.
-// Replace each [[TODO_...]] token below with the real value.
-const SPINE_TEXT = "#F2EDE4";
+/** Foil on the seven dark cloths. */
+const FOIL_LIGHT = "#C9A961";
+/** Foil on the two light cloths (bone, stone) — dark ink, not gold. */
+const FOIL_DARK = "#3A3428";
 
 export const domains: Domain[] = [
   {
-    slug: "[[TODO_DOMAIN_1_SLUG]]",
     letter: "A",
-    title: "[[TODO_DOMAIN_1_TITLE]]",
-    color: "#23324A", // deep navy
-    textColor: SPINE_TEXT,
+    slug: "foundations",
+    title: "Behaviorism and Philosophical Foundations",
+    short: "Foundations",
+    questions: 8,
+    percent: 5,
+    cloth: "#DED5C4", // bone
+    foil: FOIL_DARK,
   },
   {
-    slug: "[[TODO_DOMAIN_2_SLUG]]",
     letter: "B",
-    title: "[[TODO_DOMAIN_2_TITLE]]",
-    color: "#2C4034", // forest
-    textColor: SPINE_TEXT,
+    slug: "principles",
+    title: "Concepts and Principles",
+    short: "Principles",
+    questions: 24,
+    percent: 14,
+    cloth: "#1E2C44", // navy
+    foil: FOIL_LIGHT,
   },
   {
-    slug: "[[TODO_DOMAIN_3_SLUG]]",
     letter: "C",
-    title: "[[TODO_DOMAIN_3_TITLE]]",
-    color: "#4A2326", // oxblood
-    textColor: SPINE_TEXT,
+    slug: "measurement",
+    title: "Measurement, Data Display, and Interpretation",
+    short: "Measurement",
+    questions: 21,
+    percent: 12,
+    cloth: "#2C3823", // forest
+    foil: FOIL_LIGHT,
   },
   {
-    slug: "[[TODO_DOMAIN_4_SLUG]]",
     letter: "D",
-    title: "[[TODO_DOMAIN_4_TITLE]]",
-    color: "#3A4450", // slate
-    textColor: SPINE_TEXT,
+    slug: "experimental-design",
+    title: "Experimental Design",
+    short: "Experimental Design",
+    questions: 13,
+    percent: 7,
+    cloth: "#16171A", // ink
+    foil: FOIL_LIGHT,
   },
   {
-    slug: "[[TODO_DOMAIN_5_SLUG]]",
     letter: "E",
-    title: "[[TODO_DOMAIN_5_TITLE]]",
-    color: "#43492C", // olive
-    textColor: SPINE_TEXT,
+    slug: "ethics",
+    title: "Ethical and Professional Issues",
+    short: "Ethics",
+    questions: 22,
+    percent: 13,
+    cloth: "#5A2A1E", // oxblood
+    foil: FOIL_LIGHT,
   },
   {
-    slug: "[[TODO_DOMAIN_6_SLUG]]",
     letter: "F",
-    title: "[[TODO_DOMAIN_6_TITLE]]",
-    color: "#3E2E42", // plum
-    textColor: SPINE_TEXT,
+    slug: "assessment",
+    title: "Behavior Assessment",
+    short: "Assessment",
+    questions: 23,
+    percent: 13,
+    cloth: "#B8B2A6", // stone
+    foil: FOIL_DARK,
   },
   {
-    slug: "[[TODO_DOMAIN_7_SLUG]]",
     letter: "G",
-    title: "[[TODO_DOMAIN_7_TITLE]]",
-    color: "#5A3520", // rust
-    textColor: SPINE_TEXT,
+    slug: "behavior-change",
+    title: "Behavior-Change Procedures",
+    short: "Behavior Change",
+    questions: 25,
+    percent: 14,
+    cloth: "#1B3A38", // teal
+    foil: FOIL_LIGHT,
   },
   {
-    slug: "[[TODO_DOMAIN_8_SLUG]]",
     letter: "H",
-    title: "[[TODO_DOMAIN_8_TITLE]]",
-    color: "#23423F", // teal
-    textColor: SPINE_TEXT,
+    slug: "interventions",
+    title: "Selecting and Implementing Interventions",
+    short: "Interventions",
+    questions: 20,
+    percent: 11,
+    cloth: "#3B1F35", // plum
+    foil: FOIL_LIGHT,
   },
   {
-    slug: "[[TODO_DOMAIN_9_SLUG]]",
     letter: "I",
-    title: "[[TODO_DOMAIN_9_TITLE]]",
-    color: "#35322E", // charcoal
-    textColor: SPINE_TEXT,
+    slug: "supervision",
+    title: "Personnel Supervision and Management",
+    short: "Supervision",
+    questions: 19,
+    percent: 11,
+    cloth: "#22242A", // charcoal
+    foil: FOIL_LIGHT,
   },
 ];
+
+/** Total scored items on the exam. */
+export const SCORED_ITEMS = 175;
 
 export function getDomain(slug: string): Domain | undefined {
   return domains.find((d) => d.slug === slug);

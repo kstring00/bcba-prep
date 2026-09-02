@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { DomainView } from "@/components/DomainView";
+import { DetailView } from "@/components/DetailView";
 import { domains, getDomain } from "@/lib/domains";
 
 export function generateStaticParams() {
@@ -18,5 +18,5 @@ export default async function DomainPage({
     notFound();
   }
 
-  return <DomainView domain={domain} />;
+  return <DetailView domain={domain} />;
 }

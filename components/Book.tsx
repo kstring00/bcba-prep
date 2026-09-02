@@ -1,95 +1,118 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
 import type { Domain } from "@/lib/domains";
 import {
   BOOK_TILT,
-  BOOK_TILT_HOVER,
-  BOOK_TILT_MOBILE,
   BOOK_TRANSITION,
+  COVER_TILT_X,
+  COVER_TILT_Y,
+  SCROLL_TILT_DELTA,
+  SCROLL_Z_LIFT,
+  TAPER_Z,
 } from "./motion-config";
-import { useCanHover, useCompactViewport } from "./use-compact-viewport";
+import { useCompactViewport } from "./use-compact-viewport";
 
 type Props = {
   domain: Domain;
   /**
-   * "spine" — on the shelf, hinged so the spine faces the viewer.
-   * "cover"  — on the domain page, rotated flat so the cover faces the viewer.
+   * "stack" — in the pile, hinged so the spine faces the viewer.
+   * "cover" — on the detail page, opened to a three-quarter hardcover.
    * Both render the same element (same layoutId), so Motion treats them as
-   * one object travelling between routes.
+   * one object folding open between routes.
    */
-  variant: "spine" | "cover";
+  variant: "stack" | "cover";
+  /** Position in the pile. Drives the taper. */
+  index?: number;
 };
 
-export function Book({ domain, variant }: Props) {
+export function Book({ domain, variant, index = 0 }: Props) {
   const reduceMotion = useReducedMotion();
   const compact = useCompactViewport();
-  const canHover = useCanHover();
-  const [hovered, setHovered] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
   const isCover = variant === "cover";
-  const lift = hovered && canHover && !isCover;
 
-  // Reduced motion: flat bars, no rotation at all.
-  const restTilt = reduceMotion
-    ? 0
-    : compact
-      ? BOOK_TILT_MOBILE
-      : BOOK_TILT;
+  // Progress as this book crosses the viewport: 0 entering at the bottom,
+  // 1 leaving at the top.
+  const { scrollYProgress } = useScroll({
+    target: rowRef,
+    offset: ["start end", "end start"],
+  });
+  // Peaks at 1 when the book is at the vertical centre of the screen.
+  const centrality = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
+
+  const taperZ = index * TAPER_Z;
+
+  // A few degrees, capped. Books never fully open on scroll alone — that is
+  // reserved for the click.
+  const tilt = useTransform(
+    centrality,
+    [0, 1],
+    [BOOK_TILT, BOOK_TILT + SCROLL_TILT_DELTA],
+  );
+  const lift = useTransform(
+    centrality,
+    [0, 1],
+    [taperZ, taperZ + SCROLL_Z_LIFT],
+  );
+
+  // Reduced motion, or the detail page: no scroll coupling at all.
+  const stackStyle =
+    reduceMotion || isCover
+      ? { rotateX: reduceMotion ? 0 : BOOK_TILT, z: taperZ }
+      : { rotateX: tilt, z: lift };
 
   return (
     <motion.div
-      layoutId={`spine-${domain.slug}`}
+      layoutId={`book-${domain.slug}`}
       className="book-box"
       transition={reduceMotion ? { duration: 0 } : BOOK_TRANSITION}
-      style={{ borderRadius: 2 }}
-      onHoverStart={canHover ? () => setHovered(true) : undefined}
-      onHoverEnd={canHover ? () => setHovered(false) : undefined}
+      style={{ borderRadius: 1 }}
     >
       <motion.div
+        ref={rowRef}
         className="book"
-        // On the shelf the tilt is the resting state, so there is nothing to
-        // animate on mount. On the domain page the book starts in spine
-        // orientation and rotates flat, which is the visible half of the
-        // shared-element transition.
-        initial={isCover && !reduceMotion ? { rotateX: restTilt } : false}
-        // Hover lift is decoration only: touch pointers never set `hovered`,
-        // and nothing on the shelf is reachable through hover alone.
-        //
-        // The brightness shift deliberately lives on the spine face below,
-        // NOT here. A `filter` on an element flattens its 3D rendering
-        // context, so putting it on this wrapper collapses the hinged spine
-        // into an invisible edge the moment the pointer arrives.
-        animate={{
-          rotateX: isCover
-            ? 0
-            : lift && !reduceMotion
-              ? BOOK_TILT_HOVER
-              : restTilt,
-        }}
+        // On the detail page the book starts in spine orientation and folds
+        // open to a three-quarter cover. That rotation is the visible half of
+        // the shared-element transition; the layoutId handles the travel.
+        initial={
+          isCover && !reduceMotion
+            ? { rotateX: BOOK_TILT, rotateY: 0, z: 0 }
+            : false
+        }
+        animate={
+          isCover
+            ? {
+                rotateX: reduceMotion ? 0 : COVER_TILT_X,
+                rotateY: reduceMotion || compact ? 0 : COVER_TILT_Y,
+                z: 0,
+              }
+            : undefined
+        }
+        style={isCover ? undefined : stackStyle}
         transition={reduceMotion ? { duration: 0 } : BOOK_TRANSITION}
       >
-        {/* Cover face: full size of the book, at the front of the stack. */}
+        {/* Cover face: full size of the book, at the front. */}
         <motion.div
           className="face face--cover"
-          style={{ background: domain.color, color: domain.textColor }}
-          // On the shelf the cover is the receding top surface of the book,
-          // so it sits in shade; on the domain page it is lit fully.
+          style={{ background: domain.cloth, color: domain.foil }}
+          // In the pile the cover is the receding top face of the book, so it
+          // sits in shade. Opened, it is lit fully.
           initial={
             isCover && !reduceMotion
-              ? { opacity: 0, filter: "brightness(0.55)" }
+              ? { opacity: 0, filter: "brightness(0.62)" }
               : false
           }
-          animate={{ opacity: 1, filter: `brightness(${isCover ? 1 : 0.55})` }}
+          animate={{ opacity: 1, filter: `brightness(${isCover ? 1 : 0.62})` }}
           transition={
-            reduceMotion ? { duration: 0 } : { ...BOOK_TRANSITION, duration: 0.3 }
+            reduceMotion ? { duration: 0 } : { ...BOOK_TRANSITION, duration: 0.34 }
           }
         >
           {isCover ? (
-            // `layout` here is scale correction, not motion: the parent's box
-            // is being animated from 46px to full cover height, and without
-            // an inverse transform on this child the title stretches
-            // horizontally for the whole flight.
+            // `layout` here is scale correction, not motion: the parent box
+            // animates from a 64px spine to a full cover, and without an
+            // inverse transform this text stretches for the whole flight.
             <motion.div
               layout
               className="cover-inner"
@@ -98,38 +121,47 @@ export function Book({ domain, variant }: Props) {
               transition={
                 reduceMotion
                   ? { duration: 0 }
-                  : {
-                      ...BOOK_TRANSITION,
-                      opacity: { duration: 0.26, delay: 0.22 },
-                    }
+                  : { ...BOOK_TRANSITION, opacity: { duration: 0.3, delay: 0.24 } }
               }
             >
               <span className="cover-letter">{domain.letter}</span>
-              <h1 className="cover-title">{domain.title}</h1>
+              <div>
+                <h2 className="cover-title">{domain.title}</h2>
+                <div className="cover-band">
+                  {domain.questions} questions &middot; {domain.percent}%
+                </div>
+              </div>
             </motion.div>
           ) : null}
         </motion.div>
 
-        {/* Spine face: hinges forward off the cover's top edge. */}
+        {/*
+          Spine face: hinges forward off the cover's top edge.
+
+          It stays visible on the detail page rather than fading out. Once the
+          book has folded open the same face is seen almost edge-on and reads
+          as the board thickness along the head of the book — without it the
+          three-quarter cover is a flat parallelogram. Only its text is
+          dropped; a 7px band cannot carry type.
+        */}
         <motion.div
           className="face face--spine"
-          style={{ background: domain.color, color: domain.textColor }}
+          style={{ background: domain.cloth, color: domain.foil }}
           animate={{
-            opacity: isCover ? 0 : 1,
-            filter: `brightness(${lift && !reduceMotion ? 1.07 : 1})`,
+            opacity: 1,
+            filter: `brightness(${isCover ? 1.14 : 1})`,
           }}
           transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { duration: isCover ? 0.18 : 0.24, ease: "linear" }
+            reduceMotion ? { duration: 0 } : { duration: 0.26, ease: "linear" }
           }
         >
           {!isCover ? (
             <>
               <span className="spine-letter">{domain.letter}</span>
-              <span className="spine-title">{domain.title}</span>
-              {/* Balances the letter so the title stays optically centred. */}
-              <span className="spine-rule" aria-hidden="true" />
+              <span className="spine-label">{domain.short}</span>
+              <span className="spine-weight">
+                {domain.questions} &middot; {domain.percent}%
+              </span>
             </>
           ) : null}
         </motion.div>

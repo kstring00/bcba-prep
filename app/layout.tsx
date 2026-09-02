@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Newsreader } from "next/font/google";
 import Link from "next/link";
+import { CartButton } from "@/components/CartButton";
+import { CartPanel } from "@/components/CartPanel";
+import { Footer } from "@/components/Footer";
 import { PageTransition } from "@/components/PageTransition";
+import { CartProvider } from "@/lib/cart-context";
 import "./globals.css";
 
-// Self-hosted by next/font at build time: the font files are emitted into the
+// Self-hosted by next/font at build time: the files are emitted into this
 // app's own static output and preloaded. No CDN request at runtime.
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -23,10 +27,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1C1A17",
+  themeColor: "#141210",
   width: "device-width",
   initialScale: 1,
-  // TikTok's in-app browser will happily zoom on a mistap; let it.
+  // TikTok's in-app browser will zoom on a mistap; let it.
   maximumScale: 5,
 };
 
@@ -38,15 +42,29 @@ export default function RootLayout({
   return (
     <html lang="en" className={newsreader.variable}>
       <body style={{ "--font-sans": SANS_STACK } as React.CSSProperties}>
-        <div className="page">
-          <header className="site-header">
-            <p className="site-title">
-              <Link href="/">[[TODO_SITE_TITLE]]</Link>
-            </p>
-            <p className="site-tagline">[[TODO_SITE_TAGLINE]]</p>
-          </header>
-          <PageTransition>{children}</PageTransition>
-        </div>
+        <CartProvider>
+          <div className="shell">
+            {/* Sticky, not fixed. A fixed element inside a 3D-transformed
+                ancestor takes that ancestor as its containing block and stops
+                tracking the viewport; this bar lives outside the stack's
+                transformed subtree either way. */}
+            <div className="sticky-bar">
+              <CartButton />
+            </div>
+
+            <header className="masthead">
+              <p className="site-title">
+                <Link href="/">[[TODO_SITE_TITLE]]</Link>
+              </p>
+            </header>
+            <hr className="hairline hairline--foil" />
+
+            <PageTransition>{children}</PageTransition>
+
+            <Footer />
+          </div>
+          <CartPanel />
+        </CartProvider>
       </body>
     </html>
   );

@@ -1,53 +1,83 @@
 /* ---------------------------------------------------------------
-   Bookshelf navigation — geometry + chrome.
+   BCBA prep — stack geometry + chrome.
 
-   3D model (all CSS transforms, no WebGL):
+   THE 3D MODEL (CSS transforms only; no WebGL, no assets)
 
-     .shelf-row        perspective container
+     .stack-row        perspective container
        .book           transform-style: preserve-3d
                        transform-origin: top center
-                       transform: rotateX(BOOK_TILT)      (~ -86deg)
-         .face--cover  full size of .book, in the XY plane, at the front
+                       transform: translateZ(taper) rotateX(BOOK_TILT)
+         .face--cover  full size of .book, at the front
          .face--spine  full width x SPINE_DEPTH tall
                        transform-origin: top center
-                       transform: rotateX(90deg)          hinges forward
-                                                          off the cover's
-                                                          top edge
+                       transform: rotateX(90deg)
 
-   Sign derivation (CSS: +y is down, +z is toward the viewer):
-     rotateX(t) maps (0,y,0) -> (0, y*cos t, y*sin t).
-     Spine at rotateX(+90deg) about its top edge sends its bottom edge to
-     z = +SPINE_DEPTH, i.e. a ledge standing toward the viewer, with its
-     face normal (0,0,1) -> (0,-1,0) (pointing up).
-     The book at rotateX(-86deg) then maps that normal to
-     (0, -cos86, +sin86) ~ (0,-0.07,+1): the spine faces the viewer, and
-     the cover's normal (0,0,1) -> (0,+0.998,-0.07) is edge-on.
-     Local "up" on the spine maps back to screen-up, so spine text renders
-     upright and unmirrored. Flipping either sign mirrors the text or
-     swings the cover in front of the spine.
+   SIGN DERIVATION (CSS axes: +y is down, +z is toward the viewer).
+   rotateX(t) maps (0,y,z) -> (0, y*cos t - z*sin t, y*sin t + z*cos t).
+
+   1. The spine hinges forward off the cover's top edge at rotateX(+90deg):
+      its bottom edge (0,0,+d) is a ledge standing toward the viewer, and its
+      face normal (0,0,1) becomes (0,-1,0) — pointing straight up.
+
+   2. The book then rotates by BOOK_TILT = -100deg:
+        spine normal (0,-1,0)  ->  (0, -cos100, +sin100) ~ (0,+0.17,+0.98)
+          the spine faces the viewer, angled very slightly down.
+        spine bottom (0,0,+d)  ->  y' = +0.98d
+          the spine reads as a ~63px band below the hinge.
+        cover bottom (0,H,0)   ->  y' = -0.17H,  z' = -0.98H
+          the cover recedes UP and BACK.
+
+   That last line is the whole point of going PAST -90deg. At -83deg the
+   cover recedes down and back, which is the view from *below* a pile. Past
+   -90deg it recedes up and back, so you are looking DOWN on the stack and a
+   sliver of each book's top face is visible above its spine. That top-face
+   visibility is what makes it read as a physical pile rather than a row of
+   rectangles.
+
+   Local "up" on the spine maps back to screen-up, so spine text renders
+   upright and unmirrored. Flip either sign and you get mirrored text or a
+   cover hanging in front of its own spine.
+
+   TWO EDITING HAZARDS, both invisible in code:
+   - A `filter` on .book flattens its 3D rendering context and collapses the
+     spine to an invisible edge. Brightness shifts belong on a leaf face.
+   - `overflow: hidden` is safe on a leaf face, never on a preserve-3d
+     ancestor.
    --------------------------------------------------------------- */
 
 :root {
-  --bg: #1c1a17;
-  --bg-raised: #211f1b;
-  --ink: #f2ede4;
-  --ink-dim: #9a9186;
-  --rule: #302c27;
+  --bg: #141210;
+  --bg-raised: #1a1815;
+  --ink: #ece5d8;
+  --ink-dim: #8d8579;
+  --ink-faint: #5f594f;
+  --rule: #2b2620;
+  --foil: #c9a961;
 
-  --spine-depth: 46px;
-  --book-tilt: -83deg;
-  --book-tilt-hover: -76deg;
-  --perspective: 1600px;
+  --spine-depth: 64px;
+  --book-tilt: -100deg;
+  --perspective: 1400px;
 
-  --shelf-gap: 34px;
-  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --stack-gap: 30px;
+  --measure: 1180px;
+  /* Per-step width taper down the pile. Halved on narrow viewports, where a
+     5px step would take a quarter of the width off the bottom book. */
+  --taper-w: 5px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   :root {
-    /* Closer viewing distance: the effect has to read at 380px wide. */
-    --perspective: 1000px;
-    --shelf-gap: 26px;
+    --perspective: 900px;
+    --spine-depth: 58px;
+    --stack-gap: 24px;
+    --taper-w: 2.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --spine-depth: 54px;
+    --stack-gap: 20px;
   }
 }
 
@@ -65,10 +95,23 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* TikTok's in-app browser likes to offer a horizontal pan; deny it. */
   overflow-x: hidden;
+}
+
+/* A single low-opacity grain plate over the whole page. This is the only
+   texture in the design — solid cloth tones plus grain, never a gradient
+   pretending to be a weave. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 a {
@@ -76,63 +119,145 @@ a {
   text-decoration: none;
 }
 
-.page {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 0 20px 96px;
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-/* ---------------- header ---------------- */
+.shell {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 24px 120px;
+}
 
-.site-header {
-  padding: 56px 0 44px;
+/* ---------------- type ---------------- */
+
+.serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.hairline {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+.hairline--foil {
+  border-top-color: rgba(201, 169, 97, 0.32);
+}
+
+/* ---------------- masthead + rails ---------------- */
+
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 24px;
+  padding: 44px 0 30px;
 }
 
 .site-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(26px, 6vw, 34px);
-  letter-spacing: -0.01em;
-  margin: 0 0 10px;
-}
-
-.site-tagline {
+  font-size: clamp(24px, 4vw, 32px);
+  letter-spacing: -0.012em;
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--ink-dim);
-  max-width: 46ch;
 }
 
-/* ---------------- shelf ---------------- */
+.rails {
+  display: grid;
+  grid-template-columns: minmax(160px, 230px) minmax(0, 1fr) minmax(140px, 200px);
+  gap: 48px;
+  align-items: start;
+  padding-bottom: 40px;
+}
 
-.shelf {
+/* The stack column must be allowed to shrink. Its spine labels are
+   white-space: nowrap, so without an explicit zero minimum the column takes
+   its min-content width and blows the right rail off the page. */
+.rails > * {
+  min-width: 0;
+}
+
+.rail {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  position: sticky;
+  top: 40px;
+}
+
+.rail p {
+  margin: 10px 0 0;
+}
+
+.rail--right {
+  text-align: right;
+}
+
+/* Above the stack on mobile, not beside it. */
+@media (max-width: 900px) {
+  .rails {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .rail {
+    position: static;
+    top: auto;
+  }
+
+  .rail--right {
+    text-align: left;
+  }
+}
+
+/* ---------------- the stack ---------------- */
+
+.stack {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.shelf-item {
-  margin-bottom: var(--shelf-gap);
+.stack-item {
+  margin-bottom: var(--stack-gap);
+  /* The book above must paint over the receding top face of the book below,
+     the way a real pile occludes itself. Set per item in JS, descending. */
+  position: relative;
 }
 
-.shelf-row {
+.stack-row {
+  /* --i is the book's index in the pile, set inline. */
+  width: calc(100% - var(--i, 0) * var(--taper-w) * 2);
   position: relative;
   height: var(--spine-depth);
   perspective: var(--perspective);
   perspective-origin: 50% 0%;
+  margin: 0 auto;
 }
 
-/* The single permitted soft contact shadow, sitting under the spine. */
-.shelf-row::after {
+/* The one permitted shadow: soft contact, cast onto the book beneath. */
+.stack-row::after {
   content: "";
   position: absolute;
-  left: 3%;
-  right: 3%;
-  top: calc(var(--spine-depth) - 4px);
-  height: 10px;
-  background: rgba(0, 0, 0, 0.4);
-  filter: blur(6px);
+  left: 4%;
+  right: 4%;
+  top: calc(var(--spine-depth) - 6px);
+  height: 12px;
+  background: rgba(0, 0, 0, 0.42);
+  filter: blur(9px);
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
@@ -141,7 +266,6 @@ a {
 .book-box {
   position: absolute;
   inset: 0;
-  /* Comfortable thumb target even though the spine art is 46px. */
   min-height: 44px;
 }
 
@@ -163,9 +287,7 @@ a {
 
 .face--cover {
   height: 100%;
-  border-radius: 2px;
-  /* Clips the cover text to the box while the box is still growing. Safe to
-     clip here: this is a leaf face, so it flattens nothing that needs 3D. */
+  border-radius: 1px;
   overflow: hidden;
 }
 
@@ -175,48 +297,83 @@ a {
   transform: rotateX(90deg);
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 18px;
-  border-radius: 2px 2px 0 0;
-  /* Cloth-bound books have a slightly darker head and tail edge. */
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  gap: 18px;
+  padding: 0 22px;
+  border-radius: 1px 1px 0 0;
+  /* Thin lit edge along the head of the spine, and shade at the tail.
+     Reads as a bound edge catching the light — not a gradient. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 }
 
 .spine-letter {
   font-family: var(--font-serif);
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  opacity: 0.72;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  opacity: 0.75;
   flex: 0 0 auto;
-  width: 1.6em;
+  width: 1.4em;
 }
 
-.spine-title {
+.spine-label {
   font-family: var(--font-serif);
-  font-size: clamp(15px, 3.6vw, 18px);
+  font-size: clamp(16px, 2.4vw, 20px);
   letter-spacing: 0.005em;
   flex: 1 1 auto;
-  text-align: center;
-  /* Never wrap to a second line on a 46px spine. */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.spine-rule {
+.spine-weight {
   flex: 0 0 auto;
-  width: 1.6em;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  opacity: 0.66;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---------------- domain page ---------------- */
+@media (max-width: 480px) {
+  /* Letter and short label only. */
+  .spine-weight {
+    display: none;
+  }
 
-.domain-cover-row {
+  .face--spine {
+    padding: 0 16px;
+    gap: 12px;
+  }
+}
+
+/* ---------------- detail view ---------------- */
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(280px, 42%) 1fr;
+  gap: 64px;
+  align-items: start;
+  padding-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .detail {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.detail-cover-stage {
   position: relative;
-  height: 190px;
+  height: 380px;
   perspective: var(--perspective);
-  perspective-origin: 50% 0%;
-  margin-top: 8px;
+  perspective-origin: 50% 40%;
+}
+
+@media (max-width: 900px) {
+  .detail-cover-stage {
+    height: 300px;
+  }
 }
 
 .cover-inner {
@@ -224,57 +381,429 @@ a {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 22px;
+  justify-content: space-between;
+  padding: 28px 26px;
 }
 
 .cover-letter {
   font-family: var(--font-serif);
-  font-size: 13px;
-  letter-spacing: 0.18em;
-  opacity: 0.72;
+  font-size: 12px;
+  letter-spacing: 0.24em;
 }
 
 .cover-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(24px, 6.5vw, 34px);
-  line-height: 1.15;
+  font-size: clamp(20px, 2.6vw, 27px);
+  line-height: 1.18;
   margin: 0;
 }
 
-.domain-body {
-  padding: 40px 2px 0;
+.cover-band {
+  border-top: 1px solid currentColor;
+  opacity: 0.45;
+  padding-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.content-slot {
+.detail-body {
+  padding-top: 6px;
+}
+
+.detail-letter {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  color: var(--foil);
+}
+
+.detail-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(28px, 4.4vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 14px 0 22px;
+}
+
+.weight-line {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+  margin: 0 0 30px;
+}
+
+.weight-line strong {
+  color: var(--ink);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.contents-slot {
   border-top: 1px solid var(--rule);
-  padding-top: 28px;
+  border-bottom: 1px solid var(--rule);
+  padding: 24px 0;
+  margin-bottom: 30px;
   color: var(--ink-dim);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
+}
+
+.buy-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.price {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.price--todo {
+  color: var(--ink-faint);
+  font-size: 15px;
+}
+
+.btn {
+  min-height: 46px;
+  padding: 12px 26px;
+  border: 1px solid var(--foil);
+  color: var(--foil);
+  border-radius: 1px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.btn:hover {
+  background: var(--foil);
+  color: #17140f;
+}
+
+.btn--solid {
+  background: var(--foil);
+  color: #17140f;
+}
+
+.btn--solid:hover {
+  background: #d8b970;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn--quiet {
+  border-color: var(--rule);
+  color: var(--ink-dim);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.btn--quiet:hover {
+  background: none;
+  border-color: var(--ink-dim);
+  color: var(--ink);
 }
 
 .back-link {
   display: inline-block;
-  margin-top: 48px;
+  margin-top: 52px;
   font-size: 13px;
-  letter-spacing: 0.06em;
   color: var(--ink-dim);
   border-bottom: 1px solid var(--rule);
   padding-bottom: 3px;
+  min-height: 44px;
 }
 
 .back-link:hover {
   color: var(--ink);
+  border-bottom-color: var(--foil);
+}
+
+/* ---------------- bundle card ---------------- */
+
+.bundle {
+  margin: 46px 0 8px;
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  padding: 30px 28px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 26px;
+  align-items: center;
+  background: var(--bg-raised);
+}
+
+@media (max-width: 640px) {
+  .bundle {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bundle-title {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 3vw, 26px);
+  margin: 8px 0 8px;
+}
+
+.bundle-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 46ch;
+}
+
+/* ---------------- cart ---------------- */
+
+/* In normal flow inside the header, NOT position:fixed. A fixed element
+   inside any 3D-transformed ancestor gets that ancestor as its containing
+   block and stops tracking the viewport. The header sits outside the stack's
+   transformed subtree and is sticky instead. */
+.cart-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.cart-button:hover {
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}
+
+.cart-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--foil);
+  color: #17140f;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-ring {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid var(--foil);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.sticky-bar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--bg);
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 0 10px;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 7, 6, 0.6);
+  z-index: 200;
+}
+
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, 100vw);
+  background: var(--bg-raised);
+  border-left: 1px solid var(--rule);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 24px;
+}
+
+.cart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.cart-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.cart-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: center;
+}
+
+/* Product names are long, and while they are [[TODO_]] tokens they have no
+   spaces at all. Without this the text column takes its min-content width
+   and pushes the quantity control off the edge of the panel. */
+.cart-line > div:first-child {
+  min-width: 0;
+}
+
+.cart-line-name {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.cart-line-kind {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foil);
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+}
+
+.qty button {
+  width: 44px;
+  height: 44px;
+  color: var(--ink-dim);
+}
+
+.qty button:hover {
+  color: var(--ink);
+}
+
+.qty span {
+  min-width: 28px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-foot {
+  padding-top: 20px;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.cart-empty {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 40px 0;
+}
+
+/* The element that flies from the product into the cart. */
+.flier {
+  position: fixed;
+  z-index: 190;
+  pointer-events: none;
+  border-radius: 1px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* ---------------- footer + legal ---------------- */
+
+.footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 90px;
+  padding-top: 30px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink-faint);
+}
+
+.footer-links {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.footer-links a {
+  color: var(--ink-dim);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer-links a:hover {
+  color: var(--ink);
+}
+
+.disclaimer {
+  max-width: 74ch;
+  margin: 0 0 10px;
+}
+
+.prose {
+  max-width: 68ch;
+  padding-top: 24px;
+}
+
+.prose h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(26px, 4vw, 36px);
+  margin: 0 0 22px;
+}
+
+.prose h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 19px;
+  margin: 34px 0 10px;
+}
+
+.prose p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink-dim);
+  margin: 0 0 14px;
 }
 
 /* ---------------- reduced motion ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .shelf-row,
-  .domain-cover-row {
+  .stack-row,
+  .detail-cover-stage {
     perspective: none;
   }
 
@@ -287,12 +816,17 @@ a {
     transform: none !important;
   }
 
-  .shelf-row .face--cover {
+  .stack-row .face--cover {
     display: none;
   }
 
-  .shelf-row::after {
+  .stack-row::after {
     display: none;
+  }
+
+  .detail-cover-stage {
+    height: auto;
+    min-height: 220px;
   }
 
   * {

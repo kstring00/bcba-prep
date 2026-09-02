@@ -1,10 +1,12 @@
 import Link from "next/link";
 
-export default function NotFound() {
+export const metadata = { title: "Refunds" };
+
+export default function RefundsPage() {
   return (
     <div className="prose">
-      <h1>Not found</h1>
-      <p>That shelf position is empty.</p>
+      <h1>Refunds</h1>
+      <p>[[TODO_REFUND_POLICY]]</p>
       <Link href="/" className="back-link">
         &larr; Back to the stack
       </Link>
