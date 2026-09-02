@@ -21,11 +21,42 @@ no image files at all).
   not read as a rectangle of tint.
 - `components/Icons.tsx`, `components/Motifs.tsx` — all line art, inline.
 
+## Product model
+
+The store is **domain-first**.
+
+Mock exams, study guides, quizzes, charts, flashcards, and other resources are
+contents of a domain — not separate storefront categories. A customer buys a
+domain (or later a multi-domain bundle), and that product's
+`entitlementSlugs` describe the domain access it is intended to grant.
+
+That entitlement mapping is kept in `lib/products.ts` now because it is cheap
+to adopt and expensive to retrofit. It does **not** mean the member platform
+must be built before launch.
+
+## MVP constraint
+
+The immediate goal is a finished, genuinely valuable domain product that can
+take a real Stripe payment.
+
+Early fulfillment may be manual. That is intentional. The current bottleneck
+is finished sellable content and first-sale validation, not authentication,
+a member portal, DRM, or entitlement persistence.
+
+The proposed Supabase member-library architecture is preserved in
+`supabase/schema.sql` and `BACKEND_HANDOFF.md` for a future phase. It should
+only become running infrastructure when paid demand makes automated access the
+actual constraint.
+
+Do not build fake screenshot prevention. If content protection becomes a real
+business problem later, prioritize authentication, entitlement checks, private
+source storage, account-linked watermarks, and session/account-sharing controls.
+
 ## Status
 
-Stack, detail view, cart and checkout. The study-content reader is not built.
-No prices, product copy, or BCBA subject matter is written here — every such
-value is a `[[TODO_...]]` token.
+Stack, detail view, cart and checkout foundation. The study-content reader is
+not built and is not an MVP requirement. No prices, product copy, or BCBA
+subject matter is written here — every such value is a `[[TODO_...]]` token.
 
 ```sh
 grep -rn '\[\[TODO_' --include='*.ts' --include='*.tsx' .
@@ -43,6 +74,9 @@ Everything on the About page that is a **checkable claim** is a token
 instead: the four stat figures, the personal story, and the testimonials.
 Those are Bryana's to write. A stat figure or a quote attributed to a named
 reviewer is not a design decision.
+
+Do not build the testimonial carousel around placeholders. Wait for at least
+three real testimonials with permission to publish the displayed quote/name.
 
 ## Setup
 
@@ -96,6 +130,12 @@ receives product ids and quantities only, and resolves every line against
 **Sales tax is an open decision**, flagged in a comment above the checkout
 route. Stripe direct makes the seller the merchant of record; a
 merchant-of-record platform takes that on for a few points of revenue.
+
+## Future member architecture
+
+If real sales later justify persistent member access, read
+`BACKEND_HANDOFF.md` first. The future architecture should reuse the existing
+server-derived `entitlementSlugs` rather than redesigning product access.
 
 ## Route transition
 
