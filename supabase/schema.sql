@@ -1,6 +1,24 @@
--- BCBA Prep member-library schema foundation.
--- Review/apply as a real Supabase migration only after creating a dedicated project.
--- All public-schema tables enable RLS.
+-- ==========================================================================
+-- FUTURE ARCHITECTURE ONLY — NOT REQUIRED FOR MVP LAUNCH
+-- ==========================================================================
+--
+-- The current product constraint is finished sellable content + first sales,
+-- not member-platform infrastructure. This file is preserved as a proposed
+-- future Supabase design so the entitlement model has a documented landing
+-- place if/when paid demand makes automated access the actual bottleneck.
+--
+-- DO NOT apply this schema merely because it exists in the repository.
+-- Review it again against current Supabase guidance before any real migration.
+-- No BCBA Prep Supabase project is connected by this file.
+--
+-- CRITICAL AUTHORIZATION RULE:
+-- Never authorize purchases, roles, or domain access from user_metadata /
+-- raw_user_meta_data. That metadata is user-editable. Authorization must come
+-- from trusted database rows / server-derived grants (and proper RLS).
+--
+-- All public-schema tables below enable RLS. `TO authenticated` alone is not
+-- authorization; policies also constrain rows to the current user/entitlement.
+-- ==========================================================================
 
 create extension if not exists pgcrypto;
 
@@ -163,6 +181,9 @@ using (
   )
 );
 
+-- Optional future publishing model. Do not build a testimonials CMS until
+-- real permissioned testimonials exist and managing them in code is actually
+-- inconvenient.
 create table if not exists public.testimonials (
   id uuid primary key default gen_random_uuid(),
   quote text not null,
@@ -186,19 +207,20 @@ for select
 to anon, authenticated
 using (is_published = true);
 
--- Private paid-material bucket. The browser intentionally receives no direct
--- SELECT policy on storage.objects. A server route should verify the member's
--- identity + entitlement and then fetch the requested page using the server-
--- only Supabase secret key.
+-- Future private paid-material bucket. This is part of the destination model,
+-- not a launch requirement. If this schema is ever applied, re-review the
+-- material-delivery design and current Supabase Storage guidance first.
 insert into storage.buckets (id, name, public)
 values ('materials', 'materials', false)
 on conflict (id) do update set public = excluded.public;
 
--- Do not add an authenticated SELECT policy on storage.objects for this bucket
--- unless the delivery architecture changes. RLS on public.materials controls
--- metadata visibility; private page bytes are delivered through the app server.
+-- Do not add a broad authenticated SELECT policy on storage.objects for this
+-- bucket unless the delivery architecture changes. RLS on public.materials
+-- controls metadata visibility; future private bytes should be served only
+-- after server-side identity + entitlement checks.
 
--- Optional helper for application-side checks. SECURITY INVOKER is deliberate.
+-- Optional helper for future application-side checks. SECURITY INVOKER is
+-- deliberate; do not replace it with SECURITY DEFINER to bypass RLS.
 create or replace function public.has_domain_entitlement(requested_domain_slug text)
 returns boolean
 language sql
