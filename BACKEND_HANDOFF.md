@@ -1,212 +1,196 @@
-# Backend handoff — BCBA Prep member library
+# BCBA Prep architecture handoff — MVP first
 
-This branch establishes the backend/product contract for the next build pass. It is intentionally written so another coding agent can continue without rediscovering the product model.
+> **Constraint rule:** finished sellable content and the first real sale come before member-platform infrastructure.
+>
+> This file records the intended destination architecture so the product does not paint itself into a corner. It is **not** a launch checklist. Do not provision Supabase, build the protected reader, or automate entitlements merely because designs for those systems exist here.
 
-## Product decision
+## What is true now
 
 BCBA Prep is **domain-first**, not file-first.
 
-Customers do not buy a standalone “Mock Exams” product, a standalone “Study Guides” product, or a standalone “Resources” product. Those materials are included inside whatever BCBA domain(s) the customer owns.
+Customers do not buy standalone “Mock Exams,” “Study Guides,” or “Resources” products. Those are contents of whichever BCBA domain the customer buys.
 
 Examples:
 
-- Buy Domain B → unlock all current/future Domain B materials.
-- Buy Domains B + C + E in a promotion → unlock B, C, and E.
-- Buy the complete bundle → unlock all nine domains.
+- Buy Domain B → the purchase grants Domain B.
+- Buy Domains B + C + E in a future promotion → the purchase grants B, C, and E.
+- Buy the complete bundle → the purchase grants all nine domains.
 
-`lib/products.ts` therefore maps every sellable product to `entitlementSlugs`. Payment fulfillment should always derive access from that server-side mapping. Never accept entitlement/domain names from the browser.
+`lib/products.ts` therefore maps every sellable product to `entitlementSlugs`.
 
-The top navigation has also been simplified accordingly. `/resources`, `/mock-exams`, and `/study-guides` should not be primary storefront tabs.
+That field is deliberately in production product code now because it is cheap to adopt and expensive to retrofit. For the MVP, it can simply tell the owner what the customer purchased for manual fulfillment. A future member system can persist the exact same grants.
 
-## Member flow
+Never accept entitlement/domain names from the browser. Derive them from the server-side product catalog.
 
-Recommended customer journey:
+The primary navigation is also domain-first. `/resources`, `/mock-exams`, and `/study-guides` are not primary storefront tabs.
 
-1. Visitor browses the public bookshelf and domain sales pages.
-2. Customer selects one or more domains / a bundle.
-3. Before checkout, require sign-in or account creation with Supabase Auth.
-4. The server creates a Stripe Checkout Session and attaches the verified Supabase user ID to the session metadata / `client_reference_id`.
-5. Stripe completes payment.
-6. The signed Stripe webhook looks up the paid line items by Stripe Price ID/product ID and derives domain grants from the server-side product catalog.
-7. Webhook records the purchase and creates domain entitlement rows idempotently.
-8. Customer lands in `/library` and sees only domains for which they have an active entitlement.
-9. Opening a purchased domain renders the material inside the site; it does not expose a permanent public file URL.
+## Current launch objective
 
-## Supabase recommendation
+Ship the smallest **genuinely valuable, complete domain product** Bryana can finish and accept real payment for it.
 
-Create a dedicated **BCBA Prep** Supabase project. Do not reuse an unrelated project.
+The platform can be minimal. The paid content should still feel excellent.
 
-Current Supabase guidance for Next.js App Router is cookie-based SSR using `@supabase/ssr`, with a browser client + request-scoped server client and a Next.js `proxy.ts` to refresh sessions. Protected server routes should validate identity with `auth.getClaims()` / `auth.getUser()` rather than trusting `getSession()` user data.
+Recommended launch flow:
 
-Environment contract is in `.env.example`.
+1. Visitor browses the public bookshelf/domain sales experience.
+2. Customer buys a finished domain through Stripe Checkout.
+3. Payment is verified through Stripe.
+4. Bryana manually fulfills the purchased domain using the verified order/customer email.
+5. Record customer feedback and whether buyers actually use/want the material.
 
-### Tables
+Manual fulfillment is acceptable while sales volume is small. Automate it only when fulfillment itself becomes a meaningful bottleneck.
 
-The starter SQL is in `supabase/schema.sql`.
+## What to build now
 
-Core concepts:
+### Merge / keep in running code
 
-- `member_profiles` — minimal member-facing profile data.
-- `purchases` — one row per Stripe Checkout Session.
-- `purchase_items` — immutable record of the product IDs paid for.
-- `entitlements` — the actual authorization source: which user owns which domain.
-- `materials` — metadata for resources inside a domain.
-- `testimonials` — public, publishable testimonials for the new carousel.
+- Domain-first navigation.
+- `Product.entitlementSlugs` in `lib/products.ts`.
+- Stripe server-side pricing/catalog authority.
+- Existing signed Stripe webhook verification.
+- Excellent sales pages for the first finished domain(s).
 
-Do **not** make purchase authorization decisions from user-editable auth metadata.
+### Keep as architecture documentation only
 
-## Material security / screenshot reality
+- `supabase/schema.sql`.
+- Future Supabase Auth + RLS model.
+- Future purchase/entitlement records.
+- Future private material storage.
 
-A normal website cannot reliably stop an operating-system screenshot. Browser JavaScript cannot control Windows/macOS/iOS/Android screen-capture APIs the way a managed desktop app, virtual desktop, DRM video player, or enterprise policy can.
+### Explicitly postpone
 
-So the goal is **deterrence + traceability + no easy source-file extraction**, not a false promise that screenshots are impossible.
+- Supabase project provisioning.
+- Login-required checkout.
+- Automated Stripe → Supabase entitlement fulfillment.
+- `/library` member portal.
+- Protected document reader.
+- Server-baked watermarks.
+- Testimonials CMS.
+- Testimonials carousel until there are at least three real, permissioned testimonials to design around.
+- Complex “pick 3 / pick 5” pricing until actual pricing is decided and demand exists.
 
-### Layered protection model
+## Decision gate for Phase 2
 
-1. **Authentication**
-   - Supabase Auth required for `/library` and every material endpoint.
+Do not build the member platform because it sounds polished. Build it when evidence says it removes the current constraint.
 
-2. **Authorization**
-   - Every material request checks an active `entitlements` row for `auth.uid()` + that material's `domain_slug`.
-   - RLS protects metadata tables.
+Signals that justify moving to automated membership include things like:
 
-3. **Private storage**
-   - Use a private Supabase Storage bucket named `materials`.
-   - Do not publish permanent Storage URLs.
-   - Prefer not to give the browser direct Storage SELECT access at all.
+- enough paid orders that manual delivery is becoming repetitive/error-prone;
+- customers repeatedly asking for one place to access purchases;
+- multiple domains are selling and customers commonly own more than one;
+- credential sharing or piracy is demonstrated rather than hypothetical;
+- support volume around lost links/files becomes material.
 
-4. **Server-mediated delivery**
-   - Recommended route shape: `/api/materials/[materialId]/pages/[page]`.
-   - Server validates the user's JWT and entitlement, then fetches from private storage using the server-only secret key.
-   - Return `Cache-Control: private, no-store`.
-   - Do not add a `Content-Disposition: attachment` download path.
+No single numerical threshold is sacred. The point is that revenue/use should pull the infrastructure into existence.
 
-5. **Prefer page assets over raw PDFs**
-   - For high-value PDFs, convert each source PDF into page images/WebP assets at ingestion time.
-   - Store those page assets privately by domain/material/page.
-   - The browser never receives the original PDF file in one request.
-   - This does not make extraction impossible, but it materially raises the effort required to duplicate an entire product.
+## Future Phase 2 — member platform
 
-6. **Personalized visible watermark**
-   - Overlay a repeating, low-opacity watermark in the reader containing a member identifier such as masked email + short user ID.
-   - Example: `k***@gmail.com · 8F21`.
-   - Move/rotate watermark positions subtly by session/page so bulk cropping is annoying.
-   - For strongest traceability, eventually bake the watermark server-side into the returned page image rather than relying only on removable DOM text.
+When automation becomes justified, the intended flow is:
 
-7. **UI deterrents**
-   - Disable ordinary text selection/context menu in the protected reader.
-   - Hide protected content in `@media print`.
-   - Intercept common print/save shortcuts as a deterrent only.
-   - These are UX barriers, not security controls.
+1. Customer authenticates with Supabase Auth before checkout.
+2. Server verifies the Supabase identity.
+3. Stripe Checkout Session receives that verified user ID in `client_reference_id` / metadata.
+4. Stripe completes payment.
+5. Signed webhook fetches the paid line items.
+6. Server maps those paid products to `entitlementSlugs` from `lib/products.ts`.
+7. Purchase + entitlement rows are created idempotently.
+8. Customer sees owned domains in `/library`.
 
-8. **Session/risk controls later**
-   - Record material-view events if abuse becomes a problem.
-   - Add rate limits for page fetches.
-   - Flag extreme page scraping / simultaneous geographic sessions for review.
+Do not grant access because the browser returns to a success URL. Access must come from a verified Stripe event.
 
-### Avoid
+## Future Supabase model
 
-- Public Supabase buckets for paid material.
-- Permanent signed URLs embedded into HTML.
-- A raw `/downloads/domain-b.pdf` route.
-- Authorization based only on “logged in = yes.”
-- Authorization based on `user_metadata`.
-- Claims that screenshots are impossible on the web.
+A proposed schema is preserved in `supabase/schema.sql` for later review. It is intentionally **not applied to any project**.
 
-## Stripe fulfillment contract
+When Phase 2 begins, create a dedicated BCBA Prep Supabase project rather than reusing an unrelated database.
 
-Checkout should eventually become **login-required**.
+The intended concepts are:
 
-When creating the Stripe Checkout Session:
+- `member_profiles` — minimal user-facing profile data.
+- `purchases` — verified Stripe purchases.
+- `purchase_items` — what was actually paid for.
+- `entitlements` — which domains the user may access.
+- `materials` — metadata for materials within each domain.
+- `testimonials` — optional future publishing model, only if a CMS is actually useful.
 
-- Resolve products server-side from `lib/products.ts` as today.
-- Resolve the logged-in Supabase user server-side.
-- Set `client_reference_id` to the Supabase user ID.
-- Also set `metadata.supabase_user_id` to that same verified ID for clarity.
-- Optionally prefill `customer_email` from the verified account email.
+### Authorization rule that must survive every future implementation
 
-On `checkout.session.completed`:
+**Never use Supabase `user_metadata` / `raw_user_meta_data` for authorization.** It is user-editable.
 
-1. Verify the Stripe signature (already implemented).
-2. Read the verified user ID from Stripe session metadata/reference.
-3. Fetch line items from Stripe.
-4. Map Stripe Price IDs back to the server-side `Product` records.
-5. Insert `purchases` using `stripe_checkout_session_id` as a unique idempotency key.
-6. Insert `purchase_items`.
-7. For each product, insert its `entitlementSlugs` into `entitlements`.
-8. Use unique constraints / upsert so Stripe retries cannot double-grant or corrupt data.
+Ownership/access must come from trusted database rows, server-derived product mappings, or trusted app metadata where appropriate. Every exposed user-data table must use proper Row Level Security; `TO authenticated` alone is authentication, not object-level authorization.
 
-Refund handling can be a second pass. Do not automatically revoke an entitlement until the business rule for partial refunds versus bundled access is defined.
+When Supabase is actually integrated, follow current Supabase SSR guidance rather than copying stale auth examples.
 
-## Bundle/deal architecture
+Future environment variables will be approximately:
 
-The current catalog has individual domain modules + a complete bundle. The model is intentionally compatible with future “pick your domains” deals.
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+SUPABASE_SECRET_KEY=...
+```
 
-Good future options:
+The secret key is server-only and must never be prefixed with `NEXT_PUBLIC_`.
 
-- 1 domain = normal price
-- pick any 3 = package discount
-- pick any 5 = larger package discount
-- all 9 = complete bundle
+## Future content protection — use evidence, not theater
 
-Do not encode this pricing until Bryana/Kyle decides the actual numbers. Access should still resolve to domain entitlements regardless of how the discount was priced.
+A normal website cannot reliably disable operating-system screenshots. Do not promise that it can.
 
-## Member library UI contract
+Also do **not** spend launch effort on right-click blocking, Cmd/Ctrl+S interception, Cmd/Ctrl+P interception, or aggressive copy prevention. Those controls are easy to bypass, annoy legitimate customers, and are not meaningful security boundaries.
 
-Suggested routes:
+If paid-content leakage becomes a real problem, prioritize controls in this order:
 
-- `/sign-in` — public auth gateway.
-- `/library` — authenticated bookshelf/dashboard showing owned + locked domains.
-- `/library/[slug]` — protected domain home.
-- `/library/[slug]/[material]` — protected reader/quiz/mock experience.
+1. verified authentication;
+2. domain entitlement authorization;
+3. private source storage / no public source-file URLs;
+4. account-linked visible watermarking;
+5. session/device/concurrent-login abuse controls;
+6. usage/rate monitoring;
+7. server-baked personalized rendering only if the value/piracy problem justifies its cost.
 
-A locked domain can still visually appear on the shelf as an upsell, but its protected material endpoints must remain server-authorized.
+The more likely early leak is shared credentials, not sophisticated screenshot extraction. Concurrent-session/account-sharing controls are therefore more valuable than fake screenshot prevention.
 
-## Testimonials carousel
+Server-baked watermarks remain a strong eventual option, but they require a rendering/caching/cost-control pipeline and are deliberately postponed until there is evidence they are needed.
 
-Bryana wants a beautiful testimonial carousel. The backend table is included now so the visual layer does not need testimonials hard-coded forever.
+## Future bundle/deal architecture
 
-Suggested fields:
+The entitlement model supports future pricing without changing authorization.
 
-- testimonial quote
-- name
-- credential/status (example: `BCBA Candidate`, only if supplied/verified)
-- optional rating
-- sort order
-- featured flag
-- published flag
+Possible later offers:
 
-Visual direction for the next frontend pass:
+- 1 domain = standard price
+- choose several domains = discount
+- complete A–I bundle = strongest package price
 
-- Editorial/luxury card rather than a generic SaaS slider.
-- Cream paper cards, fine gold rules, mauve/violet botanical accents consistent with the site.
-- One strong quote centered, adjacent cards partially visible on desktop.
-- Slow auto-advance, draggable/swipeable, dots or a thin progress rail.
-- Pause on hover/focus and respect reduced-motion settings.
-- Never invent testimonial copy or names.
+The pricing engine can change. The result remains a set of domain entitlements.
 
-## Files changed on this branch
+Do not implement pricing tiers until Bryana/Kyle sets real prices.
 
-- `components/SiteHeader.tsx` — removed Resources, Mock Exams, and Study Guides from primary navigation.
-- `lib/products.ts` — products now explicitly grant domain entitlement slugs.
-- `.env.example` — documented Supabase public + server-only variables.
-- `README.md` — records the new domain-first product model.
-- `supabase/schema.sql` — database/RLS/storage foundation.
-- `BACKEND_HANDOFF.md` — this implementation contract.
+## Testimonials
 
-## Next coding pass
+Do not build around placeholder social proof.
 
-Recommended order when continuing:
+Wait until Bryana has at least three real testimonials with explicit permission to publish the quote/name/credential being shown. Then design the carousel around the actual content lengths and assets.
 
-1. Create/connect dedicated BCBA Prep Supabase project.
-2. Install pinned `@supabase/supabase-js` and `@supabase/ssr` versions and commit the lockfile.
-3. Apply/review `supabase/schema.sql` as a real migration, then run Supabase security/performance advisors.
-4. Add `lib/supabase/client.ts`, `server.ts`, admin-only client, and session `proxy.ts` following current Supabase docs.
-5. Replace the placeholder sign-in page with real Supabase auth.
-6. Make checkout login-required and attach verified user identity.
-7. Finish webhook fulfillment → purchases + entitlements.
-8. Build `/library` with protected domain access.
-9. Build the page-based protected reader + watermark layer.
-10. Build the testimonial carousel against `testimonials`.
+Never invent quotes, names, credentials, pass rates, ratings, or statistics.
 
-Do not disturb the existing 3D book geometry/motion system while doing the backend pass unless necessary; the README documents several load-bearing implementation details.
+## Theory of Constraints check
+
+Before adding a new system, ask:
+
+> What currently prevents more finished product from reaching a paying customer?
+
+If the answer is “Bryana still needs to finish the domain,” more backend infrastructure does not move throughput.
+
+If the answer later becomes “we are manually delivering dozens of purchases and customers need persistent access,” then the member system is justified.
+
+## Next development order
+
+1. Finish one genuinely valuable domain package.
+2. Decide its product copy and price.
+3. Configure the real Stripe Price ID.
+4. Make checkout + payment verification reliable.
+5. Fulfill early paid orders manually.
+6. Observe sales, support load, repeat/multi-domain demand, and abuse.
+7. Build the next bottleneck — not the most interesting future feature.
+
+Do not disturb the existing 3D book geometry/motion system while making these changes unless necessary; the README documents several load-bearing implementation details.
