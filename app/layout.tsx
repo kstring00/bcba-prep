@@ -31,6 +31,22 @@ const SANS_STACK =
 export const metadata: Metadata = {
   title: "BCBA Prep by Bee the Behavior Bae",
   description: "[[TODO_SITE_META_DESCRIPTION]]",
+  // PRE-LAUNCH: keep every route out of public search results until Bee is
+  // ready to launch. Remove this together with the X-Robots-Tag header and
+  // app/robots.ts when indexing is intentionally enabled.
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      "max-snippet": 0,
+      "max-image-preview": "none",
+      "max-video-preview": 0,
+    },
+  },
 };
 
 export const viewport: Viewport = {
