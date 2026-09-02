@@ -6,7 +6,16 @@ import { useCart } from "@/lib/cart-context";
 import { formatPrice, getProduct } from "@/lib/products";
 
 export function CartPanel() {
-  const { lines, open, setOpen, setQuantity, subtotal } = useCart();
+  const {
+    lines,
+    open,
+    setOpen,
+    remove,
+    subtotal,
+    regularSubtotal,
+    savings,
+    pricingLabel,
+  } = useCart();
   const reduceMotion = useReducedMotion();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,13 +27,10 @@ export function CartPanel() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Ids and quantities only. No prices leave the client — the server
-        // resolves every line against lib/products.ts.
+        // Product ids only. Prices, discounts and entitlements are all derived
+        // again on the server from lib/products.ts.
         body: JSON.stringify({
-          items: lines.map((l) => ({
-            productId: l.productId,
-            quantity: l.quantity,
-          })),
+          items: lines.map((line) => ({ productId: line.productId, quantity: 1 })),
         }),
       });
       const data = await res.json();
@@ -62,7 +68,7 @@ export function CartPanel() {
             aria-label="Cart"
           >
             <div className="cart-head">
-              <p className="eyebrow eyebrow--foil">Cart</p>
+              <p className="eyebrow eyebrow--foil">Your licenses</p>
               <button
                 type="button"
                 className="btn btn--quiet"
@@ -75,46 +81,34 @@ export function CartPanel() {
             {lines.length === 0 ? (
               <p className="cart-empty">
                 Nothing here yet. Pick a domain from the stack, or take the
-                complete set.
+                complete A–I library.
               </p>
             ) : (
               <ul className="cart-lines">
                 {lines.map((line) => {
                   const product = getProduct(line.productId);
                   if (!product) return null;
-                  const price = formatPrice(product.price);
                   return (
                     <li className="cart-line" key={line.productId}>
                       <div>
-                        {product.kind === "bundle" ? (
-                          <span className="cart-line-kind">Complete set</span>
-                        ) : null}
+                        <span className="cart-line-kind">
+                          {product.kind === "bundle"
+                            ? "Complete library license"
+                            : "Personal domain license"}
+                        </span>
                         <p className="cart-line-name">{product.name}</p>
                         <span className="cart-line-price">
-                          {price ?? "Price to be set"}
+                          {formatPrice(product.price)}
                         </span>
                       </div>
-                      <div className="qty">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQuantity(line.productId, line.quantity - 1)
-                          }
-                          aria-label={`Remove one ${product.name}`}
-                        >
-                          &minus;
-                        </button>
-                        <span>{line.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQuantity(line.productId, line.quantity + 1)
-                          }
-                          aria-label={`Add one ${product.name}`}
-                        >
-                          +
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className="btn btn--quiet"
+                        onClick={() => remove(line.productId)}
+                        aria-label={`Remove ${product.name}`}
+                      >
+                        Remove
+                      </button>
                     </li>
                   );
                 })}
@@ -123,11 +117,27 @@ export function CartPanel() {
 
             <div className="cart-foot">
               <hr className="hairline" />
+              {pricingLabel ? (
+                <div className="cart-pricing-note">
+                  <span>{pricingLabel}</span>
+                  {savings > 0 ? <strong>Save {formatPrice(savings)}</strong> : null}
+                </div>
+              ) : null}
+              {savings > 0 ? (
+                <div className="cart-total cart-total--regular">
+                  <span className="eyebrow">Regular</span>
+                  <span>{formatPrice(regularSubtotal)}</span>
+                </div>
+              ) : null}
               <div className="cart-total">
-                <span className="eyebrow">Subtotal</span>
-                <span className="price">{formatPrice(subtotal) ?? "—"}</span>
+                <span className="eyebrow">License total</span>
+                <span className="price">{formatPrice(subtotal)}</span>
               </div>
               {error ? <p className="cart-error">{error}</p> : null}
+              <p className="cart-license-note">
+                Purchase grants one personal, non-transferable license to the
+                selected domain materials. Automatic bundle pricing is applied at checkout.
+              </p>
               <button
                 type="button"
                 className="btn btn--solid"
@@ -135,7 +145,7 @@ export function CartPanel() {
                 disabled={lines.length === 0 || pending}
                 onClick={checkout}
               >
-                {pending ? "Opening checkout…" : "Checkout"}
+                {pending ? "Opening secure checkout…" : "Purchase licenses"}
               </button>
             </div>
           </motion.aside>
