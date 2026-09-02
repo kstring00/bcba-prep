@@ -1,6 +1,10 @@
 import Script from "next/script";
 
-const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim();
+// Microsoft Clarity project IDs are public tracking identifiers, not secrets.
+// Keep the env override so the project can be changed without editing code,
+// while using the current BCBA Prep project by default in production.
+const CLARITY_PROJECT_ID =
+  process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim() || "ybt99474wv";
 
 function validProjectId(value: string | undefined): value is string {
   return Boolean(value && /^[a-zA-Z0-9]+$/.test(value));
