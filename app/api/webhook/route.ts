@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 
-// Signature verification needs the raw body, so this must run on Node, not
-// the edge, and the body must not be parsed before it is verified.
+// Signature verification needs the raw body, so this must run on Node and the
+// body must not be parsed before Stripe verifies it.
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
@@ -24,7 +24,6 @@ export async function POST(request: Request) {
   try {
     event = getStripe().webhooks.constructEvent(payload, signature, secret);
   } catch (error) {
-    // An unverified payload is not a customer event. Reject it.
     console.error("[webhook] signature verification failed", error);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -32,21 +31,41 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
+    if (session.payment_status !== "paid") {
+      return NextResponse.json({ received: true });
+    }
+
+    // Checkout writes these values from the trusted server-side catalogue.
+    // They are therefore the canonical description of what the customer
+    // licensed; never replace them with entitlement values supplied by a
+    // browser request.
+    const entitlementSlugs = (session.metadata?.entitlement_slugs ?? "")
+      .split(",")
+      .map((slug) => slug.trim())
+      .filter(Boolean);
+    const licenseScope = session.metadata?.license_scope ?? "unknown";
+    const email = session.customer_details?.email ?? null;
+
     /*
-      [[TODO_FULFILMENT]]
+      FUTURE AUTOMATED FULFILMENT
 
-      Deliver the purchased modules to session.customer_details?.email.
-      Not built in this pass.
+      Persist event.id + session.id idempotently, associate the verified email
+      / member account, and grant entitlementSlugs. Stripe may deliver the same
+      event more than once, so future persistence MUST be unique on event.id or
+      session.id before access is granted.
 
-      Two things whoever builds it will need:
-      - Stripe retries on non-2xx, and can deliver the same event more than
-        once, so fulfilment must be idempotent on event.id.
-      - The line items are not on the session object as delivered; fetch them
-        with stripe.checkout.sessions.listLineItems(session.id).
+      Until automated entitlement storage is connected, Stripe itself remains
+      the durable payment record and the session metadata records exactly which
+      domain licenses were purchased.
     */
-    console.log("[webhook] paid session", session.id);
+    console.log("[webhook] paid license", {
+      eventId: event.id,
+      sessionId: session.id,
+      email,
+      licenseScope,
+      entitlementSlugs,
+    });
   }
 
-  // Acknowledge everything else so Stripe stops retrying.
   return NextResponse.json({ received: true });
 }
