@@ -1,20 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Newsreader } from "next/font/google";
+import { Cormorant_Garamond, Parisienne } from "next/font/google";
 import { CartPanel } from "@/components/CartPanel";
 import { Footer } from "@/components/Footer";
-import { NavRail } from "@/components/NavRail";
 import { PageTransition } from "@/components/PageTransition";
+import { SiteHeader } from "@/components/SiteHeader";
 import { CartProvider } from "@/lib/cart-context";
-import { ThemeProvider } from "@/lib/theme-context";
 import "./globals.css";
 
 // Self-hosted by next/font at build time: the files are emitted into this
 // app's own static output and preloaded. No CDN request at runtime.
-const newsreader = Newsreader({
+const display = Cormorant_Garamond({
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500"],
-  variable: "--font-serif",
+  weight: ["400", "500", "600"],
+  variable: "--font-display",
+});
+
+const script = Parisienne({
+  subsets: ["latin"],
+  display: "swap",
+  weight: "400",
+  variable: "--font-script",
 });
 
 // UI chrome runs on the system stack — nothing to download.
@@ -22,12 +28,12 @@ const SANS_STACK =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 export const metadata: Metadata = {
-  title: "BCBA Prep — Sixth Edition",
+  title: "BCBA Prep by Bryana Utley",
   description: "[[TODO_SITE_META_DESCRIPTION]]",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0D0B09",
+  themeColor: "#F8F3EC",
   width: "device-width",
   initialScale: 1,
   // TikTok's in-app browser will zoom on a mistap; let it.
@@ -40,24 +46,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={newsreader.variable}>
+    <html lang="en" className={`${display.variable} ${script.variable}`}>
       <body style={{ "--font-sans": SANS_STACK } as React.CSSProperties}>
-        <ThemeProvider>
-          <CartProvider>
-            <div className="app">
-              {/* The rail is fixed but carries no 3D transform, so the cart
-                  button inside it is a valid flight target and stays put. */}
-              <NavRail />
-              <div className="main">
-                <div className="shell">
-                  <PageTransition>{children}</PageTransition>
-                  <Footer />
-                </div>
-              </div>
-            </div>
-            <CartPanel />
-          </CartProvider>
-        </ThemeProvider>
+        <CartProvider>
+          <SiteHeader />
+          {/* Pages own their own container: several sections are full-bleed
+              bands, which a shared max-width wrapper would cut off. */}
+          <main className="main">
+            <PageTransition>{children}</PageTransition>
+          </main>
+          <Footer />
+          <CartPanel />
+        </CartProvider>
       </body>
     </html>
   );

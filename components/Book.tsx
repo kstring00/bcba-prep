@@ -1,6 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "motion/react";
 import { useRef } from "react";
 import type { Domain } from "@/lib/domains";
 import { nameColor } from "@/lib/domains";
@@ -112,7 +117,9 @@ export function Book({ domain, variant, index = 0 }: Props) {
           }
           animate={{ opacity: 1, filter: `brightness(${isCover ? 1 : 1.14})` }}
           transition={
-            reduceMotion ? { duration: 0 } : { ...BOOK_TRANSITION, duration: 0.34 }
+            reduceMotion
+              ? { duration: 0 }
+              : { ...BOOK_TRANSITION, duration: 0.34 }
           }
         >
           {isCover ? (
@@ -127,7 +134,10 @@ export function Book({ domain, variant, index = 0 }: Props) {
               transition={
                 reduceMotion
                   ? { duration: 0 }
-                  : { ...BOOK_TRANSITION, opacity: { duration: 0.3, delay: 0.24 } }
+                  : {
+                      ...BOOK_TRANSITION,
+                      opacity: { duration: 0.3, delay: 0.24 },
+                    }
               }
             >
               <div className="cover-head">
@@ -170,7 +180,9 @@ export function Book({ domain, variant, index = 0 }: Props) {
             <>
               <span className="spine-rule" aria-hidden="true" />
               <span className="spine-text">
-                <span className="spine-eyebrow">Domain {domain.letter} &mdash;</span>
+                <span className="spine-eyebrow">
+                  Domain {domain.letter} &mdash;
+                </span>
                 <span className="spine-name" style={{ color: ink }}>
                   {domain.short}
                 </span>

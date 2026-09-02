@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { Book } from "@/components/Book";
 import { BundleCard } from "@/components/BundleCard";
+import { Florals, Ornament } from "@/components/Florals";
 import { BOOK_TRANSITION } from "@/components/motion-config";
 import { domains } from "@/lib/domains";
 
@@ -16,43 +17,29 @@ import { domains } from "@/lib/domains";
 const JOG_X = [0, 34, 16, 40, 36, 2, 24, 8, 18];
 const JOG_W = [10, 0, 8, 2, 4, 12, 4, 0, 2];
 
-export default function StackPage() {
+export default function LibraryPage() {
   const reduceMotion = useReducedMotion();
   const [openingSlug, setOpeningSlug] = useState<string | null>(null);
 
-  /*
-    The copy in this hero is transcribed from the reference design the
-    project owner supplied, not written here. Anything the reference did not
-    show is still a [[TODO_]] token.
-  */
   return (
     <>
-      <div className="hero">
-        <div className="hero-intro">
-          <h1 className="site-title">BCBA Prep</h1>
-          <p className="site-edition">Sixth Edition</p>
+      <section className="bleed">
+        <Florals variant="hero-left" className="floral floral--hero-left" />
+        <Florals variant="hero-right" className="floral floral--hero-right" />
 
-          <hr className="rule-short" style={{ margin: "30px 0 0" }} />
+        <div className="bleed-inner">
+          <div className="home-head">
+            <p className="script">The library</p>
+            <h1 className="display">
+              Nine domains. <span className="accent">One standard.</span>
+            </h1>
+            <Ornament wide />
+            <p>
+              Every domain of the BACB<sup>&reg;</sup> Task List, bound and
+              weighted the way the exam is. Open one to see what is inside.
+            </p>
+          </div>
 
-          <p className="lede">
-            Mastery across
-            <br />
-            every domain.
-          </p>
-          <p className="lede-body">
-            Comprehensive study.
-            <br />
-            Evidence-based.
-            <br />
-            Exam-ready.
-          </p>
-
-          <Link href="#stack" className="explore">
-            Explore the domains <span aria-hidden="true">&darr;</span>
-          </Link>
-        </div>
-
-        <div className="hero-stack">
           <ul className="stack" id="stack">
             {domains.map((domain, index) => {
               const isOpening = domain.slug === openingSlug;
@@ -113,51 +100,10 @@ export default function StackPage() {
               );
             })}
           </ul>
+
+          <BundleCard />
         </div>
-
-        <div className="hero-badge">
-          <div className="badge-card">
-            <span className="badge-shield" aria-hidden="true">
-              6E
-            </span>
-            <div>
-              <p className="badge-title">Sixth Edition</p>
-              <p className="badge-body">
-                All domains updated.
-                <br />
-                Always aligned.
-                <br />
-                Always current.
-              </p>
-              <Link href="/updates" className="btn" style={{ marginTop: 16 }}>
-                View updates <span aria-hidden="true">&#8599;</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="hero-note">
-          <p className="eyebrow">Science. Ethics. Impact.</p>
-
-          <div>
-            <hr className="rule-short" style={{ marginLeft: "auto" }} />
-            <p className="rail-note" style={{ marginTop: 26 }}>
-              Nine domains.
-              <br />
-              One standard.
-              <br />
-              Your future.
-            </p>
-            <p className="rail-sub">
-              Aligned to the BACB<sup>&reg;</sup>
-              <br />
-              Task List (6th Edition)
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <BundleCard />
+      </section>
     </>
   );
 }

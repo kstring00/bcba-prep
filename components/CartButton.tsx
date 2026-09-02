@@ -1,15 +1,20 @@
 "use client";
 
-import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
+import {
+  animate,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+} from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 
 /**
  * The cart control, and the landing target for the add-to-cart flight.
  *
- * Lives in the nav rail. The rail is `position: fixed` but carries no 3D
- * transform, so it stays a valid containing block and the flight's
- * getBoundingClientRect target stays accurate as the page scrolls.
+ * Lives in the sticky header. The header carries no 3D transform, so it
+ * stays a valid containing block and the flight's getBoundingClientRect
+ * target stays accurate as the page scrolls.
  */
 export function CartButton() {
   const { count, setOpen, registerImpact } = useCart();
@@ -45,14 +50,14 @@ export function CartButton() {
   return (
     <motion.button
       type="button"
+      className="pill"
       data-cart-target=""
       onClick={() => setOpen(true)}
       style={{ y: knock, position: "relative" }}
       aria-label={`Cart, ${count} item${count === 1 ? "" : "s"}`}
     >
       Cart
-      {count > 0 ? <span className="rail-count">{count}</span> : null}
-
+      {count > 0 ? <span className="cart-count">{count}</span> : null}
       {/* Ring rippling out from the control as it takes the hit. */}
       {ripple > 0 && !reduceMotion ? (
         <motion.span

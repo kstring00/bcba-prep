@@ -1,7 +1,11 @@
 /* ---------------------------------------------------------------
-   BCBA Prep — stack geometry + chrome.
+   BCBA Prep by Bryana Utley
 
-   THE 3D MODEL (CSS transforms only; no WebGL, no assets)
+   Cream ground, watercolour florals, gold hairlines, mauve accents.
+   Set from the reference design; every colour is a token so the whole
+   palette moves from this one block.
+
+   THE 3D BOOK MODEL (CSS transforms only; no WebGL, no assets)
 
      .stack-row        perspective container
        .book           transform-style: preserve-3d
@@ -18,21 +22,14 @@
    1. The spine hinges forward off the cover's top edge at rotateX(+90deg):
       its bottom edge (0,0,+d) is a ledge standing toward the viewer, and its
       face normal (0,0,1) becomes (0,-1,0) — pointing straight up.
-
    2. The book then rotates by BOOK_TILT = -100deg:
-        spine normal (0,-1,0)  ->  (0, -cos100, +sin100) ~ (0,+0.17,+0.98)
-          the spine faces the viewer, angled very slightly down.
-        spine bottom (0,0,+d)  ->  y' = +0.98d
-          the spine reads as a band below the hinge.
-        cover bottom (0,H,0)   ->  y' = -0.17H,  z' = -0.98H
-          the cover recedes UP and BACK.
+        spine normal (0,-1,0) -> (0, -cos100, +sin100) ~ (0,+0.17,+0.98)
+        spine bottom (0,0,+d) -> y' = +0.98d
+        cover bottom (0,H,0)  -> y' = -0.17H, z' = -0.98H  (recedes UP and BACK)
 
-   That last line is the whole point of going PAST -90deg. At -83deg the
-   cover recedes down and back, which is the view from *below* a pile. Past
-   -90deg it recedes up and back, so you are looking DOWN on the stack and a
-   lit sliver of each book's top board shows above its spine. That top-face
-   visibility is what makes it read as a physical pile rather than a row of
-   rectangles.
+   Going PAST -90deg is the whole point: it puts the viewer above the pile so
+   a lit sliver of each book's top board shows. At -83deg the cover recedes
+   down and back, which is the view from BELOW a pile.
 
    Local "up" on the spine maps back to screen-up, so spine text renders
    upright and unmirrored. Flip either sign and you get mirrored text or a
@@ -46,69 +43,59 @@
    --------------------------------------------------------------- */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  --bg: #0d0b09;
-  --bg-raised: #14120f;
-  --bg-sunk: #080706;
-  --ink: #ebe3d4;
-  --ink-dim: #8b8378;
-  --ink-faint: #5c564c;
-  --rule: #241f1a;
-  --rule-strong: #322b23;
-  --foil: #c9a961;
-  --foil-dim: rgba(201, 169, 97, 0.34);
-  --vignette: 0.56;
-  --grain: 0.045;
+  --cream: #f8f3ec;
+  --cream-deep: #f1e9dd;
+  --cream-card: #fdfaf5;
+  --night: #131110;
+  --night-soft: #1e1a19;
 
-  --rail-w: 118px;
+  --ink: #1b1512;
+  --ink-body: #4f4740;
+  --ink-dim: #7d746c;
+  --ink-faint: #a49b93;
+  --on-night: #f2ebe0;
+  --on-night-dim: #a89e93;
+
+  --mauve: #8b7194;
+  --mauve-light: #a98cb0;
+  --mauve-deep: #6a5473;
+  --mauve-band: #8d7592;
+
+  --gold: #c6a667;
+  --gold-deep: #a8874a;
+  --gold-dim: rgba(198, 166, 103, 0.36);
+
+  --rule: rgba(27, 21, 18, 0.11);
+  --rule-strong: rgba(27, 21, 18, 0.2);
+  --rule-night: rgba(242, 235, 224, 0.14);
+
+  --header-h: 74px;
   --spine-depth: 84px;
   --book-tilt: -100deg;
   --perspective: 1400px;
   --stack-gap: 10px;
   --taper-w: 0px;
   --jog: 1;
-  --measure: 1560px;
+  --measure: 1440px;
+  --pad: clamp(20px, 3.4vw, 54px);
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/*
-  Light mode. Every surface colour in the app is a token, so the whole theme
-  is this one block — the cloth colours of the books are deliberately NOT
-  tokens and stay put, the way a real binding does under a different lamp.
-*/
-:root[data-theme="paper"] {
-  color-scheme: light;
-
-  --bg: #f0ebe1;
-  --bg-raised: #e7e1d5;
-  --bg-sunk: #ded7c9;
-  --ink: #23201b;
-  --ink-dim: #61594d;
-  --ink-faint: #8b8275;
-  --rule: #d3cabb;
-  --rule-strong: #bfb5a4;
-  --foil: #8a6d28;
-  --foil-dim: rgba(138, 109, 40, 0.3);
-  --vignette: 0.16;
-  --grain: 0.03;
-}
-
 @media (max-width: 1180px) {
   :root {
-    --measure: 1100px;
     --spine-depth: 76px;
   }
 }
 
 @media (max-width: 900px) {
   :root {
-    --rail-w: 0px;
+    --header-h: 62px;
     --perspective: 900px;
     --spine-depth: 68px;
     --stack-gap: 8px;
-    /* A 40px jog is a tenth of a 380px screen. Rein it in. */
     --jog: 0.4;
   }
 }
@@ -130,45 +117,25 @@ body {
 }
 
 body {
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--cream);
+  color: var(--ink-body);
   font-family: var(--font-sans);
   font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
-/*
-  Two full-page plates: grain, then a vignette.
-
-  The vignette is the one gradient in the design, and it is deliberate. It is
-  a lighting device for the whole page — the stack is lit from above and
-  falls off into the corners — not a texture faking cloth on a surface. Book
-  faces stay flat colour.
-*/
-body::before,
-body::after {
+/* A single low-opacity paper grain over everything. */
+body::before {
   content: "";
   position: fixed;
   inset: 0;
-  pointer-events: none;
-}
-
-body::before {
   z-index: 9998;
-  opacity: var(--grain);
+  pointer-events: none;
+  opacity: 0.035;
   background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-body::after {
-  z-index: 9997;
-  background: radial-gradient(
-    132% 96% at 52% 44%,
-    transparent 30%,
-    rgba(0, 0, 0, calc(var(--vignette) * 0.42)) 68%,
-    rgba(0, 0, 0, var(--vignette)) 100%
-  );
 }
 
 a {
@@ -186,24 +153,45 @@ button {
 
 /* ---------------- type ---------------- */
 
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.012em;
+  line-height: 1.06;
+  margin: 0;
+}
+
+.script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  color: var(--mauve-light);
+  /* Parisienne has a small x-height; it needs more point size than a
+     sans would to read at the same visual weight. */
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1.05;
+  margin: 0 0 4px;
+}
+
+/* On the dark panel the plain gold sits too close to the ground. */
+.script--gold {
+  color: #dcc084;
+}
+
 .eyebrow {
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink-dim);
   margin: 0;
 }
 
-.eyebrow--foil {
-  color: var(--foil);
+.ornament {
+  display: block;
 }
 
-.rule-short {
-  width: 26px;
-  height: 1px;
-  background: var(--rule-strong);
-  margin: 0;
-  border: 0;
+.ornament--center {
+  margin: 18px auto;
 }
 
 .hairline {
@@ -212,362 +200,923 @@ button {
   margin: 0;
 }
 
-/* ---------------- app shell ---------------- */
-
-.app {
-  min-height: 100vh;
+.accent {
+  color: var(--mauve-light);
 }
 
-.navrail {
-  position: fixed;
-  left: 0;
+/* ---------------- header ---------------- */
+
+.site-header {
+  position: sticky;
   top: 0;
-  bottom: 0;
-  width: var(--rail-w);
-  border-right: 1px solid var(--rule);
+  z-index: 140;
+  height: var(--header-h);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 26px 0 22px;
-  z-index: 120;
-  background: var(--bg);
+  gap: 20px;
+  padding: 0 var(--pad);
+  background: rgba(248, 243, 236, 0.92);
+  backdrop-filter: saturate(1.2) blur(8px);
+  border-bottom: 1px solid var(--rule);
 }
 
-.monogram {
-  font-family: var(--font-serif);
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+.brand-mark {
+  font-family: var(--font-display);
   font-size: 27px;
   line-height: 1;
-  color: var(--foil);
-  letter-spacing: -0.06em;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
+  color: var(--gold-deep);
+  letter-spacing: -0.07em;
 }
 
-.rail-spacer {
+.brand-name {
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.brand-name small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-dim);
+}
+
+.site-nav {
   flex: 1 1 auto;
-}
-
-.rail-dots {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  gap: clamp(14px, 2.2vw, 34px);
+}
+
+.site-nav a {
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-body);
+  min-height: 44px;
+  display: inline-flex;
   align-items: center;
-  gap: 13px;
-  margin: 34px 0;
-  list-style: none;
-  padding: 0;
+  border-bottom: 1px solid transparent;
+  transition: color 170ms var(--ease), border-color 170ms var(--ease);
 }
 
-.rail-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  border: 1px solid var(--ink-faint);
-  transition: all 220ms var(--ease);
+.site-nav a:hover {
+  color: var(--mauve);
 }
 
-.rail-dot[data-on="true"] {
-  width: 8px;
-  height: 8px;
-  border-color: var(--foil);
-  background: var(--foil-dim);
+.site-nav a[aria-current="page"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
 }
 
-.rail-links {
+.header-end {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  gap: 10px;
 }
 
-.rail-links a,
-.rail-links button {
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 999px;
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--ink-dim);
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: color 160ms var(--ease);
+  color: var(--gold-deep);
+  background: var(--cream-card);
+  transition: background-color 180ms var(--ease), color 180ms var(--ease),
+    border-color 180ms var(--ease);
 }
 
-.rail-links a:hover,
-.rail-links button:hover {
-  color: var(--foil);
+.pill:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
 }
 
-.rail-count {
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
-  background: var(--foil);
-  color: var(--bg-sunk);
-  font-size: 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.rail-toggle {
-  margin-top: 22px;
+.nav-toggle {
+  display: none;
   width: 44px;
   height: 44px;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink-faint);
-  transition: color 160ms var(--ease);
+  color: var(--ink);
 }
 
-.rail-toggle:hover {
-  color: var(--foil);
-}
-
-/* Mobile: the rail becomes a top bar. */
-.railbar {
-  display: none;
-}
-
-@media (max-width: 900px) {
-  .navrail {
+@media (max-width: 1100px) {
+  .site-nav {
     display: none;
   }
 
-  .railbar {
-    position: sticky;
-    top: 0;
-    z-index: 120;
+  .site-nav--open {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 12px 20px;
-    background: var(--bg);
+    position: absolute;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px var(--pad) 18px;
+    background: var(--cream);
     border-bottom: 1px solid var(--rule);
   }
 
-  .railbar nav {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .site-nav--open a {
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* The login pill does not fit beside the brand and cart at phone widths;
+     it moves into the menu instead of forcing the layout wider than the
+     device. Left in the bar it pushed the layout to 443px on a 380px
+     screen, which the browser hid by zooming the whole page out. */
+  .pill--login {
+    display: none;
+  }
+
+  .nav-login {
+    display: inline-flex;
   }
 }
 
+.nav-login {
+  display: none;
+}
+
+/* ---------------- layout ---------------- */
+
 .main {
-  margin-left: var(--rail-w);
+  min-height: 60vh;
 }
 
 .shell {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 0 clamp(20px, 3.4vw, 54px) 110px;
+  padding: 0 var(--pad) 90px;
 }
 
-/* ---------------- hero ---------------- */
+.bleed {
+  position: relative;
+  overflow: hidden;
+}
 
-.hero {
+.bleed-inner {
+  position: relative;
+  z-index: 2;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+
+/* Floral placement. Always behind, never tappable. */
+.floral {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Each cluster is masked to fade toward the content it sits beside. Without
+   this the SVG's own bounding box reads as a hard-edged rectangle of tint. */
+.floral--hero-left {
+  left: min(-6vw, -70px);
+  top: -40px;
+  width: clamp(240px, 28vw, 430px);
+  height: 128%;
+  -webkit-mask-image: linear-gradient(to right, #000 34%, transparent 94%);
+  mask-image: linear-gradient(to right, #000 34%, transparent 94%);
+}
+
+.floral--hero-right {
+  right: min(-8vw, -80px);
+  top: -30px;
+  width: clamp(220px, 26vw, 400px);
+  height: 126%;
+  -webkit-mask-image: linear-gradient(to left, #000 34%, transparent 94%);
+  mask-image: linear-gradient(to left, #000 34%, transparent 94%);
+}
+
+.floral--corner-right {
+  right: -80px;
+  bottom: -80px;
+  width: clamp(200px, 24vw, 380px);
+  height: 440px;
+  -webkit-mask-image: radial-gradient(120% 120% at 100% 100%, #000 32%, transparent 82%);
+  mask-image: radial-gradient(120% 120% at 100% 100%, #000 32%, transparent 82%);
+}
+
+.floral--band-right {
+  right: -70px;
+  top: -40px;
+  width: clamp(200px, 24vw, 400px);
+  height: 150%;
+  -webkit-mask-image: linear-gradient(to left, #000 26%, transparent 90%);
+  mask-image: linear-gradient(to left, #000 26%, transparent 90%);
+}
+
+@media (max-width: 760px) {
+  .floral--hero-right,
+  .floral--band-right {
+    opacity: 0.5;
+  }
+}
+
+/* ---------------- about: hero ---------------- */
+
+.about-hero {
+  padding: clamp(40px, 6vw, 84px) 0 clamp(50px, 7vw, 96px);
+}
+
+.about-hero-grid {
   display: grid;
-  grid-template-columns:
-    minmax(210px, 300px)
-    minmax(0, 1fr)
-    minmax(190px, 268px);
-  grid-template-rows: auto 1fr;
-  gap: clamp(24px, 3.6vw, 66px);
-  padding-top: 44px;
-  min-height: calc(100vh - 44px);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 44%);
+  gap: clamp(30px, 5vw, 76px);
+  align-items: center;
 }
 
-.hero-intro {
-  grid-column: 1;
-  grid-row: 1;
-  min-width: 0;
+.about-hero h1 {
+  font-size: clamp(40px, 6.4vw, 82px);
+  margin: 4px 0 0;
 }
 
-/* Sits at the foot of the left column, as a colophon does. */
-.hero-badge {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: end;
-  padding-bottom: 34px;
-  min-width: 0;
+.about-hero .ornament {
+  margin: 26px 0 22px;
 }
 
-.hero-stack {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  min-width: 0;
-}
-
-.hero-note {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  text-align: right;
-  min-width: 0;
-}
-
-/* The lower note sits against the middle of the pile, not at its foot. */
-.hero-note > :last-child {
-  margin-top: 45%;
-}
-
-.site-title {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(34px, 3.4vw, 46px);
-  line-height: 1;
-  letter-spacing: -0.022em;
+.about-lede {
+  max-width: 44ch;
+  font-size: clamp(14px, 1.05vw, 15.5px);
+  line-height: 1.72;
+  color: var(--ink-body);
   margin: 0;
 }
 
-.site-edition {
-  font-family: var(--font-serif);
-  font-size: 17px;
-  color: var(--ink-dim);
-  margin: 8px 0 0;
+.portrait {
+  position: relative;
+  aspect-ratio: 5 / 6;
+  max-height: min(62vh, 520px);
+  max-width: 430px;
+  margin-left: auto;
+  border-radius: 999px 999px 14px 14px;
+  border: 1px solid var(--gold-dim);
+  padding: 10px;
+  background: var(--cream-card);
 }
 
-.lede {
-  margin: 26px 0 0;
-  font-size: 11px;
-  letter-spacing: 0.19em;
-  line-height: 1.9;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-.lede-body {
-  margin: 16px 0 0;
-  font-size: 13px;
-  line-height: 1.75;
-  color: var(--ink-dim);
-}
-
-.explore {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 26px;
-  font-size: 10px;
-  letter-spacing: 0.19em;
-  text-transform: uppercase;
-  color: var(--foil);
-  min-height: 44px;
-}
-
-.explore:hover {
-  color: var(--ink);
-}
-
-/* 6E badge card */
-
-.badge-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 16px;
-  align-items: start;
-}
-
-.badge-shield {
-  width: 46px;
-  height: 54px;
-  flex: 0 0 auto;
-  border: 1px solid var(--foil-dim);
-  border-radius: 3px 3px 22px 22px;
+.portrait-inner {
+  height: 100%;
+  border-radius: 999px 999px 8px 8px;
+  background: var(--cream-deep);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-serif);
-  font-size: 15px;
-  color: var(--foil);
-}
-
-.badge-title {
-  font-family: var(--font-serif);
-  font-size: 16px;
-  margin: 0 0 6px;
-}
-
-.badge-body {
-  margin: 0;
-  font-size: 12.5px;
-  line-height: 1.65;
-  color: var(--ink-dim);
-}
-
-.rail-note {
-  font-size: 11px;
-  letter-spacing: 0.19em;
-  line-height: 1.95;
+  text-align: center;
+  padding: 26px;
+  overflow: hidden;
+  color: var(--ink-faint);
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink);
-  margin: 0;
+  overflow-wrap: anywhere;
 }
 
-.rail-sub {
-  margin: 14px 0 0;
-  font-size: 12.5px;
-  line-height: 1.65;
+.portrait-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+@media (max-width: 860px) {
+  .about-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .portrait {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+}
+
+/* ---------------- about: stats band ---------------- */
+
+.stats {
+  background: var(--night);
+  color: var(--on-night);
+  position: relative;
+  z-index: 3;
+}
+
+.stats-inner {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(22px, 3vw, 34px) var(--pad);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 6px 14px;
+  min-width: 0;
+  border-right: 1px solid var(--rule-night);
+}
+
+.stat:last-child {
+  border-right: 0;
+}
+
+.stat svg {
+  color: var(--gold);
+  flex: 0 0 auto;
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(19px, 1.9vw, 27px);
+  line-height: 1.15;
+  color: var(--on-night);
+  overflow-wrap: anywhere;
+}
+
+/* Placeholder tokens are far longer than the figures that will replace
+   them. Render them small so an unfilled stat does not blow out the band. */
+.stat-num--todo {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--on-night-dim);
+  line-height: 1.4;
+}
+
+@media (max-width: 780px) {
+  .stats-inner {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px 0;
+  }
+
+  .stat:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .stat:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--rule-night);
+    padding-bottom: 16px;
+  }
+
+  .stat:nth-last-child(-n + 2) {
+    padding-top: 16px;
+  }
+}
+
+/* ---------------- about: resources ---------------- */
+
+.resources {
+  padding: clamp(48px, 7vw, 92px) 0 clamp(40px, 6vw, 76px);
+  text-align: center;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.section-head h2 {
+  font-size: clamp(26px, 3.4vw, 40px);
+}
+
+.section-sub {
+  margin: 12px 0 0;
   color: var(--ink-dim);
+  font-size: 14px;
 }
 
-@media (max-width: 900px) {
-  /*
-    One column, and the pile comes second — ahead of the colophon and the
-    side notes. Most arrivals are from a TikTok in-app browser, so the thing
-    being sold should not sit under a screen and a half of front matter.
-  */
-  .hero {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    padding-top: 24px;
-    min-height: 0;
-  }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(18px, 2.4vw, 32px);
+  margin-top: clamp(30px, 4vw, 52px);
+  text-align: left;
+}
 
-  .hero-intro {
-    order: 1;
-  }
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 132px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 22px;
+  background: var(--cream-card);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
 
-  .hero-stack {
-    order: 2;
-  }
+.card-thumb {
+  aspect-ratio: 4 / 5;
+  border-radius: 999px 999px 4px 4px;
+  background: var(--cream-deep);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
 
-  .hero-badge {
-    order: 3;
-    padding-bottom: 0;
-  }
+.card-badge {
+  position: absolute;
+  top: -18px;
+  left: 118px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--mauve);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--cream);
+}
 
-  .hero-note {
-    order: 4;
-    text-align: left;
-  }
+.card h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 21px;
+  color: var(--ink);
+  margin: 2px 0 8px;
+}
 
-  .hero-note > :last-child {
-    margin-top: 22px;
-  }
+.card p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
 
-  .hero-note .rule-short {
-    margin-left: 0 !important;
-  }
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mauve);
+}
 
-  .lede {
-    margin-top: 22px;
+.link-arrow:hover {
+  color: var(--mauve-deep);
+}
+
+@media (max-width: 1000px) {
+  .cards {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
-/* ---------------- the stack ---------------- */
+/* ---------------- about: split band ---------------- */
 
-.stack {
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.story {
+  background: var(--night);
+  color: var(--on-night);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 42%);
+  gap: 26px;
+  align-items: center;
+  padding: clamp(34px, 4.4vw, 58px) clamp(24px, 3vw, 44px);
+}
+
+.story h2 {
+  color: var(--on-night);
+  font-size: clamp(22px, 2.5vw, 31px);
+  margin-bottom: 20px;
+}
+
+.story p {
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--on-night-dim);
+  margin: 0 0 14px;
+}
+
+.signature {
+  font-family: var(--font-script);
+  font-size: 38px;
+  color: var(--gold);
+  line-height: 1;
+  margin-top: 22px;
+}
+
+.story-art {
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px 4px 4px;
+  border: 1px solid var(--gold-dim);
+  background: var(--night-soft);
+  padding: 8px;
+}
+
+.story-art-inner {
+  height: 100%;
+  border-radius: 999px 999px 3px 3px;
+  background: #262120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 14px;
+  overflow: hidden;
+  color: var(--on-night-dim);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.philosophy {
+  position: relative;
+  background: var(--cream-deep);
+  padding: clamp(34px, 4.4vw, 58px) clamp(24px, 3vw, 48px);
+}
+
+.philosophy h2 {
+  font-size: clamp(22px, 2.6vw, 33px);
+  margin-bottom: 30px;
+}
+
+.steps {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.step {
+  text-align: center;
+  position: relative;
+}
+
+/* Connector from this icon's edge to the next icon's edge. Anchored to the
+   column's own centre line, so it stays correct at any column width. */
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: calc(50% + 32px);
+  right: calc(-50% + 34px);
+  height: 1px;
+  background: var(--gold-dim);
+}
+
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  right: calc(-50% + 32px);
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid var(--gold);
+  border-right: 1px solid var(--gold);
+  transform: translateY(-2.5px) rotate(45deg);
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--cream-card);
+  border: 1px solid var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mauve-deep);
+  position: relative;
+}
+
+/* The number is the quiet index; the name is the label you read. */
+.step-n {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+
+.step-name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0 0 7px;
+}
+
+.step p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+
+@media (max-width: 1000px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .story {
+    grid-template-columns: 1fr;
+  }
+
+  .story-art {
+    max-width: 240px;
+    order: -1;
+  }
+
+  .steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 12px;
+  }
+
+  /* Connectors only make sense in a single row. */
+  .step::before,
+  .step::after {
+    display: none;
+  }
+}
+
+/* ---------------- about: closing band ---------------- */
+
+.closing {
+  background: var(--mauve-band);
+  color: #fff;
+  position: relative;
+  z-index: 2;
+}
+
+.closing-inner {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(34px, 4vw, 54px) var(--pad);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 40%);
+  gap: clamp(24px, 4vw, 60px);
+  align-items: center;
+}
+
+.quote {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+}
+
+.quote-mark {
+  font-family: var(--font-display);
+  font-size: 74px;
+  line-height: 0.72;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+.quote p {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.5;
+  color: #fff;
+}
+
+.quote cite {
+  font-style: normal;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.dots {
+  display: flex;
+  gap: 0;
+  margin: 4px 0 0 -18px;
+}
+
+/* 7px of visible dot inside a 44px tap target: the padding carries the
+   touch area and background-clip keeps the paint at the centre. */
+.dot {
+  width: 44px;
+  height: 44px;
+  padding: 18.5px;
+  margin: 0 -15px;
+  border: 0;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  background-clip: content-box;
+}
+
+.dot[aria-current="true"] {
+  background-color: var(--gold);
+}
+
+.closing-rule {
+  background: rgba(255, 255, 255, 0.24);
+  align-self: stretch;
+}
+
+.cta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+
+.cta-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.cta h2 {
+  color: #fff;
+  font-size: clamp(19px, 2vw, 25px);
+  margin-bottom: 6px;
+}
+
+.cta p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+@media (max-width: 900px) {
+  .closing-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .closing-rule {
+    height: 1px;
+  }
+}
+
+/* ---------------- buttons ---------------- */
+
+.btn {
+  min-height: 46px;
+  padding: 13px 26px;
+  border: 1px solid var(--gold);
+  color: var(--gold-deep);
+  border-radius: 2px;
+  font-size: 10px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  transition: background-color 180ms var(--ease), color 180ms var(--ease);
+}
+
+.btn:hover {
+  background: var(--gold);
+  color: #fff;
+}
+
+.btn--solid {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+.btn--solid:hover {
+  background: var(--gold-deep);
+  border-color: var(--gold-deep);
+}
+
+.btn--onDark {
+  color: var(--gold);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--quiet {
+  border-color: var(--rule-strong);
+  color: var(--ink-dim);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 12px;
+}
+
+.btn--quiet:hover {
+  background: none;
+  border-color: var(--ink-dim);
+  color: var(--ink);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 46px;
+  font-size: 12px;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 3px;
+  min-height: 44px;
+}
+
+.back-link:hover {
+  color: var(--mauve);
+  border-bottom-color: var(--gold);
+}
+
+/* ---------------- home: the stack ---------------- */
+
+.home-head {
+  text-align: center;
+  padding: clamp(34px, 5vw, 66px) 0 clamp(26px, 3.4vw, 44px);
+}
+
+.home-head h1 {
+  font-size: clamp(34px, 5vw, 60px);
+}
+
+/* Centred contexts: the ornament is display:block and needs the margins. */
+.home-head .ornament,
+.ornament--center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-head .ornament {
+  margin-top: 22px;
+  margin-bottom: 4px;
+}
+
+.home-head p {
+  margin: 14px auto 0;
+  max-width: 52ch;
+  color: var(--ink-dim);
+  font-size: 14px;
+}
+
+.stack {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 940px;
 }
 
 .stack-item {
@@ -576,15 +1125,13 @@ button {
 }
 
 .stack-row {
-  /* --i is the book's index in the pile; --dx its horizontal jog and --dw
-     its width jog, so the pile sits like a hand-stacked one rather than a
-     ruler-aligned one. Both come from a fixed table set inline, not from
-     random, so the layout is identical on server and client.
+  /* --i is the book's index; --dx its horizontal jog and --dw its width jog,
+     from a fixed table set inline, not random, so server and client agree.
 
      The jog is SUBTRACTED from the width as well as added to the margin.
-     Without that a jogged book overhangs the container, and because the
-     body clips overflow-x the bleed is invisible to a scroll-width check
-     while being perfectly visible on a phone. */
+     Without that a jogged book overhangs its container, and because the body
+     clips overflow-x the bleed is invisible to a scroll-width check while
+     being perfectly visible on a phone. */
   width: calc(
     100% - var(--i, 0) * var(--taper-w) * 2 - var(--dx, 0px) * var(--jog) -
       var(--dw, 0px) * var(--jog)
@@ -604,15 +1151,11 @@ button {
   right: 2%;
   top: calc(var(--spine-depth) - 8px);
   height: 16px;
-  background: rgba(0, 0, 0, 0.62);
-  filter: blur(10px);
+  background: rgba(74, 58, 44, 0.3);
+  filter: blur(11px);
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
-}
-
-:root[data-theme="paper"] .stack-row::after {
-  background: rgba(60, 48, 32, 0.34);
 }
 
 .book-box {
@@ -652,13 +1195,11 @@ button {
   gap: 20px;
   padding: 0 26px 0 0;
   border-radius: 1px 1px 0 0;
-  /* Lit head, shaded tail. A bound edge catching light — not a gradient. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.42);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.26);
 }
 
-/* The blind-stamped rule inboard of the spine edge. */
 .spine-rule {
   flex: 0 0 auto;
   width: 1px;
@@ -672,8 +1213,6 @@ button {
   flex: 0 0 auto;
   min-width: 0;
   padding-left: 20px;
-  /* The eyebrow sits ABOVE the name. These are spans, so without this they
-     run together on one line. */
   display: flex;
   flex-direction: column;
 }
@@ -683,17 +1222,16 @@ button {
   font-size: 9.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  opacity: 0.78;
+  opacity: 0.8;
   margin: 0 0 5px;
   white-space: nowrap;
 }
 
 .spine-name {
   display: block;
-  font-family: var(--font-serif);
-  font-size: clamp(17px, 1.65vw, 25px);
-  line-height: 1.05;
-  letter-spacing: -0.005em;
+  font-family: var(--font-display);
+  font-size: clamp(19px, 1.8vw, 27px);
+  line-height: 1.02;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -705,28 +1243,20 @@ button {
   min-width: 0;
   display: flex;
   justify-content: center;
-  opacity: 0.42;
+  opacity: 0.4;
 }
 
 .spine-motif svg {
-  width: min(220px, 100%);
+  width: min(200px, 100%);
   height: 46px;
 }
 
 .spine-edition {
   flex: 0 0 auto;
   text-align: right;
-  font-family: var(--font-serif);
-  font-size: 16px;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-size: 17px;
   opacity: 0.9;
-}
-
-/* The board on top of the pile is the one you read the edition off. */
-.spine-edition[data-lead="true"] {
-  font-size: 25px;
-  line-height: 1;
-  opacity: 1;
 }
 
 .spine-edition small {
@@ -736,15 +1266,20 @@ button {
   letter-spacing: 0.2em;
   line-height: 1.4;
   margin-top: 3px;
-  opacity: 0.72;
+  opacity: 0.75;
 }
 
-/* The exam weight rides under the edition mark, quiet. */
+.spine-edition[data-lead="true"] {
+  font-size: 26px;
+  line-height: 1;
+  opacity: 1;
+}
+
 .spine-weight {
   flex: 0 0 auto;
   font-size: 9.5px;
   letter-spacing: 0.13em;
-  opacity: 0.55;
+  opacity: 0.6;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -762,6 +1297,7 @@ button {
 
   .spine-text {
     padding-left: 15px;
+    flex: 1 1 auto;
   }
 
   .face--spine {
@@ -769,13 +1305,8 @@ button {
     padding-right: 18px;
   }
 
-  /* Let the name take the room the motif gave up. */
   .spine-name {
-    font-size: clamp(16px, 4.6vw, 21px);
-  }
-
-  .spine-text {
-    flex: 1 1 auto;
+    font-size: clamp(17px, 4.8vw, 22px);
   }
 }
 
@@ -793,7 +1324,6 @@ button {
   grid-template-columns: minmax(280px, 44%) minmax(0, 1fr);
   gap: clamp(30px, 5vw, 76px);
   align-items: start;
-  /* Room for the board edge, which stands proud of the cover's top. */
   padding-top: 72px;
 }
 
@@ -832,11 +1362,11 @@ button {
   font-size: 10px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .cover-motif {
-  opacity: 0.34;
+  opacity: 0.36;
   width: 150px;
 }
 
@@ -846,16 +1376,16 @@ button {
 }
 
 .cover-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(21px, 2.5vw, 30px);
-  line-height: 1.16;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.12;
   margin: 0;
 }
 
 .cover-band {
   border-top: 1px solid currentColor;
-  opacity: 0.66;
+  opacity: 0.7;
   padding-top: 11px;
   margin-top: 13px;
   font-size: 10px;
@@ -867,16 +1397,17 @@ button {
   font-size: 10px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--foil);
+  color: var(--mauve);
 }
 
 .detail-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(30px, 4vw, 46px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin: 16px 0 24px;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 14px 0 24px;
 }
 
 .weight-line {
@@ -910,8 +1441,8 @@ button {
 }
 
 .price {
-  font-family: var(--font-serif);
-  font-size: 26px;
+  font-family: var(--font-display);
+  font-size: 28px;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -919,89 +1450,22 @@ button {
 .price--todo {
   color: var(--ink-faint);
   font-size: 14px;
-}
-
-/* ---------------- controls ---------------- */
-
-.btn {
-  min-height: 46px;
-  padding: 13px 26px;
-  border: 1px solid var(--foil-dim);
-  color: var(--foil);
-  border-radius: 1px;
-  font-size: 10px;
-  letter-spacing: 0.19em;
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  transition: background-color 170ms var(--ease), color 170ms var(--ease),
-    border-color 170ms var(--ease);
-}
-
-.btn:hover {
-  border-color: var(--foil);
-  background: var(--foil);
-  color: var(--bg-sunk);
-}
-
-.btn--solid {
-  background: var(--foil);
-  border-color: var(--foil);
-  color: var(--bg-sunk);
-}
-
-.btn--solid:hover {
-  filter: brightness(1.1);
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.btn--quiet {
-  border-color: var(--rule-strong);
-  color: var(--ink-dim);
-  text-transform: none;
-  letter-spacing: 0.03em;
-  font-size: 12px;
-}
-
-.btn--quiet:hover {
-  background: none;
-  border-color: var(--ink-dim);
-  color: var(--ink);
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 50px;
-  font-size: 12px;
-  color: var(--ink-dim);
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 3px;
-  min-height: 44px;
-}
-
-.back-link:hover {
-  color: var(--ink);
-  border-bottom-color: var(--foil);
+  font-family: var(--font-sans);
 }
 
 /* ---------------- bundle ---------------- */
 
 .bundle {
-  margin: 64px 0 0;
+  margin: 64px auto 0;
+  max-width: 940px;
   border: 1px solid var(--rule);
-  border-radius: 1px;
+  border-radius: 3px;
   padding: 32px clamp(20px, 2.4vw, 34px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 28px;
   align-items: center;
-  background: var(--bg-raised);
+  background: var(--cream-card);
 }
 
 @media (max-width: 700px) {
@@ -1011,17 +1475,18 @@ button {
 }
 
 .bundle-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(21px, 2.6vw, 28px);
-  margin: 10px 0 10px;
+  font-size: clamp(22px, 2.6vw, 30px);
+  color: var(--ink);
+  margin: 10px 0;
 }
 
 .bundle-note {
   margin: 0;
   font-size: 13px;
   line-height: 1.65;
-  color: var(--ink-dim);
+  color: var(--ink-body);
   max-width: 48ch;
   overflow-wrap: anywhere;
 }
@@ -1031,7 +1496,7 @@ button {
 .scrim {
   position: fixed;
   inset: 0;
-  background: rgba(6, 5, 4, 0.66);
+  background: rgba(40, 30, 26, 0.42);
   z-index: 200;
 }
 
@@ -1041,7 +1506,7 @@ button {
   right: 0;
   bottom: 0;
   width: min(430px, 100vw);
-  background: var(--bg-raised);
+  background: var(--cream-card);
   border-left: 1px solid var(--rule);
   z-index: 201;
   display: flex;
@@ -1078,10 +1543,18 @@ button {
 }
 
 .cart-line-name {
-  font-family: var(--font-serif);
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--ink);
   margin: 0 0 4px;
   overflow-wrap: anywhere;
+}
+
+.cart-line-kind {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mauve);
 }
 
 .cart-line-price {
@@ -1093,7 +1566,7 @@ button {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--rule-strong);
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 .qty button {
@@ -1103,7 +1576,7 @@ button {
 }
 
 .qty button:hover {
-  color: var(--foil);
+  color: var(--mauve);
 }
 
 .qty span {
@@ -1126,14 +1599,35 @@ button {
 .cart-empty {
   color: var(--ink-dim);
   font-size: 14px;
-  line-height: 1.65;
   padding: 40px 0;
 }
 
 .cart-error {
-  color: #d98b6a;
+  color: #a4483a;
   font-size: 13px;
   margin: 0 0 12px;
+}
+
+.cart-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--mauve);
+  color: #fff;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-ring {
+  position: absolute;
+  inset: -6px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  pointer-events: none;
 }
 
 /* The element that flies from the product into the cart. */
@@ -1141,19 +1635,25 @@ button {
   position: fixed;
   z-index: 190;
   pointer-events: none;
-  border-radius: 1px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  box-shadow: 0 6px 22px rgba(74, 58, 44, 0.22);
 }
 
-/* ---------------- footer + legal ---------------- */
+/* ---------------- footer ---------------- */
 
 .footer {
-  border-top: 1px solid var(--rule);
-  margin-top: 96px;
-  padding-top: 32px;
+  background: var(--night);
+  color: var(--on-night-dim);
+  position: relative;
+  z-index: 2;
+}
+
+.footer-inner {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(34px, 4vw, 54px) var(--pad);
   font-size: 12px;
   line-height: 1.75;
-  color: var(--ink-faint);
 }
 
 .footer-top {
@@ -1161,7 +1661,10 @@ button {
   justify-content: space-between;
   gap: 30px;
   flex-wrap: wrap;
+  align-items: center;
+  padding-bottom: 20px;
   margin-bottom: 22px;
+  border-bottom: 1px solid var(--rule-night);
 }
 
 .footer-links {
@@ -1171,7 +1674,7 @@ button {
 }
 
 .footer-links a {
-  color: var(--ink-dim);
+  color: var(--on-night-dim);
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -1181,7 +1684,7 @@ button {
 }
 
 .footer-links a:hover {
-  color: var(--foil);
+  color: var(--gold);
 }
 
 .disclaimer {
@@ -1189,30 +1692,34 @@ button {
   margin: 0 0 10px;
 }
 
+/* ---------------- prose ---------------- */
+
 .prose {
   max-width: 68ch;
-  padding-top: 48px;
+  padding-top: 56px;
 }
 
 .prose h1 {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(28px, 4vw, 40px);
-  letter-spacing: -0.02em;
+  font-size: clamp(30px, 4.4vw, 46px);
+  color: var(--ink);
+  letter-spacing: -0.015em;
   margin: 0 0 24px;
 }
 
 .prose h2 {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: 19px;
+  font-size: 22px;
+  color: var(--ink);
   margin: 36px 0 10px;
 }
 
 .prose p {
   font-size: 14px;
   line-height: 1.8;
-  color: var(--ink-dim);
+  color: var(--ink-body);
   margin: 0 0 14px;
 }
 

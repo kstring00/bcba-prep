@@ -18,10 +18,14 @@ export type Domain = {
   foil: string; // accent + text color
 };
 
-/** Foil on the seven dark cloths. */
-const FOIL_LIGHT = "#C9A961";
-/** Foil on the two light cloths (bone, stone) — dark ink, not gold. */
-const FOIL_DARK = "#3A3428";
+/**
+ * Foil on the seven dark cloths. A shade lighter than the site's --gold so
+ * it clears WCAG AA against the mid-tone cloths in this palette; the plain
+ * gold does not.
+ */
+const FOIL_LIGHT = "#D9BE83";
+/** Foil on the two pale cloths — dark ink, not gold. */
+const FOIL_DARK = "#4A4038";
 
 /**
  * True for the two pale cloths. They need dark stamping and a darker lit
@@ -37,7 +41,7 @@ export function isLightCloth(domain: Domain): boolean {
  * way foil catches more light than the blind-stamped lines around it.
  */
 export function nameColor(domain: Domain): string {
-  return isLightCloth(domain) ? "#2E2A21" : "#E7DEC9";
+  return isLightCloth(domain) ? "#2A241F" : "#F6F0E4";
 }
 
 export const domains: Domain[] = [
@@ -48,7 +52,7 @@ export const domains: Domain[] = [
     short: "Foundations",
     questions: 8,
     percent: 5,
-    cloth: "#DCD3BF", // bone
+    cloth: "#E9DFCB", // cream
     foil: FOIL_DARK,
   },
   {
@@ -58,7 +62,7 @@ export const domains: Domain[] = [
     short: "Principles",
     questions: 24,
     percent: 14,
-    cloth: "#1E3050", // navy
+    cloth: "#5C4767", // plum
     foil: FOIL_LIGHT,
   },
   {
@@ -68,7 +72,7 @@ export const domains: Domain[] = [
     short: "Measurement",
     questions: 21,
     percent: 12,
-    cloth: "#3A4426", // olive
+    cloth: "#485140", // sage
     foil: FOIL_LIGHT,
   },
   {
@@ -78,7 +82,7 @@ export const domains: Domain[] = [
     short: "Experimental Design",
     questions: 13,
     percent: 7,
-    cloth: "#141519", // ink
+    cloth: "#2B2429", // ink
     foil: FOIL_LIGHT,
   },
   {
@@ -88,7 +92,7 @@ export const domains: Domain[] = [
     short: "Ethics",
     questions: 22,
     percent: 13,
-    cloth: "#613321", // oxblood
+    cloth: "#5A4763", // mauve
     foil: FOIL_LIGHT,
   },
   {
@@ -98,7 +102,7 @@ export const domains: Domain[] = [
     short: "Assessment",
     questions: 23,
     percent: 13,
-    cloth: "#C3BDB1", // stone
+    cloth: "#C7BDB6", // smoke
     foil: FOIL_DARK,
   },
   {
@@ -108,7 +112,7 @@ export const domains: Domain[] = [
     short: "Behavior Change",
     questions: 25,
     percent: 14,
-    cloth: "#1D3B36", // teal
+    cloth: "#66444D", // rose
     foil: FOIL_LIGHT,
   },
   {
@@ -118,7 +122,7 @@ export const domains: Domain[] = [
     short: "Interventions",
     questions: 20,
     percent: 11,
-    cloth: "#43213C", // plum
+    cloth: "#554E32", // olive
     foil: FOIL_LIGHT,
   },
   {
@@ -128,7 +132,7 @@ export const domains: Domain[] = [
     short: "Supervision",
     questions: 19,
     percent: 11,
-    cloth: "#292B31", // charcoal
+    cloth: "#3B3340", // violet
     foil: FOIL_LIGHT,
   },
 ];

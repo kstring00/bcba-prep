@@ -1,12 +1,25 @@
-# BCBA Prep
+# BCBA Prep by Bryana Utley
 
-Study-materials store for BCBA exam candidates. Nine content domains are a
-vertical pile of hardcover books; clicking one folds it open into a detail
-view with contents and price. Items go into an in-memory cart and check out
-through Stripe.
+Study-materials store for BCBA exam candidates. Cream ground, watercolour
+florals, gold hairlines, mauve accents. Nine content domains are a vertical
+pile of bound volumes; clicking one folds it open into a detail view with
+contents and price. Items go into an in-memory cart and check out through
+Stripe.
 
-Next.js App Router · TypeScript · Motion · Stripe · CSS 3D transforms only
-(no WebGL, no Three.js, no 3D assets, no image sequences).
+Next.js App Router · TypeScript · Motion · Stripe · CSS 3D transforms and
+inline SVG only (no WebGL, no Three.js, no 3D assets, no image sequences,
+no image files at all).
+
+## Where the design lives
+
+- `app/globals.css` — every colour is a token in the `:root` block at the
+  top. The whole palette moves from there.
+- `components/Florals.tsx` — the watercolour flowers, built from layered
+  petal paths: a blurred bleed underlay, a translucent radial wash, and a
+  gold hairline. Three layers per petal is what separates this from a flat
+  vector flower. Clusters are masked in CSS so their SVG bounding box does
+  not read as a rectangle of tint.
+- `components/Icons.tsx`, `components/Motifs.tsx` — all line art, inline.
 
 ## Status
 
@@ -23,8 +36,13 @@ Two categories of real content DO ship:
 - **`lib/domains.ts`** — the nine domain titles, short labels, question
   counts and percentages, supplied by the project owner as verified against
   the BACB Test Content Outline. Counts sum to 175, percentages to 100.
-- **Hero copy in `app/page.tsx`** — transcribed from the reference design the
-  owner supplied, not written here. Worth a read-through before launch.
+- **Section copy on the About page** — transcribed from the reference design
+  the owner supplied, not written here. Worth a read-through before launch.
+
+Everything on the About page that is a **checkable claim** is a token
+instead: the four stat figures, the personal story, and the testimonials.
+Those are Bryana's to write. A stat figure or a quote attributed to a named
+reviewer is not a design decision.
 
 ## Setup
 
@@ -59,11 +77,17 @@ ignored by a motion component's `transition` prop — the element snaps to its
 target with no error and no completion callback. `components/AddToCart.tsx`
 explains this at the call site. x and y must also travel in one call.
 
-**Two cart controls are mounted at once** — one in the fixed rail, one in the
-mobile top bar — and only one is displayed at a given width. Anything that
-targets "the cart" must pick the one with a non-zero box, and the impact
-registry broadcasts to a Set rather than a single slot. A single slot hands
-the knock to whichever mounted last, which is the hidden one.
+**The cart control is the flight target.** It lives in the sticky header,
+which carries no 3D transform, so its `getBoundingClientRect` stays accurate.
+Anything that targets "the cart" picks the control with a non-zero box, and
+the impact registry broadcasts to a Set rather than a single slot — both
+guard against a hidden duplicate stealing the landing or the knock.
+
+**The header must fit a 380px phone.** The Member Login pill moves into the
+menu below 1100px. Left in the bar it pushed the layout to 443px on a 380px
+screen, which the browser papers over by zooming the whole page out rather
+than by showing a scrollbar — so a `scrollWidth > innerWidth` check does not
+catch it. Measure `window.innerWidth` against the device width instead.
 
 **Prices are never taken from the client.** `app/api/checkout/route.ts`
 receives product ids and quantities only, and resolves every line against
@@ -72,13 +96,6 @@ receives product ids and quantities only, and resolves every line against
 **Sales tax is an open decision**, flagged in a comment above the checkout
 route. Stripe direct makes the seller the merchant of record; a
 merchant-of-record platform takes that on for a few points of revenue.
-
-## Theme
-
-The sun control in the rail switches a `cloth` (dark) and `paper` (light)
-palette. Both are one token block each in `globals.css`; the cloth colours of
-the books deliberately do not move between them. State is in memory for the
-session — no localStorage or sessionStorage anywhere in this app.
 
 ## Route transition
 

@@ -99,7 +99,8 @@ export function AddToCart({
     // stays accurate no matter what scale the element picks up in flight.
     const dx = t.left + t.width / 2 - (s.left + s.width / 2);
     const dy = t.top + t.height / 2 - (s.top + s.height / 2);
-    const targetScale = Math.min(t.width, t.height) / Math.max(s.width, s.height);
+    const targetScale =
+      Math.min(t.width, t.height) / Math.max(s.width, s.height);
 
     arrivalSpeed.current = 0;
 

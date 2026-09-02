@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
+import {
+  animate,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+} from "motion/react";
 import { useCallback, useRef } from "react";
 import { AddToCart } from "./AddToCart";
 import { Book } from "./Book";
@@ -35,11 +40,15 @@ export function DetailView({ domain }: { domain: Domain }) {
   }, [stageOpacity, stageScale]);
 
   return (
-    <article className="detail">
+    <article className="shell detail">
       <motion.div
         ref={stageRef}
         className="detail-cover-stage"
-        style={reduceMotion ? undefined : { opacity: stageOpacity, scale: stageScale }}
+        style={
+          reduceMotion
+            ? undefined
+            : { opacity: stageOpacity, scale: stageScale }
+        }
       >
         {/* Same layoutId as the spine in the stack: Motion treats the two as
             one object, so the book travels here and folds open. */}

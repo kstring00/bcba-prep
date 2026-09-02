@@ -74,7 +74,14 @@ function Measurement() {
       ))}
       <path d={`M${pts.map((p) => p.join(" ")).join(" L")}`} opacity="0.9" />
       {pts.map(([x, y]) => (
-        <circle key={x} cx={x} cy={y} r="1.6" fill="currentColor" stroke="none" />
+        <circle
+          key={x}
+          cx={x}
+          cy={y}
+          r="1.6"
+          fill="currentColor"
+          stroke="none"
+        />
       ))}
     </svg>
   );
@@ -90,7 +97,7 @@ function ExperimentalDesign() {
         fontSize="11"
         fill="currentColor"
         stroke="none"
-        fontFamily="var(--font-serif)"
+        fontFamily="var(--font-display)"
         letterSpacing="1"
       >
         A
@@ -102,7 +109,7 @@ function ExperimentalDesign() {
         fontSize="11"
         fill="currentColor"
         stroke="none"
-        fontFamily="var(--font-serif)"
+        fontFamily="var(--font-display)"
         letterSpacing="1"
       >
         B

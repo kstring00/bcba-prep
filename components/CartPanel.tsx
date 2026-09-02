@@ -125,9 +125,7 @@ export function CartPanel() {
               <hr className="hairline" />
               <div className="cart-total">
                 <span className="eyebrow">Subtotal</span>
-                <span className="price">
-                  {formatPrice(subtotal) ?? "—"}
-                </span>
+                <span className="price">{formatPrice(subtotal) ?? "—"}</span>
               </div>
               {error ? <p className="cart-error">{error}</p> : null}
               <button
