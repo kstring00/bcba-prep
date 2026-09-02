@@ -52,11 +52,11 @@ export default function ContactPage() {
           <div className={styles.intro}>
             <p className={styles.eyebrow}>Questions are welcome</p>
             <h1>
-              Get in touch with <span>Bryana.</span>
+              Get in touch with <span>Bee.</span>
             </h1>
             <p className={styles.lede}>
               Have a question about a domain, what is included, your purchase, or
-              the study materials? Send a note and Bryana can review it from the
+              the study materials? Send a note and Bee can review it from the
               BCBA Prep contact inbox.
             </p>
 
@@ -77,7 +77,7 @@ export default function ContactPage() {
           <div className={styles.formCard}>
             <div className={styles.formHead}>
               <p className={styles.script}>Still have a question?</p>
-              <h2>Send Bryana a note.</h2>
+              <h2>Send Bee a note.</h2>
               <p>Share a little context so she can give you a useful answer.</p>
             </div>
 
@@ -130,7 +130,7 @@ export default function ContactPage() {
                   rows={6}
                   minLength={10}
                   maxLength={5000}
-                  placeholder="Tell Bryana what you need help with..."
+                  placeholder="Tell Bee what you need help with..."
                   required
                 />
               </label>
@@ -138,7 +138,7 @@ export default function ContactPage() {
               {error && <p className={styles.error}>{error}</p>}
               {success && (
                 <p className={styles.success}>
-                  Your message is in. Bryana can review it from the BCBA Prep inbox.
+                  Your message is in. Bee can review it from the BCBA Prep inbox.
                 </p>
               )}
 
