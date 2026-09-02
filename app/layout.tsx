@@ -28,9 +28,23 @@ const script = Parisienne({
 const SANS_STACK =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
+const SITE_DESCRIPTION =
+  "BCBA Prep by Bee the Behavior Bae offers original, thoughtfully designed study materials for future BCBAs, organized by exam domain to make preparation clearer, focused, and easier to navigate.";
+
 export const metadata: Metadata = {
   title: "BCBA Prep by Bee the Behavior Bae",
-  description: "[[TODO_SITE_META_DESCRIPTION]]",
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: "BCBA Prep by Bee the Behavior Bae",
+    description: SITE_DESCRIPTION,
+    type: "website",
+    siteName: "BCBA Prep by Bee the Behavior Bae",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BCBA Prep by Bee the Behavior Bae",
+    description: SITE_DESCRIPTION,
+  },
   // PRE-LAUNCH: keep every route out of public search results until Bee is
   // ready to launch. Remove this together with the X-Robots-Tag header and
   // app/robots.ts when indexing is intentionally enabled.
