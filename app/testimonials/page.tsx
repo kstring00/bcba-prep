@@ -123,22 +123,33 @@ export default async function TestimonialsPage() {
         </div>
 
         <section className={styles.submitSection}>
-          <div className={styles.submitIntro}>
-            <p className={styles.script}>Leave a little note</p>
-            <h2>Tell Bee what you loved.</h2>
-            <p>
-              Share your experience with the site or materials. Your submission
-              goes into a private review queue first. Bee decides what gets
-              published; your email is never shown publicly.
-            </p>
-            <div className={styles.reviewSteps}>
-              <span>01 · You submit</span>
-              <span>02 · Bee reviews</span>
-              <span>03 · Approved notes appear here</span>
+          <div
+            className={styles.formCard}
+            style={{
+              gridColumn: "1 / -1",
+              width: "min(760px, 100%)",
+              justifySelf: "center",
+            }}
+          >
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <p className={styles.script}>Leave a little note</p>
+              <h2
+                style={{
+                  margin: "8px 0 12px",
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(38px, 4vw, 54px)",
+                  fontWeight: 400,
+                  lineHeight: 1,
+                  color: "#241d1a",
+                }}
+              >
+                Tell Bee what you loved.
+              </h2>
+              <p style={{ margin: "0 auto", maxWidth: "58ch", color: "#685d56", lineHeight: 1.7 }}>
+                Your note goes into a private review queue first. Bee decides
+                what gets published, and your email is never shown publicly.
+              </p>
             </div>
-          </div>
-
-          <div className={styles.formCard}>
             <TestimonialForm />
           </div>
         </section>
