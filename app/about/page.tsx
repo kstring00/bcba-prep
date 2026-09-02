@@ -120,40 +120,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ---------- premium resources ---------- */}
-      <section className={`resources bleed ${compact.resources}`}>
-        <Florals
-          variant="corner-right"
-          className="floral floral--corner-right"
-        />
-        <div className={`bleed-inner ${compact.resourcesInner}`}>
-          <div className={compact.resourcesHeading}>
-            <div className="section-head">
-              <Ornament />
-              <h2 className="display">
-                Premium Resources. <span className="accent">Built the Hard Way.</span>
-              </h2>
-              <Ornament />
-            </div>
-          </div>
-
-          <div className={compact.resourcesCopy}>
-            <p className="section-sub">
-              These materials were not assembled overnight. They are the fruit of
-              long hours spent studying, organizing, writing, revising, and
-              designing until the information felt clear, useful, and worth
-              studying from.
-            </p>
-            <p className="section-sub">
-              There are no separate mock-exam, study-guide, or coaching products
-              to chase around the site. Choose the domain you need, and your
-              purchase gives you access to the materials Bee created for that
-              domain&mdash;kept together as one focused body of work.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* ---------- story + philosophy ---------- */}
       <section className={`split ${compact.split}`}>
         <div className={`story ${compact.story}`}>
@@ -187,6 +153,40 @@ export default function AboutPage() {
                 </li>
               ))}
             </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- premium resources ---------- */}
+      <section className={`resources bleed ${compact.resources}`}>
+        <Florals
+          variant="corner-right"
+          className="floral floral--corner-right"
+        />
+        <div className={`bleed-inner ${compact.resourcesInner}`}>
+          <div className={compact.resourcesHeading}>
+            <div className="section-head">
+              <Ornament />
+              <h2 className="display">
+                Premium Resources. <span className="accent">Built the Hard Way.</span>
+              </h2>
+              <Ornament />
+            </div>
+          </div>
+
+          <div className={compact.resourcesCopy}>
+            <p className="section-sub">
+              These materials were not assembled overnight. They are the fruit of
+              long hours spent studying, organizing, writing, revising, and
+              designing until the information felt clear, useful, and worth
+              studying from.
+            </p>
+            <p className="section-sub">
+              There are no separate mock-exam, study-guide, or coaching products
+              to chase around the site. Choose the domain you need, and your
+              purchase gives you access to the materials Bee created for that
+              domain&mdash;kept together as one focused body of work.
+            </p>
           </div>
         </div>
       </section>
