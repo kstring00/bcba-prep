@@ -20,8 +20,6 @@ export function DetailView({ domain }: { domain: Domain }) {
   const product = getProductForDomain(domain.slug);
   const price = product ? formatPrice(product.price) : null;
 
-  // The cover snaps away invisibly when the flier launches, then scales back
-  // in fresh once it lands.
   const stageOpacity = useMotionValue(1);
   const stageScale = useMotionValue(1);
 
@@ -50,8 +48,6 @@ export function DetailView({ domain }: { domain: Domain }) {
             : { opacity: stageOpacity, scale: stageScale }
         }
       >
-        {/* Same layoutId as the spine in the stack: Motion treats the two as
-            one object, so the book travels here and folds open. */}
         <Book domain={domain} variant="cover" />
       </motion.div>
 
@@ -74,23 +70,17 @@ export function DetailView({ domain }: { domain: Domain }) {
           <strong>{domain.percent}%</strong>.
         </p>
 
-        {/*
-          [[TODO_DOMAIN_CONTENTS]]
-
-          What this module includes: lesson list, item counts, formats.
-          Not built in this pass — this is the navigation, cart and checkout
-          pass, and no study material is written here.
-        */}
-        <section className="contents-slot">[[TODO_DOMAIN_CONTENTS]]</section>
+        <section className="contents-slot">
+          <strong>One domain. One focused library.</strong>
+          <br />
+          Your purchase grants a personal license to the study materials Bee
+          publishes for Domain {domain.letter}. The detailed contents of this
+          domain library are being finalized and will be listed here as they are
+          loaded into the site.
+        </section>
 
         <div className="buy-row">
-          {price ? (
-            <span className="price">{price}</span>
-          ) : (
-            <span className="price price--todo">
-              [[TODO_PRODUCT_MODULE_PRICE]]
-            </span>
-          )}
+          <span className="price">{price}</span>
           {product ? (
             <AddToCart
               product={product}
@@ -98,9 +88,13 @@ export function DetailView({ domain }: { domain: Domain }) {
               sourceRef={stageRef}
               onDepart={onDepart}
               onArrive={onArrive}
+              label="Add domain license"
             />
           ) : null}
         </div>
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--ink-dim)" }}>
+          Personal, non-transferable use. Any 3 domains $75 · any 5 $115 · all 9 $179.
+        </p>
 
         <Link href="/" className="back-link">
           &larr; Back to the stack
