@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BeeMark } from "./BeeMark";
 
 export function Footer() {
   return (
@@ -8,18 +9,20 @@ export function Footer() {
           <Link
             href="/"
             className="brand"
-            aria-label="BCBA Prep by Bryana Utley"
+            aria-label="BCBA Prep by Bee the Behavior Bae"
           >
             <span
               className="brand-mark"
               style={{ color: "var(--gold)" }}
               aria-hidden="true"
             >
-              BP
+              <BeeMark size={38} />
             </span>
             <span className="brand-name" style={{ color: "var(--on-night)" }}>
               BCBA Prep
-              <small style={{ color: "var(--on-night-dim)" }}>by Bryana</small>
+              <small style={{ color: "var(--on-night-dim)" }}>
+                by Bee the Behavior Bae
+              </small>
             </span>
           </Link>
           <nav className="footer-links" aria-label="Legal">
