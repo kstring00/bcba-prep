@@ -23,7 +23,6 @@ import {
   SCROLL_Z_LIFT,
   TAPER_Z,
 } from "./motion-config";
-import { useCompactViewport } from "./use-compact-viewport";
 import tactile from "./BookEnhancements.module.css";
 
 type Props = {
@@ -44,7 +43,6 @@ const clamp = (value: number, min: number, max: number) =>
 
 export function Book({ domain, variant, index = 0 }: Props) {
   const reduceMotion = useReducedMotion();
-  const compact = useCompactViewport();
   const rowRef = useRef<HTMLDivElement>(null);
   const isCover = variant === "cover";
   const ink = nameColor(domain);
