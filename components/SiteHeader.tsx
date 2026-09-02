@@ -9,9 +9,6 @@ import { Menu } from "./Icons";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/resources", label: "Resources" },
-  { href: "/mock-exams", label: "Mock Exams" },
-  { href: "/study-guides", label: "Study Guides" },
   { href: "/contact", label: "Contact" },
 ];
 
