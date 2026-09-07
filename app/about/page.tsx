@@ -9,9 +9,6 @@ import {
   Chart,
   Envelope,
   Pencil,
-  People,
-  Sparkle,
-  Target,
   Trophy,
 } from "@/components/Icons";
 import compact from "./about-compact.module.css";
@@ -20,29 +17,17 @@ import compact from "./about-compact.module.css";
   Section headings and the five philosophy steps are transcribed/adapted from
   the reference direction the owner supplied.
 
-  Everything that is a CHECKABLE CLAIM about the business or a person is a
-  [[TODO_]] token instead — the four stat figures and the personal story are
-  Bee's to write; inventing a number or personal claim is not a design decision.
-*/
+  This page deliberately carries NO checkable claim about the business or about
+  Bee personally. An earlier version reserved space for four statistics ("years
+  in ABA", "students helped", and so on), a personal story, a portrait and a
+  studio photograph, each held by a placeholder token. Those tokens rendered
+  literally to visitors, so the blocks were removed rather than filled in:
+  inventing a number or a personal history is not a design decision.
 
-const STATS = [
-  { icon: <Sparkle />, value: "[[TODO_STAT_YEARS]]", label: "Years in ABA" },
-  {
-    icon: <People />,
-    value: "[[TODO_STAT_STUDENTS]]",
-    label: "Students Helped",
-  },
-  {
-    icon: <BookIcon />,
-    value: "[[TODO_STAT_RESOURCES]]",
-    label: "Study Resources",
-  },
-  {
-    icon: <Target />,
-    value: "[[TODO_STAT_FRAMEWORK]]",
-    label: "Pass-Focused Framework",
-  },
-];
+  To restore them, Bee supplies the real figures and copy first. Until then the
+  page stands on what is actually true — how the materials are organised and
+  how she teaches.
+*/
 
 const STEPS = [
   {
@@ -95,48 +80,11 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className={`portrait ${compact.portrait}`}>
-            <div className="portrait-inner">[[TODO_PORTRAIT_BEE]]</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- stats ---------- */}
-      <section className={`stats ${compact.stats}`} aria-label="At a glance">
-        <div className="stats-inner">
-          {STATS.map((s) => (
-            <div className="stat" key={s.label}>
-              {s.icon}
-              <div>
-                <div
-                  className={`stat-num${s.value.startsWith("[[") ? " stat-num--todo" : ""}`}
-                >
-                  {s.value}
-                </div>
-                <div className="stat-label">{s.label}</div>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
       {/* ---------- story + philosophy ---------- */}
       <section className={`split ${compact.split}`}>
-        <div className={`story ${compact.story}`}>
-          <div>
-            <p className="script script--gold">My Story</p>
-            <h2 className="display">Why I Built BCBA Prep by Bee the Behavior Bae</h2>
-            <p>[[TODO_STORY_PARAGRAPH_1]]</p>
-            <p>[[TODO_STORY_PARAGRAPH_2]]</p>
-            <p className="signature" aria-hidden="true">
-              Bee
-            </p>
-          </div>
-          <div className={`story-art ${compact.storyArt}`}>
-            <div className="story-art-inner">[[TODO_IMAGE_STUDIO]]</div>
-          </div>
-        </div>
-
         <div className={`philosophy bleed ${compact.philosophy}`}>
           <Florals variant="band-right" className="floral floral--band-right" />
           <div style={{ position: "relative", zIndex: 2 }}>

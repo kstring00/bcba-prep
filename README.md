@@ -54,26 +54,46 @@ source storage, account-linked watermarks, and session/account-sharing controls.
 
 ## Status
 
-Stack, detail view, cart and checkout foundation. The study-content reader is
-not built and is not an MVP requirement. No prices, product copy, or BCBA
-subject matter is written here — every such value is a `[[TODO_...]]` token.
+**PRE-LAUNCH. The store is closed and cannot take a payment.**
+
+Bryana is finishing her own BCBA certification before releasing any study
+materials. Until then there is nothing to deliver, so selling is gated off at
+`lib/launch.ts`:
+
+- `NEXT_PUBLIC_SALES_ENABLED` must be exactly `"true"` to open the store.
+  Anything else keeps it closed. The gate fails safe by design.
+- `app/api/checkout/route.ts` returns **503** before touching Stripe. This is
+  the authoritative layer — a hand-written POST hits it too.
+- The storefront hides prices, buy buttons and the cart entirely. That part is
+  courtesy, not security.
+
+Prices are real and correct (`$29 / $75 / $115 / $179`, resolved in
+`lib/products.ts`). They are simply unreachable while the gate is closed.
+
+There are **no `[[TODO_]]` placeholder tokens left in the codebase.** A sweep
+should return nothing:
 
 ```sh
-grep -rn '\[\[TODO_' --include='*.ts' --include='*.tsx' .
+grep -rn '\[\[TODO_' --include='*.ts' --include='*.tsx' app components lib
 ```
 
-Two categories of real content DO ship:
+What is still missing before launch is tracked in `LAUNCH_CHECKLIST.md`. The
+short version: the study materials themselves, a way to deliver them, and a
+purchase-to-account link. Everything else is done.
 
-- **`lib/domains.ts`** — the nine domain titles, short labels, question
-  counts and percentages, supplied by the project owner as verified against
-  the BACB Test Content Outline. Counts sum to 175, percentages to 100.
+Real content that ships today:
+
+- **`lib/domains.ts`** — the nine domain titles, short labels, question counts
+  and percentages, supplied by the project owner as verified against the BACB
+  Test Content Outline. Counts sum to 175, percentages to 100.
 - **Section copy on the About page** — transcribed from the reference design
-  the owner supplied, not written here. Worth a read-through before launch.
+  the owner supplied.
 
-Everything on the About page that is a **checkable claim** is a token
-instead: the four stat figures, the personal story, and the testimonials.
-Those are Bryana's to write. A stat figure or a quote attributed to a named
-reviewer is not a design decision.
+The About page deliberately carries no checkable claim. An earlier version
+reserved space for four statistics, a personal story, a portrait and a studio
+photograph; those placeholders rendered literally to visitors, so the blocks
+were removed rather than invented. Bryana supplies the real figures and copy
+before they come back.
 
 Do not build the testimonial carousel around placeholders. Wait for at least
 three real testimonials with permission to publish the displayed quote/name.
@@ -82,12 +102,14 @@ three real testimonials with permission to publish the displayed quote/name.
 
 ```sh
 npm install
-cp .env.example .env.local   # then fill in your Stripe keys
+cp .env.example .env.local   # then fill in the values you need
 npm run dev
 ```
 
-Checkout stays disabled (503) until real Stripe price IDs replace the
-`[[TODO_PRODUCT_*_PRICE_ID]]` tokens in `lib/products.ts`.
+Nothing in `.env.local` is required just to browse the site. Supabase values
+are needed for sign-in and testimonials; Resend values for the contact form;
+Stripe values only once the sales gate is opened. Each feature fails loudly and
+independently when its variables are missing — there are no silent fallbacks.
 
 ## Things that will bite you
 
@@ -125,7 +147,13 @@ catch it. Measure `window.innerWidth` against the device width instead.
 
 **Prices are never taken from the client.** `app/api/checkout/route.ts`
 receives product ids and quantities only, and resolves every line against
-`lib/products.ts` server-side.
+`lib/products.ts` server-side. The only fields ever read from the request body
+are `items[].productId` and `items[].quantity`. Do not refactor this route to
+accept an amount.
+
+**The sales gate must stay the first thing the checkout route does.** It
+returns before any Stripe call, which is what guarantees a card cannot be
+charged for materials that do not exist yet.
 
 **Sales tax is an open decision**, flagged in a comment above the checkout
 route. Stripe direct makes the seller the merchant of record; a

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SALES_ENABLED } from "@/lib/launch";
 
 export const metadata = { title: "Terms" };
 
@@ -7,6 +8,16 @@ export default function TermsPage() {
     <div className="shell">
       <div className="prose">
         <h1>Terms of sale</h1>
+      {!SALES_ENABLED ? (
+        <div className="prelaunch-note" style={{ marginBottom: 28 }}>
+          <strong>Nothing is on sale yet</strong>
+          <p>
+            BCBA Prep is not currently selling anything, so no purchase can be
+            made and this policy does not yet apply to anyone. It is published
+            in advance so the terms are visible before the store opens.
+          </p>
+        </div>
+      ) : null}
         <p>
           BCBA Prep by Bee the Behavior Bae sells educational study-content
           licenses. By completing a purchase, you agree to these terms, the

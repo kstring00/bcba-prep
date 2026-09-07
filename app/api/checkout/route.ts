@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { PRE_LAUNCH_API_MESSAGE, SALES_ENABLED } from "@/lib/launch";
 import { getLicensePricing, getProduct } from "@/lib/products";
 import { getStripe, siteUrl } from "@/lib/stripe";
 
@@ -15,6 +16,22 @@ export const runtime = "nodejs";
 type IncomingItem = { productId: unknown; quantity: unknown };
 
 export async function POST(request: Request) {
+  /*
+   * PRE-LAUNCH GATE — this must stay the first thing the route does.
+   *
+   * Nothing below may run while the store is closed. Returning before any
+   * Stripe call is what guarantees a real card can never be charged for
+   * materials that do not exist yet. The storefront also hides its buy
+   * controls, but that is cosmetic; this check is the one that matters,
+   * because a hand-written POST reaches this route directly.
+   */
+  if (!SALES_ENABLED) {
+    return NextResponse.json(
+      { error: PRE_LAUNCH_API_MESSAGE },
+      { status: 503 },
+    );
+  }
+
   let body: { items?: IncomingItem[] };
   try {
     body = await request.json();

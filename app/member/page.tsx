@@ -82,8 +82,8 @@ export default function MemberPage() {
                 <h2>Account overview</h2>
               </div>
               <p>
-                You’re all set. When domain access is connected, your purchases
-                will show up in your library automatically.
+                Your account is saved. BCBA Prep is not selling study materials
+                yet, so there is nothing to unlock here today.
               </p>
               <Link href="/contact" className={styles.textLink}>
                 Need account help <span aria-hidden="true">→</span>
@@ -131,11 +131,12 @@ export default function MemberPage() {
               <span className={styles.flight}>···⌁</span>
             </div>
 
-            <h3>No domains connected yet.</h3>
+            <h3>Nothing here yet.</h3>
             <p>
-              Your account layer is active. Once Stripe purchase syncing and
-              entitlement fulfillment are connected, the domains licensed to
-              this account will appear here automatically.
+              Bee is finishing her own BCBA certification before releasing these
+              study materials, so nothing is on sale and nothing has been
+              assigned to your account. Creating an account now simply means it
+              is ready and waiting when the library opens.
             </p>
             <Link href="/" className={styles.primaryCta}>
               Explore the domain library <span aria-hidden="true">→</span>
@@ -156,8 +157,8 @@ export default function MemberPage() {
                 <li>
                   <span>2</span>
                   <div>
-                    <strong>Access unlocked</strong>
-                    <p>Purchased domains will be connected to your library.</p>
+                    <strong>The library opens</strong>
+                    <p>Study materials are released once Bee has passed her exam.</p>
                   </div>
                 </li>
                 <li>

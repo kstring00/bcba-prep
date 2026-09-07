@@ -4,13 +4,7 @@ import { TestimonialForm } from "./TestimonialForm";
 import styles from "./testimonials.module.css";
 import compact from "./testimonials-compact.module.css";
 
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  "https://kkajncybxhoylvhhprom.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  "sb_publishable_zcwo0785jDmjDOnGAq_N8w_-dRm6PaG";
+import { supabaseConfig } from "@/lib/supabase/config";
 
 export const metadata: Metadata = {
   title: "Testimonials | BCBA Prep by Bee the Behavior Bae",
@@ -27,10 +21,24 @@ type Testimonial = {
   created_at: string;
 };
 
+/*
+ * Approved rows only.
+ *
+ * Submissions are written with status 'pending' by app/api/testimonials/route.ts
+ * and stay invisible until someone sets the row's status to 'approved' in
+ * Supabase. The `status=eq.approved` filter is what makes the promise on this
+ * page ("every testimonial below is reviewed before it is published") true —
+ * it was missing, and without it every submission published instantly.
+ *
+ * Do not remove the filter. If the column is ever renamed, change it here and
+ * in app/api/testimonials/route.ts together.
+ */
 async function getApprovedTestimonials(): Promise<Testimonial[]> {
   try {
+    const { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY } =
+      supabaseConfig();
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/testimonials?select=id,display_name,quote,created_at&order=created_at.desc&limit=16`,
+      `${SUPABASE_URL}/rest/v1/testimonials?select=id,display_name,quote,created_at&status=eq.approved&order=created_at.desc&limit=16`,
       {
         headers: {
           apikey: SUPABASE_PUBLISHABLE_KEY,

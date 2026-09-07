@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { submitContactMessage } from "@/lib/supabase/contact-client";
 import styles from "./contact.module.css";
 
 export default function ContactPage() {
@@ -16,17 +15,28 @@ export default function ContactPage() {
     setError(null);
     setSuccess(false);
 
-    const form = new FormData(event.currentTarget);
+    const formEl = event.currentTarget;
+    const form = new FormData(formEl);
 
     try {
-      await submitContactMessage({
-        name: String(form.get("name") ?? ""),
-        email: String(form.get("email") ?? ""),
-        subject: String(form.get("subject") ?? ""),
-        message: String(form.get("message") ?? ""),
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: String(form.get("name") ?? ""),
+          email: String(form.get("email") ?? ""),
+          subject: String(form.get("subject") ?? ""),
+          message: String(form.get("message") ?? ""),
+          company: String(form.get("company") ?? ""),
+        }),
       });
 
-      event.currentTarget.reset();
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "We could not send your message.");
+      }
+
+      formEl.reset();
       setSuccess(true);
     } catch (caught) {
       setError(
@@ -55,9 +65,8 @@ export default function ContactPage() {
               Get in touch with <span>Bee.</span>
             </h1>
             <p className={styles.lede}>
-              Have a question about a domain, what is included, your purchase, or
-              the study materials? Send a note and Bee can review it from the
-              BCBA Prep contact inbox.
+              Have a question about a domain, what is included, or the study
+              materials? Send a note and it goes straight to Bee&rsquo;s email.
             </p>
 
             <div className={styles.shopPrompt}>
@@ -135,10 +144,17 @@ export default function ContactPage() {
                 />
               </label>
 
+              {/* Honeypot: hidden from real visitors, irresistible to bots. */}
+              <label className={styles.honeypot} aria-hidden="true">
+                Company
+                <input name="company" tabIndex={-1} autoComplete="off" />
+              </label>
+
               {error && <p className={styles.error}>{error}</p>}
               {success && (
                 <p className={styles.success}>
-                  Your message is in. Bee can review it from the BCBA Prep inbox.
+                  Your message is on its way to Bee&rsquo;s email. She will reply to
+                  the address you gave.
                 </p>
               )}
 

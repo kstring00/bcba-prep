@@ -79,11 +79,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${script.variable}`}>
       <body style={{ "--font-sans": SANS_STACK } as React.CSSProperties}>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <CartProvider>
           <SiteHeader />
           {/* Pages own their own container: several sections are full-bleed
               bands, which a shared max-width wrapper would cut off. */}
-          <main className="main">
+          <main className="main" id="main-content" tabIndex={-1}>
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />

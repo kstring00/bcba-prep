@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
 
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  "https://kkajncybxhoylvhhprom.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  "sb_publishable_zcwo0785jDmjDOnGAq_N8w_-dRm6PaG";
+import { isEmailConfigured, sendEmail } from "@/lib/email";
+import { supabaseConfig } from "@/lib/supabase/config";
 
 type Submission = {
   displayName?: unknown;
@@ -25,65 +20,61 @@ async function notifyReviewer(input: {
   email: string;
   quote: string;
 }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const reviewEmail = process.env.TESTIMONIAL_REVIEW_EMAIL;
-  const fromEmail = process.env.TESTIMONIAL_FROM_EMAIL;
+  // Submissions are stored for review whether or not email is configured.
+  // Never fail a visitor's submission because notification infrastructure is
+  // missing — the note is already safe, only the alert is lost.
+  if (!isEmailConfigured()) return;
 
-  // Submissions are still safely stored for review when email delivery is not
-  // configured yet. Never fail a customer submission because notification
-  // infrastructure is missing or temporarily unavailable.
-  if (!apiKey || !reviewEmail || !fromEmail) return;
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [reviewEmail],
-      reply_to: input.email,
-      subject: `New BCBA Prep testimonial from ${input.displayName}`,
-      text: [
-        "A new testimonial is waiting for review in Supabase.",
-        "",
-        `Display name: ${input.displayName}`,
-        `Reply email: ${input.email}`,
-        "",
-        input.quote,
-        "",
-        "Nothing is published automatically. Approve the record before it appears on the site.",
-      ].join("\n"),
-    }),
+  await sendEmail({
+    to: process.env.TESTIMONIAL_REVIEW_EMAIL || undefined,
+    subject: `New BCBA Prep testimonial from ${input.displayName}`,
+    replyTo: input.email,
+    text: [
+      "A new testimonial is waiting for review in Supabase.",
+      "",
+      `Display name: ${input.displayName}`,
+      `Reply email:  ${input.email}`,
+      "",
+      input.quote,
+      "",
+      "Nothing is published automatically. Set the row's status to 'approved'",
+      "in Supabase before it appears on the site.",
+    ].join("\n"),
   });
-
-  if (!response.ok) {
-    console.error(
-      "[testimonials] reviewer notification failed",
-      response.status,
-      await response.text(),
-    );
-  }
 }
 
+/**
+ * Approved rows only — see the note in app/testimonials/page.tsx.
+ *
+ * An empty wall is the correct fallback for every failure here: the page
+ * renders its "no notes yet" state and nothing looks broken to a visitor. A
+ * 500 would surface a Supabase outage as a broken page instead.
+ */
 export async function GET() {
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/testimonials?select=id,display_name,quote,created_at&order=created_at.desc&limit=16`,
-    {
-      headers: {
-        apikey: SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      cache: "no-store",
-    },
-  );
+  try {
+    const { url, publishableKey } = supabaseConfig();
 
-  if (!response.ok) {
+    const response = await fetch(
+      `${url}/rest/v1/testimonials?select=id,display_name,quote,created_at&status=eq.approved&order=created_at.desc&limit=16`,
+      {
+        headers: {
+          apikey: publishableKey,
+          Authorization: `Bearer ${publishableKey}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      console.error("[testimonials] read failed", response.status);
+      return NextResponse.json({ testimonials: [] }, { status: 200 });
+    }
+
+    return NextResponse.json({ testimonials: await response.json() });
+  } catch (error) {
+    console.error("[testimonials] read failed", error);
     return NextResponse.json({ testimonials: [] }, { status: 200 });
   }
-
-  return NextResponse.json({ testimonials: await response.json() });
 }
 
 export async function POST(request: Request) {
@@ -137,6 +128,8 @@ export async function POST(request: Request) {
     );
   }
 
+  const { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY } =
+    supabaseConfig();
   const response = await fetch(`${SUPABASE_URL}/rest/v1/testimonials`, {
     method: "POST",
     headers: {

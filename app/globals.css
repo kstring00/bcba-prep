@@ -1758,3 +1758,88 @@ button {
     animation-duration: 0.001ms !important;
   }
 }
+
+/* ---------------- pre-launch sales gate ---------------- */
+
+/*
+ * Shown wherever a price and buy button sit once selling begins. Reads as a
+ * deliberate, calm statement rather than an error or a disabled control, so a
+ * visitor understands the store is not open yet and nothing is broken.
+ */
+.prelaunch-note {
+  margin: 22px 0 0;
+  padding: 18px 20px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 14px;
+  background: rgba(253, 250, 245, 0.72);
+  max-width: 54ch;
+}
+
+.prelaunch-note strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.prelaunch-note p {
+  margin: 7px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
+/* ---------------- focus visibility ---------------- */
+
+/*
+ * WCAG 2.2 SC 2.4.11 wants a focus indicator at 3:1 against its surroundings.
+ * The browser default ring is thin and disappears against several of the
+ * cloth colours in this palette, so every interactive element gets an
+ * explicit two-tone ring: a dark inner edge for contrast on pale ground, and
+ * an outer offset that stays visible on the dark footer band.
+ *
+ * :focus-visible, not :focus — a mouse click on a button should not leave a
+ * ring behind, only keyboard navigation should.
+ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--mauve-deep);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* The footer is near-black; the mauve ring loses contrast there. */
+.footer a:focus-visible,
+.footer button:focus-visible {
+  outline-color: var(--gold);
+}
+
+/* ---------------- skip link ---------------- */
+
+/*
+ * Off-screen until focused. Lets a keyboard or screen-reader user jump the
+ * whole header — including the nav — straight to page content.
+ */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 999;
+  padding: 12px 18px;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 0;
+}

@@ -1,5 +1,45 @@
 # Production Readiness Audit — BCBA Prep
 
+> ## ⚠️ STATUS UPDATE — this audit has been acted on
+>
+> **Audit date:** 2026-09-07 (commit `e35dad0`)
+> **Hardening pass:** 2026-09-07, same day
+>
+> After this audit was delivered, the engagement scope changed. Bryana is
+> intentionally not releasing her BCBA materials until she passes her own exam,
+> so the work became a **pre-launch hardening phase, not a commerce launch**.
+>
+> **Most of the launch blockers below are now fixed.** The findings are
+> preserved unedited as the record of what was found and how it was verified —
+> do not read the status columns as current. For today's state, read
+> `LAUNCH_CHECKLIST.md`.
+>
+> | Blocker | Then | Now |
+> |---|---|---|
+> | **B-3** No study materials | 🔴 | ⚪ **Deferred by design.** The store is gated closed so it cannot sell them. |
+> | **B-2** Order reaches no human | 🔴 | ⚪ **Deferred.** No orders are possible while the gate is closed. |
+> | **C-3** "Final sale" on undeliverable product | 🔴 | ✅ **Fixed.** Terms and Refunds carry a pre-launch notice; nothing is for sale. |
+> | **C-1** Placeholder tokens on 8 public pages | 🔴 | ✅ **Fixed.** Zero tokens in source or rendered HTML; 5 placeholder routes deleted. |
+> | **C-2** Placeholder privacy policy | 🔴 | ✅ **Fixed.** Real policy describing the actual data flows. |
+> | **F-2** Unmoderated testimonials | 🔴 | ✅ **Fixed.** Both queries filter `status=eq.approved`. |
+> | **F-1** Contact messages reach nobody | 🔴 | ✅ **Fixed.** Server route with email delivery; refuses rather than faking success. |
+> | **A-1** Password reset dead-ends | 🔴 | ✅ **Fixed.** `/reset-password` completes the flow. |
+> | **B-1** No entitlement system | 🔴 | ⚪ **Deferred.** Architecture documented in `LAUNCH_CHECKLIST.md` §3. |
+> | **D-1** Unrate-limited browser writes | 🔴 | ✅ **Fixed.** Browser→Supabase contact path removed; server route rate-limited. |
+> | **SEC-1** No security headers | 🟡 | ✅ **Fixed.** Five headers added. |
+> | **A11Y-1** Focus ring 1.09:1 | 🟡 | ✅ **Fixed.** Now 6.08:1, measured. |
+> | **A11Y-2** Cart panel not a dialog | 🟡 | ✅ **Fixed.** Role, focus trap, Escape. |
+> | **R-5** Silent env fallbacks | 🟡 | ✅ **Fixed.** No hardcoded Supabase or Clarity values remain. |
+> | **DOC-1** README materially wrong | 🟡 | ✅ **Fixed.** |
+> | **R-1** No `main` branch | 🔴 | ⏳ **Still open.** Needs approval for branch operations. |
+>
+> **A new control was added that did not exist at audit time:** a sales gate at
+> `lib/launch.ts`. `/api/checkout` returns 503 before any Stripe call, so the
+> site cannot accept a real payment for materials that do not exist. Verified
+> against a direct hand-written POST.
+
+---
+
 **Repo:** `kstring00/bcba-prep`
 **Audited commit:** `e35dad0` ("Replace TODO site meta description", 2026-09-02)
 **Audit date:** 2026-09-07

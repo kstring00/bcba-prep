@@ -14,22 +14,32 @@ clunky, this guide says so. It will not pretend something is easy when it is not
 
 ## ⚠️ READ THIS FIRST
 
-**Your website is not ready to sell yet.**
+**Your website is live and safe. It is not selling anything yet — on purpose.**
 
-Right now, if a stranger paid you $179 tonight, here is exactly what would
-happen:
+You are finishing your own BCBA exam before releasing your study materials.
+Until you are ready, your website has been put into a safe **pre-launch** state.
 
-1. Their money would go through. Stripe would take the payment.
-2. They would get a receipt email from Stripe.
-3. They would land on a "Thank you" page that shows broken text.
-4. **Nobody would tell you the sale happened.**
-5. **They would receive no study materials, because none have been added yet.**
+Here is what that means:
 
-None of this is a surprise or a mistake. The website was built first, and the
-study materials come next. But it does mean: **do not turn on sales yet.**
+- ✅ Your website works. People can read every page.
+- ✅ People can create an account and sign in.
+- ✅ People can send you a message.
+- ✅ People can send you a testimonial.
+- 🔒 **Nobody can buy anything.** Prices and buy buttons are hidden, and the
+  payment system is switched off. Even someone who tried to force a purchase
+  would be blocked.
+- 🔒 **Google cannot find your site yet.** That is also on purpose.
 
-Kyle has a list of what must be fixed first. Ask him for the "launch blockers"
-list. When those are done, this warning goes away.
+**You do not need to do anything to keep it safe.** It stays this way until
+Kyle deliberately turns selling on, which happens after you pass and after your
+materials are ready.
+
+**Why this matters:** you cannot accidentally take someone's money for
+materials you have not finished. That was the biggest risk, and it is now
+closed.
+
+When you pass your exam, tell Kyle. He has a short list of steps to open the
+store. It is in a file called `LAUNCH_CHECKLIST.md`.
 
 ---
 
@@ -93,8 +103,17 @@ your site.
 
 ## HOW SOMEONE BUYS SOMETHING
 
-Here is the trip a customer takes. Numbers 1 through 6 work today. **Number 7
-does not exist yet.**
+**Right now, nobody can.** Selling is switched off. This section describes what
+will happen once Kyle turns it on.
+
+Today, a visitor sees this instead of a price:
+
+> **Not yet available for purchase**
+> Bee is finishing her own BCBA certification before releasing these study
+> materials. Domain licenses are not on sale yet — nothing here can be
+> purchased today.
+
+**Once selling is turned on**, the trip looks like this:
 
 1. They open your website.
 2. They see nine books stacked up. Each book is one exam domain.
@@ -103,19 +122,19 @@ does not exist yet.**
 5. They click the cart. They see their total. If they picked 3 domains, the
    price drops to $75 by itself. If they picked 5, it drops to $115. If they
    picked 8 or 9, it drops to $179.
-6. They click **Purchase licenses**. Stripe's payment page opens. They type their
-   card number **on Stripe's page, never on yours.**
-7. **They get their study materials.** ← **This step does not exist.**
+6. They click **Purchase licenses**. Stripe's payment page opens. They type
+   their card number **on Stripe's page, never on yours.**
+7. They land on a Thank-you page telling them their materials are coming by
+   email.
+8. **You send them the materials.**
 
-**What actually happens at step 7 today:** They see a "Thank you" page with
-broken text on it. They get a receipt email from Stripe. Nothing else happens.
-No materials are sent. You are not told.
-
-**Until Kyle fixes this, you must not sell anything.**
+Step 8 is done by hand unless Kyle builds automatic delivery first. That is a
+decision the two of you make when you are ready — see `LAUNCH_CHECKLIST.md`.
 
 ### About the prices
 
-Your prices are set. They work correctly. Kyle tested every combination.
+Your prices are set and correct. Kyle tested every combination. They are simply
+hidden while the store is closed.
 
 | What they pick | What they pay |
 |---|---|
@@ -129,16 +148,17 @@ Your prices are set. They work correctly. Kyle tested every combination.
 | **8 or 9 domains** | **$179** |
 
 Notice that 8 domains and 9 domains both cost $179. That is on purpose. If
-someone picks 8, the website gives them all 9 for the same price. That is a nice
-surprise for them and it is working correctly.
+someone picks 8, the website gives them all 9 for the same price. That is a
+nice surprise for them and it is working correctly.
 
 **Nobody can cheat the price.** Kyle checked this carefully. A customer cannot
 change the amount using their browser. The price is decided on your side, not
 theirs.
 
----
-
 ## HOW TO CHECK A SALE
+
+**There are no sales yet — selling is switched off.** Keep this section for
+when the store opens; the steps will be exactly these.
 
 Everything about money lives in Stripe.
 
@@ -187,6 +207,9 @@ address from Stripe, open your own email, and send the files.
 ---
 
 ## HOW TO REFUND SOMEONE
+
+**Nobody has paid you through the website yet, so there is nothing to refund
+today.** Keep this for when the store opens.
 
 Refunds happen entirely in Stripe. It takes about thirty seconds.
 
@@ -243,13 +266,16 @@ Work through these questions in order. Stop when you reach an answer.
 - **NO** → Go to Q4.
 
 **Q4. They forgot their password.**
-- The site has a **Forgot password?** link on the sign-in page. It sends them an
-  email.
-- 🔴 **The link in that email does not work.** The page it points to was never
-  built. **This is broken today.**
-- **What to do right now:** Apologize. Tell them you will help another way. Then
-  **ASK KYLE** — he can reset a password by hand.
-- Kyle is fixing this. Once it is fixed, delete this warning from your guide.
+- On the sign-in page there is a **Forgot password?** link. They type their
+  email and click it.
+- They get an email with a link.
+- They click that link. It opens a page on your site where they type a new
+  password twice.
+- They click **Save new password**. Then they sign in with the new one.
+- ✅ **This works now.** If the link says it has expired, that is normal —
+  links only last a short time and only work once. They should just request a
+  new one.
+- If it still does not work, **ASK KYLE**.
 
 **Q5. They are signed in but see no study materials.**
 - This is **normal today.** Nobody sees materials. The library page is empty for
@@ -271,16 +297,21 @@ This is the plain truth and it is important you understand it: your website has
 **no** content manager, **no** upload button, and **no** file storage. There is
 no hidden admin area. It does not exist.
 
-**What you can do today:** Keep your study materials on your own computer, or in
-Google Drive or Dropbox. When someone buys, email them the files yourself.
+**This is deliberate for now.** You are not releasing materials until you pass
+your exam, so building the storage and delivery system would mean guessing at
+what you will need. Kyle would rather build it around your real files than
+around a guess.
 
-**What must happen for the website to hold your materials:** **ASK KYLE.** This
-is real development work — building storage, and building the system that gives
-each customer only the domains they paid for. It is a project, not a setting.
+**What to do in the meantime:** keep your study materials wherever you already
+keep them — your computer, Google Drive, Dropbox. Organise them by domain, so
+that when the time comes it is obvious which files belong to Domain A, Domain
+B, and so on. That organisation is the useful work you can do now.
+
+**When you are ready:** tell Kyle you have passed and your materials are done.
+He has a checklist ready. Building the storage and the delivery system is real
+development work — it is a project, not a setting.
 
 **Do not let anyone tell you this is a quick fix.** It is not.
-
----
 
 ## HOW TO CHANGE A PRICE
 
@@ -306,78 +337,75 @@ When you ask Kyle, tell him exactly:
 
 ## HOW TO ADD A TESTIMONIAL
 
-**You cannot add one yourself. You also cannot approve or delete one yourself.**
+**You cannot write one yourself, and that is correct — testimonials should come
+from real students.**
 
-**Here is how it works today:**
+**Here is how it works:**
 
 1. A student goes to your **Testimonials** page.
-2. They scroll down and fill in the form: their name, their email, and what they
-   want to say.
+2. They scroll down and fill in the form: their name, their email, and what
+   they want to say.
 3. They tick a box saying you may publish it.
 4. They click submit.
+5. Their note is saved, and it is marked **waiting for review**.
+6. ✅ **It does not appear on your website yet.** Nothing is published
+   automatically.
 
-**Then what?** Their note is saved. That part works.
+**This is now working correctly.** Your Testimonials page says every note is
+reviewed before it is published, and that is now true. Earlier it was not —
+notes would have appeared instantly. That is fixed.
 
-🔴 **But there is a serious problem you must know about.**
+### Approving a note
 
-Your Testimonials page says, in writing:
+Here is the honest, clunky part: **there is no approve button yet.**
 
-> *"Every testimonial below is reviewed before it is published."*
+To publish a note, someone has to open Supabase and change that note's status
+from `pending` to `approved`. That is a database task.
 
-**That is not true right now.** The website does not hold notes back for you to
-approve. There is no approve button anywhere, and no screen where you could see
-waiting notes.
+**ASK KYLE.** Either he approves them for you, or he walks you through it once
+on a call. Do not go digging in Supabase on your own — see the
+**WHAT NOT TO TOUCH** section.
 
-**What this means:** if the page starts showing notes, it will show them **the
-instant they are submitted** — including anything a stranger types into that
-form. Up to 1,200 characters, under any name they choose, on your website.
+If testimonials start arriving regularly, tell Kyle. Building you a simple
+approve screen is a small job and worth doing at that point — but not before,
+because a screen for a thing that happens twice a year is wasted work.
 
-**What to do:** **ASK KYLE to fix this before you tell anyone about the
-testimonials page.** He needs to build the approve step, and correct the sentence
-that promises review.
+### Getting told when one arrives
 
-**Until it is fixed:** Do not share a link to your testimonials page. Do not ask
-students to leave a note there.
-
----
+If Kyle has set up email alerts, you get an email each time someone submits a
+note. If you are not getting those, **ASK KYLE** to switch them on.
 
 ## HOW TO CHECK CONTACT MESSAGES
 
-🔴 **This is broken today. Please read this whole section.**
+✅ **This works now. Messages come straight to your email.**
 
-Your **Contact** page has a form. Customers fill it in and click send. They see a
-friendly message saying it went through.
+Your **Contact** page has a form. When somebody fills it in and clicks send,
+the message is emailed to your inbox. You read it like any other email.
 
-**Where does the message go?**
+**To reply:** just hit Reply. The email is set up so your reply goes back to
+the person who wrote in, not to the website. You do not need to copy their
+address out.
 
-It goes into the Supabase filing cabinet. It sits in a table called
-`contact_messages`.
+**What the email looks like:**
 
-**And then:**
+- The subject line starts with **BCBA Prep contact** and then the topic they
+  chose.
+- The message shows their name, their email, and what they wrote.
 
-- ❌ **You do not get an email.**
-- ❌ **You do not get a notification.**
-- ❌ **There is no inbox to open.**
-- ❌ **Nothing on your website shows you these messages.**
+**If messages are not arriving:**
 
-The Contact page even tells customers *"Bee can review it from the BCBA Prep
-contact inbox."* **There is no inbox.** That sentence is not true.
+1. Check your spam folder first.
+2. **ASK KYLE.** The delivery may need reconnecting.
 
-**Why this is serious:** the people most likely to use that form are customers
-with a payment or access problem. They will write to you, see a success message,
-and hear nothing back. That is how refunds and bad reviews start.
+**A safety feature worth knowing about:** if the email system is ever
+misconfigured, the form does **not** pretend to work. The visitor is told
+plainly that the form is unavailable and to email you directly. That is
+deliberate — it is much better than someone thinking they reached you when
+they did not.
 
-**What to do right now:**
-
-1. **ASK KYLE to fix this.** Messages should arrive in your real email inbox.
-   This is straightforward work — a few hours.
-2. **Until then, do not send anyone to the Contact page.** Put your real email
-   address on the page instead, and let people write to you directly.
-
-**If you must read the stored messages before Kyle fixes it:** **ASK KYLE** to
-pull them out for you. Do not try to dig through Supabase yourself.
-
----
+**Spam protection is built in.** There is a hidden trap field that catches
+automated bots, and a limit on how many messages one person can send in a short
+time. You should not get flooded.
 
 ## HOW TO SEE SITE ANALYTICS
 
@@ -432,6 +460,17 @@ no undo button that a non-developer can find.
 Supabase holds your customer accounts and their messages. It looks like a
 spreadsheet. **It is not a spreadsheet.** Deleting a row there deletes a real
 person's account, permanently. There is no trash can. There is no undo.
+
+### 🚫 Do not turn on selling by yourself
+
+Your store is deliberately switched off. There is one setting in Vercel that
+turns it on. **Do not touch it, and do not let anyone else touch it**, until
+you have passed your exam, your materials are finished, and Kyle has walked
+through the launch checklist with you.
+
+Turning it on early means a real person can pay you real money for materials
+that do not exist yet. That leads to refunds, chargebacks, and — if it happens
+enough — Stripe freezing your account.
 
 ### 🚫 Do not change your Stripe API keys
 
@@ -488,7 +527,9 @@ Keep them.
   cart and click Purchase. Does Stripe's payment page open?
 - 🔴 **Stripe emails you about a dispute or a chargeback.**
 - 🔴 **You see something on your site that looks like a broken code word**, such
-  as text in double square brackets.
+  as text in double square brackets. (These were all removed — if one comes
+  back, something went wrong with a change.)
+- 🔴 **A price or a Buy button appears when the store should still be closed.**
 - 🔴 **A testimonial appears that you did not approve.**
 
 **Contact him this week — not urgent:**
@@ -513,33 +554,34 @@ conversation about scope and cost first.
 
 ## WHAT IS INCLUDED IN THE 7-DAY LAUNCH SUPPORT
 
-For the first seven days after your site goes live, Kyle is on call. Here is the
-checklist to walk through together during week one.
+Kyle is on call for seven days after handover. Because the store is closed,
+week one is about **learning your site and confirming it is safe**, not about
+processing sales. When you later open the store, ask Kyle for a second short
+support window covering the first real orders.
+
+Here is the checklist to walk through together.
 
 **Day 1 — Together, on a call**
 
+- [ ] Confirm the store really is closed: open a domain page together and see
+      the "Not yet available" notice instead of a price.
 - [ ] Sign in to Stripe together. Bryana signs in herself, not Kyle.
-- [ ] Confirm the bank account in Stripe is Bryana's.
-- [ ] Confirm the tax details in Stripe are Bryana's.
-- [ ] Run one real test purchase, for real money, on a real card.
-- [ ] Find that payment in the Stripe dashboard together.
-- [ ] Find the `entitlement_slugs` line together.
-- [ ] Refund that test purchase together, click by click.
-- [ ] Set up the sales spreadsheet: Date · Email · Domains · Sent?
+- [ ] Confirm the Stripe account, bank details and tax details are Bryana's.
+- [ ] Confirm every other account is in Bryana's name.
 
-**Day 2 — Fulfilment practice**
+**Day 2 — Your own site**
 
-- [ ] Practise the full manual delivery: find the sale, copy the email, send the
-      files, tick the spreadsheet.
-- [ ] Write a saved email template so it is the same every time.
-- [ ] Agree how fast you promise to deliver. Put that promise on the site.
+- [ ] Create an account on the site as if you were a student.
+- [ ] Sign out and sign back in.
+- [ ] Read every page together and check the words are right.
 
 **Day 3 — Customer problems**
 
 - [ ] Walk the "cannot log in" decision tree together.
-- [ ] Confirm the password reset actually works now.
-- [ ] Confirm contact messages actually reach Bryana's real email inbox.
-- [ ] Send a test message through the contact form and watch it arrive.
+- [ ] Do a real password reset, start to finish, on Bryana's own account.
+- [ ] Send a test message through the contact form and watch it arrive in her
+      inbox. Reply to it and confirm the reply reaches the sender.
+- [ ] Submit a test testimonial and confirm it does **not** appear on the site.
 
 **Day 4 — Watching**
 
@@ -552,7 +594,8 @@ checklist to walk through together during week one.
 - [ ] Open every page on a phone.
 - [ ] Confirm no broken code words are visible anywhere.
 - [ ] Confirm the testimonials page behaves the way Bryana expects.
-- [ ] Confirm every legal page reads correctly.
+- [ ] Read the Privacy, Terms and Refunds pages together and confirm they say
+      what Bryana wants them to say. Agree who takes them to an attorney.
 
 **Day 6 — Emergency drill**
 
@@ -562,6 +605,8 @@ checklist to walk through together during week one.
 
 **Day 7 — Handover**
 
+- [ ] Read `LAUNCH_CHECKLIST.md` together so Bryana knows what opening the
+      store will involve when she is ready.
 - [ ] Read this guide together, start to finish.
 - [ ] Bryana writes down every question she still has.
 - [ ] Kyle answers them and updates this guide.

@@ -72,7 +72,9 @@ export default function SignInPage() {
     setMessage(null);
     try {
       await requestPasswordReset(email);
-      setMessage("Password reset email sent. Check your inbox for the next step.");
+      setMessage(
+        "Password reset email sent. Open the link in that email to choose a new password. It expires shortly, so use it soon.",
+      );
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -100,9 +102,9 @@ export default function SignInPage() {
               <span> BCBA Prep by Bee the Behavior Bae.</span>
             </h1>
             <p className={styles.lede}>
-              Sign in to return to the domains and study materials connected to
-              your account. New here? Create your account now so your library has
-              a home as BCBA Prep grows.
+              Sign in to your BCBA Prep account. Study materials are not
+              released yet &mdash; creating an account now simply means it is
+              ready and waiting when the library opens.
             </p>
 
             <div className={styles.promise}>

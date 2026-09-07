@@ -6,6 +6,7 @@ import { useState } from "react";
 import { BeeMark } from "./BeeMark";
 import { CartButton } from "./CartButton";
 import { Menu } from "./Icons";
+import { SALES_ENABLED } from "@/lib/launch";
 import brandStyles from "./Brand.module.css";
 
 const NAV = [
@@ -60,7 +61,9 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-end">
-        <CartButton />
+        {/* A cart with nothing purchasable in it is a dead end, so the control
+            is removed entirely while the pre-launch gate is closed. */}
+        {SALES_ENABLED ? <CartButton /> : null}
         <Link href="/sign-in" className="pill pill--login">
           Member Login <span aria-hidden="true">+</span>
         </Link>

@@ -7,6 +7,14 @@
 
 ---
 
+> **Timing note.** The site is in a hardened pre-launch state and **cannot take
+> a payment** — selling is gated off in code. That buys time to do the Stripe
+> transfer properly, before any money is at stake. Do it now rather than in the
+> rush of launch week; migrating a Stripe account that has already processed
+> real payments is the painful version.
+
+---
+
 ## 🔴 READ THIS BEFORE THE FIRST REAL PAYMENT
 
 **The Stripe account must be in Bryana's name, with her banking details and her
@@ -46,8 +54,8 @@ an hour. Doing it after costs a day and creates a permanent split in the records
 | **Stripe account** | **VERIFY WITH KYLE** | **Bryana — mandatory** | **VERIFY WITH KYLE** | 🔴 Highest priority. See the box above. Repo shows only variable *names*; account identity is invisible from code. |
 | **Supabase project** | **VERIFY WITH KYLE** | Bryana | **VERIFY WITH KYLE** | A specific project ref is hardcoded in four source files, so the project is real and in active use. Who created it and under which login is **not** determinable from the repo. |
 | **Vercel project** | **VERIFY WITH KYLE** | Bryana (or Bryana as owner, Kyle as member) | **VERIFY WITH KYLE** | Commit `fbee249` references a "Pro deployment", which suggests a paid Vercel plan. Whose plan and whose card is unknown from the repo. |
-| **Microsoft Clarity** | **VERIFY WITH KYLE** | Bryana | **VERIFY WITH KYLE** | A project ID is hardcoded at `components/MicrosoftClarity.tsx:7`, so a real Clarity project exists and is receiving data. The Microsoft account behind it is unknown from the repo. |
-| **Business email** | **VERIFY WITH KYLE** | Bryana | **VERIFY WITH KYLE** | No mail provider is configured in the application. The optional testimonial alert uses Resend via `RESEND_API_KEY`, `TESTIMONIAL_REVIEW_EMAIL`, `TESTIMONIAL_FROM_EMAIL` — none of which is set in the repo. **[UNVERIFIED]** whether a Resend account exists at all. |
+| **Microsoft Clarity** | **VERIFY WITH KYLE** | Bryana | **VERIFY WITH KYLE** | The hardcoded project ID has been removed; Clarity now runs only where `NEXT_PUBLIC_CLARITY_PROJECT_ID` is set. A real project was previously receiving data — confirm which Microsoft account owns it, and whether that historical data matters. |
+| **Business email** | **VERIFY WITH KYLE** | Bryana | **VERIFY WITH KYLE** | Now load-bearing: the contact form delivers through **Resend** (`RESEND_API_KEY`, `CONTACT_INBOX_EMAIL`, `CONTACT_FROM_EMAIL`). Without them the form refuses submissions. A Resend account must exist, with a verified sending domain, and should be in Bryana's name. |
 | **Source repository** | **Kyle** (`github.com/kstring00/bcba-prep`) — verified from the git remote | Bryana, or Bryana with Kyle as collaborator | **Yes** | This is the only ownership fact the repository proves. Transfer, or add Bryana as an admin so she is never locked out of her own code. |
 | **Content and assets** | **Bryana** (author) | Bryana | No | The nine domain titles, question counts and percentages (`lib/domains.ts`) and the About page copy were supplied by Bryana per `README.md:65-76`. **The study materials themselves do not exist in this repository** — they are entirely Bryana's, wherever she holds them. |
 | **Design and code authorship** | Kyle | — | Agree in writing | Who may reuse this code, and whether Bryana receives an assignment of rights or a licence, is a contract question. **Requires an attorney.** Nothing in the repo addresses it. |
@@ -63,8 +71,10 @@ name is on an account, or whose card renews a domain.
 
 - ✅ The GitHub remote is `https://github.com/kstring00/bcba-prep` — so the repo
   sits under Kyle's account.
-- ✅ A specific Supabase project and a specific Clarity project are hardcoded in
-  source, so both exist and are live.
+- ✅ A specific Supabase project and a specific Clarity project *were*
+  hardcoded in source before the hardening pass, so both exist and have been
+  live. Those literals have since been removed, so the repo no longer names
+  them — but the projects are real and someone owns them.
 - ✅ Stripe, Supabase, Clarity and Resend are referenced by environment-variable
   **name** only. No credential values are stored in git, and none ever were.
 
@@ -132,13 +142,18 @@ Work top to bottom. Stripe first.
 - [ ] Add Bryana as an owner, or recreate the project under her account
 - [ ] If recreated, update `NEXT_PUBLIC_CLARITY_PROJECT_ID` in Vercel **and** remove the hardcoded fallback at `components/MicrosoftClarity.tsx:7`
 
-### 6. Business email
+### 6. Business email and Resend
 
 - [ ] Decide the customer-facing address (e.g. `hello@<domain>`)
 - [ ] Set it up on a real mail provider in Bryana's name
 - [ ] Confirm Bryana can send and receive from it
 - [ ] Use it as the account email for Stripe, Vercel, Supabase and Clarity
-- [ ] Once the contact form is fixed, this is where those messages must land
+- [ ] Create or transfer the **Resend** account into Bryana's name
+- [ ] Verify the sending domain in Resend
+- [ ] Set `CONTACT_INBOX_EMAIL` to this address, and `CONTACT_FROM_EMAIL` to an
+      address on the verified domain
+- [ ] Send a test message through the live contact form and confirm it arrives,
+      then reply to it and confirm the reply reaches the sender
 
 ### 7. Repository
 

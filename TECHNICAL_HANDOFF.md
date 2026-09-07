@@ -1,10 +1,29 @@
 # Technical Handoff — BCBA Prep
 
 **Repo:** `kstring00/bcba-prep`
-**Documented commit:** `e35dad0`
 **Audience:** developer
-**Companion documents:** `PRODUCTION_READINESS_AUDIT.md` (findings and evidence),
+**State:** pre-launch hardened — the sales gate is closed
+**Companion documents:** `LAUNCH_CHECKLIST.md` (what remains),
+`PRODUCTION_READINESS_AUDIT.md` (original findings and evidence),
 `BRYANA_SITE_GUIDE.md` (owner operations), `CLIENT_OWNERSHIP_HANDOFF.md` (accounts)
+
+> ### The sales gate — read this before touching checkout
+>
+> `lib/launch.ts` exports `SALES_ENABLED`, true only when
+> `NEXT_PUBLIC_SALES_ENABLED === "true"`. It gates two layers:
+>
+> 1. **`app/api/checkout/route.ts` returns 503 before any Stripe call.** This
+>    is authoritative and must stay the first statement in the handler. A
+>    hand-written POST reaches this route directly, so nothing else protects
+>    the customer's money.
+> 2. **The storefront hides prices, buy buttons and the cart.** Courtesy only.
+>    Never rely on it alone.
+>
+> It exists because there are no study materials yet. A completed payment today
+> would leave a real customer with a receipt and nothing to download. Opening
+> it is a launch-day step with prerequisites — see `LAUNCH_CHECKLIST.md`.
+>
+> Rollback is one environment variable.
 
 > **No secret values appear in this document.** Environment variables are
 > referenced by name only.
@@ -21,15 +40,18 @@ Browser
   │
   ├─ Next.js 16.3.4 (App Router, Turbopack, React 19)
   │    ├─ Static / SSG pages           → served from the edge
-  │    ├─ /api/checkout   (nodejs)     → Stripe Checkout Session create
+  │    ├─ /api/checkout   (nodejs)     → GATE → Stripe Checkout Session create
   │    ├─ /api/webhook    (nodejs)     → Stripe signature verify → console.log
+  │    ├─ /api/contact    (nodejs)     → validate → rate limit → Resend
   │    └─ /api/testimonials (nodejs)   → Supabase REST insert/select
   │
   ├─ Supabase (direct fetch, no SDK)
   │    ├─ /auth/v1/*      ← called FROM THE BROWSER
-  │    └─ /rest/v1/*      ← called from browser (contact) AND server (testimonials)
+  │    └─ /rest/v1/*      ← server-side only (testimonials)
   │
-  └─ Stripe Hosted Checkout            ← card data never touches this origin
+  ├─ Resend                            ← contact + testimonial alerts
+  │
+  └─ Stripe Hosted Checkout            ← unreachable while the gate is closed
 ```
 
 **Key architectural facts:**
@@ -45,6 +67,9 @@ Browser
 - **No `public/` directory.** All imagery is inline SVG (`components/Florals.tsx`,
   `Icons.tsx`, `Motifs.tsx`, `BeeMark.tsx`). Zero raster assets in the entire
   project.
+- **No browser writes to Supabase.** The contact form previously POSTed
+  straight to `/rest/v1/contact_messages` with the publishable key. That path
+  is gone; `lib/supabase/contact-client.ts` was deleted. Do not reinstate it.
 - **Fonts** are self-hosted at build time via `next/font/google`
   (`app/layout.tsx:13-25`) — no runtime CDN request.
 
@@ -54,22 +79,22 @@ Browser
 |---|---|---|---|
 | `/` | Static | — | Bookshelf storefront |
 | `/domain/[slug]` | SSG ×9 | — | Product pages. `generateStaticParams` at `app/domain/[slug]/page.tsx:5`. **No `generateMetadata`.** |
-| `/about` | Static | — | Contains 6 `[[TODO_]]` tokens |
-| `/contact` | Static | — | Client component; writes direct to Supabase |
+| `/about` | Static | — | Placeholder stat/story/portrait blocks removed; no checkable claims |
+| `/contact` | Static | — | Client component; POSTs to `/api/contact` |
 | `/testimonials` | Dynamic (`force-dynamic`) | — | Server-fetches from Supabase REST |
 | `/sign-in` | Static | — | Sign in + create account, tabbed |
 | `/member` | **Static** | Client-only | Returns 200 to anonymous; redirects in `useEffect` |
-| `/thanks` | Static | — | Success URL. Contains `[[TODO_DELIVERY_NOTE]]`. Ignores `session_id`. |
-| `/privacy` | Static | — | Contains `[[TODO_PRIVACY]]` |
+| `/thanks` | Static | — | Success URL. Real copy; branches on the sales gate. Still ignores `session_id`. |
+| `/privacy` | Static | — | Real policy describing the actual data flows |
 | `/terms`, `/refunds` | Static | — | Real content |
-| `/blog`, `/updates`, `/resources`, `/study-guides`, `/mock-exams` | Static | — | **100% placeholder. Unlinked from nav. Candidates for deletion.** |
+| `/reset-password` | Static | Recovery token | Completes the password reset. Reads the token from the URL fragment. |
 | `/robots.txt` | Static | — | `Disallow: /` |
 | `/icon.svg` | Static | — | Favicon |
-| `/api/checkout` | Dynamic, nodejs | — | POST only |
+| `/api/checkout` | Dynamic, nodejs | — | POST only. **503 while the sales gate is closed.** |
+| `/api/contact` | Dynamic, nodejs | — | POST only. Validation, honeypot, two-tier rate limit, Resend delivery. |
 | `/api/webhook` | Dynamic, nodejs | Stripe signature | POST only |
 | `/api/testimonials` | Dynamic, nodejs | — | GET + POST |
-| `/sitemap.xml` | **Does not exist** | — | Returns 404 |
-| `/reset-password` | **Does not exist** | — | **Password reset dead-ends here** |
+| `/sitemap.xml` | **Does not exist** | — | Returns 404. Listed in `LAUNCH_CHECKLIST.md` §4. |
 
 ## 3. Dependencies
 
@@ -94,29 +119,29 @@ holds before bumping to 13.2.0.
 |---|---|---|---|
 | `STRIPE_SECRET_KEY` | `lib/stripe.ts:8` | **Yes** | Throws → checkout returns 500 |
 | `STRIPE_WEBHOOK_SECRET` | `app/api/webhook/route.ts:10` | **Yes** | Webhook returns 500 |
-| `NEXT_PUBLIC_SUPABASE_URL` | 4 files | **Yes** | ⚠️ **Silently falls back to a hardcoded project ref** |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 4 files | **Yes** | ⚠️ **Silently falls back to a hardcoded key** |
+| `NEXT_PUBLIC_SALES_ENABLED` | `lib/launch.ts` | **Yes** | Store is closed unless exactly `"true"`. Fails safe. |
+| `NEXT_PUBLIC_SUPABASE_URL` | `lib/supabase/config.ts` | **Yes** | Throws at call time when absent. No fallback. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `lib/supabase/config.ts` | **Yes** | Throws at call time when absent. No fallback. |
+| `RESEND_API_KEY` | `lib/email.ts` | For contact | Contact form **refuses** submissions without it |
+| `CONTACT_INBOX_EMAIL` | `lib/email.ts` | For contact | Destination inbox |
+| `CONTACT_FROM_EMAIL` | `lib/email.ts` | For contact | Must be a Resend-verified domain |
 | `NEXT_PUBLIC_SITE_URL` | `lib/stripe.ts:17` | Recommended | Falls back to `VERCEL_URL`, then `localhost:3000` |
-| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | `components/MicrosoftClarity.tsx:7` | No | ⚠️ **Falls back to a hardcoded project ID — Clarity runs regardless** |
-| `RESEND_API_KEY` | `app/api/testimonials/route.ts:28` | No | Reviewer notification silently no-ops |
-| `TESTIMONIAL_REVIEW_EMAIL` | `:29` | No | Same |
-| `TESTIMONIAL_FROM_EMAIL` | `:30` | No | Same |
+| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | `components/MicrosoftClarity.tsx` | No | No fallback. Tracking off unless set. |
+| `TESTIMONIAL_REVIEW_EMAIL` | `app/api/testimonials/route.ts` | No | Falls back to `CONTACT_INBOX_EMAIL` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | *nowhere* | **No** | Declared in `.env.example:11`; **never read by any code** |
 
-> ### ⚠️ The `??` fallback pattern is a production hazard
+> ### ✅ Silent env fallbacks removed
 >
-> Four files use `process.env.X ?? "<hardcoded literal>"`:
-> `lib/supabase/auth-client.ts:1-7`, `lib/supabase/contact-client.ts:1-7`,
-> `app/api/testimonials/route.ts:3-9`, `app/testimonials/page.tsx:7-13`.
+> Four files previously used `process.env.X ?? "<hardcoded literal>"`. The
+> literals were publishable browser credentials, so the exposure was never the
+> problem — the *silence* was: a preview deployment with a missing variable
+> quietly connected to the production project and wrote real customer data into
+> it.
 >
-> A missing, misspelled, or wrongly-scoped Vercel variable does not fail the
-> build or the request — it **silently connects to the hardcoded project**. A
-> preview or staging deployment will write real customer contact messages into
-> the production database with no signal that anything is wrong.
->
-> **Recommended:** replace with a `requireEnv()` helper that throws at module
-> load. The values themselves are publishable browser credentials, so the
-> exposure is not the problem — the silent-fallback behavior is.
+> `lib/supabase/config.ts` now throws instead. The check is **lazy** — at call
+> time, not module load — so a build or page render without the variables still
+> succeeds and the site stays up; only the feature that needs Supabase fails,
+> loudly, in the logs. The Clarity project ID fallback was removed the same way.
 
 ## 5. Stripe configuration
 
@@ -336,12 +361,31 @@ bucket; nothing implements it.
 
 ## 11. Forms
 
-### Contact — `app/contact/page.tsx` → `lib/supabase/contact-client.ts`
+### Contact — `app/contact/page.tsx` → `app/api/contact/route.ts`
 
-Client component. `POST /rest/v1/contact_messages` **direct from the browser**
-with the publishable key. Client-side validation only. **No honeypot, no rate
-limit, no CAPTCHA, no server route.** Anyone can extract the key from the bundle
-and insert rows directly. Nothing in the codebase reads the table.
+Client component POSTs JSON to `/api/contact`. The route validates server-side
+(name 2–120, email regex, subject against an allowlist, message 10–5000),
+carries a honeypot field, and delivers via Resend with `reply_to` set to the
+sender so a reply reaches the person who wrote in.
+
+**Two rate-limit tiers, deliberately** (`lib/rate-limit.ts`):
+
+| Tier | Limit | Counts |
+|---|---|---|
+| `contact-flood` | 40 / 10 min | Every request, including malformed |
+| `contact-send` | 5 / 10 min | Only submissions that pass validation |
+
+The split matters. A single counter meant five mistyped emails locked a real
+person out for ten minutes — caught in testing, and the reason the tiers exist.
+
+**When email is unconfigured the route returns 503 with an honest error** and
+names an alternative. It does not accept the message. Reporting success for a
+message that goes nowhere is the exact failure this route replaced.
+
+**Known limitation:** the limiter is in-process. On Vercel the real ceiling is
+roughly `limit × instance count` and resets on cold start. That is documented
+at the top of `lib/rate-limit.ts` and is a deliberate trade, not an oversight —
+move it to a shared store if it ever needs to be a hard guarantee.
 
 ### Testimonials — `app/api/testimonials/route.ts`
 
@@ -352,23 +396,27 @@ quote 20–1200, consent must be `true`. All confirmed by execution.
 Optional Resend reviewer alert at `:23-68` — no-ops unless three env vars are set,
 and never fails the submission. Good design.
 
-> ### 🔴 The moderation filter is missing
+> ### ✅ Moderation filter added
 >
-> Inserts use `status: 'pending'` (`:153`). Both read queries —
-> `api/testimonials/route.ts:72` and `app/testimonials/page.tsx:33` — are:
+> Inserts write `status: 'pending'`. Both read queries — in
+> `app/api/testimonials/route.ts` and `app/testimonials/page.tsx` — now filter
+> `status=eq.approved`, which makes the on-page promise ("every testimonial
+> below is reviewed before it is published") true. Without it, every submission
+> published instantly.
 >
-> ```
-> /rest/v1/testimonials?select=id,display_name,quote,created_at&order=created_at.desc&limit=16
-> ```
+> **Two things still to confirm against the live database:** that the
+> `testimonials` table has a `status` column, and that the approved value is
+> exactly the string `approved`. If the column is named differently, change it
+> in **both** files together — a mismatch silently blanks the page rather than
+> erroring.
 >
-> **No status filter.** The function containing it is named
-> `getApprovedTestimonials`. If RLS permits anonymous `SELECT` — which it must for
-> the page to render — every submission publishes immediately, while
-> `app/testimonials/page.tsx:81` tells visitors *"Every testimonial below is
-> reviewed before it is published."*
->
-> Fix requires knowing the live column and approved-state value. **Confirm against
-> the live schema first; a wrong guess silently blanks the page.**
+> **There is no approval UI.** Approving means editing a row in Supabase.
+> Documented honestly as such in `BRYANA_SITE_GUIDE.md`; worth building a small
+> screen only once testimonials arrive regularly.
+
+`GET /api/testimonials` degrades to `{ testimonials: [] }` with HTTP 200 on any
+failure, including an unconfigured Supabase. The page renders its empty state
+rather than surfacing an outage as a broken page.
 
 ## 12. Analytics
 
@@ -380,34 +428,43 @@ No custom events, no purchase tracking.
 
 ## 13. Known limitations
 
-1. **No fulfillment.** Webhook only logs.
-2. **No entitlements.** All signed-in users see the same page.
-3. **No materials.** Nothing to deliver.
-4. **No purchase notification** to owner or customer beyond Stripe's receipt.
-5. **Password reset dead-ends** — no `/reset-password` route.
-6. **Contact messages are unreadable** — no UI reads the table.
-7. **Testimonials are unmoderated** despite an on-page claim of moderation.
-8. **Sessions in `localStorage`** — no server-side auth possible.
-9. **`/member` is a static page** — client-side gate only.
-10. **Direct browser writes to Supabase** with no rate limiting.
-11. **Silent env fallbacks** to a hardcoded project.
-12. **No security headers** beyond `X-Robots-Tag`.
-13. **Placeholder tokens rendered on 8 public pages**, including `/thanks` and
-    `/privacy`.
-14. **No sitemap, no canonicals, no OG image, no per-product metadata.**
-15. **No tests of any kind**, no CI, no lint config beyond `next lint`.
-16. **No `main` branch**; production deploys from a feature branch.
-17. **`README.md` is materially inaccurate** — `:58-59` and `:89-90` claim prices
-    are `[[TODO_]]` tokens and that checkout returns 503. Both false: prices are
-    real and checkout is live. A developer relying on the README will
-    underestimate live risk.
+**Closed by the hardening pass:**
+
+~~No privacy policy · placeholder tokens on public pages · unmoderated
+testimonials · unreadable contact messages · dead-end password reset · direct
+browser writes to Supabase · silent env fallbacks · missing security headers ·
+sub-3:1 focus indicators · cart panel not a dialog · inaccurate README~~
+
+**Open, and deferred on purpose** (see `LAUNCH_CHECKLIST.md`):
+
+1. **No fulfillment.** The webhook still only logs. Deferred: there is nothing
+   to fulfil, and the sales gate makes it unreachable.
+2. **No entitlements.** All signed-in users see the same page. Architecture is
+   documented in `LAUNCH_CHECKLIST.md` §3; not built.
+3. **No materials, no storage, no delivery path.**
+4. **Sessions in `localStorage`**, so no server-side auth is possible. Must be
+   revisited before any paid file is served.
+5. **`/member` is a static page**, client-gated only. Acceptable while nothing
+   is behind it.
+
+**Open, unrelated to materials:**
+
+6. `/thanks` still ignores the `session_id` it is handed.
+7. No sitemap, no canonical URLs, no OG image, no per-product metadata.
+8. No Content-Security-Policy — deliberate; needs the final third-party origin
+   list, and a wrong CSP fails silently.
+9. Rate limiting is per-instance (see §11).
+10. No tests, no CI.
+11. **No `main` branch**; production deploys from a feature branch.
+12. No testimonial approval UI.
+13. Sales tax undecided.
 
 ## 14. Recovery procedures
 
 ### The webhook endpoint dies
 
-**Current impact: near zero** — the webhook grants nothing. Payments still
-complete; Stripe holds the money and the metadata regardless.
+**Current impact: none** — no payment can occur while the sales gate is closed,
+and the webhook grants nothing in any case. Keep this for after launch.
 
 1. Stripe → **Developers → Webhooks** → open the endpoint → check **Recent
    deliveries** for failures.
@@ -423,7 +480,8 @@ dashboard, and confirm idempotency prevented double grants.
 
 ### A customer's access is missing
 
-**Today this is every customer.** The manual procedure:
+**Not reachable today** — nobody can purchase. After launch, if fulfilment is
+still manual:
 
 1. Stripe → **Payments** → search the customer email.
 2. Open the payment → **Metadata** → read `entitlement_slugs`.
@@ -434,6 +492,31 @@ dashboard, and confirm idempotency prevented double grants.
 `stripe_checkout_session_id`; if absent, replay the webhook event; if present but
 entitlements are missing, the grant step failed — fix and re-run, relying on
 idempotency.
+
+### The store opened by accident
+
+The single most important rollback in this project.
+
+1. Vercel → project → **Settings → Environment Variables**.
+2. Set `NEXT_PUBLIC_SALES_ENABLED` to `false` (or delete it — absent is closed).
+3. **Redeploy.** The value is inlined at build time, so changing the variable
+   alone does nothing until a rebuild.
+4. Confirm: `curl -X POST https://<domain>/api/checkout -H 'Content-Type: application/json' -d '{"items":[{"productId":"module-ethics","quantity":1}]}'`
+   must return **503**.
+5. If any payment did complete, refund it in Stripe immediately and email the
+   customer an explanation. Do not leave a charge outstanding for materials
+   that cannot be delivered.
+
+### A contact message was reported but never arrived
+
+1. Check the Vercel runtime logs for `[contact]`. A delivery failure logs there.
+2. `email is not configured` means one of `RESEND_API_KEY`,
+   `CONTACT_INBOX_EMAIL`, `CONTACT_FROM_EMAIL` is missing — the visitor got an
+   honest 503, so they know it failed.
+3. A Resend rejection usually means `CONTACT_FROM_EMAIL` is on an unverified
+   domain. Verify the domain in Resend.
+4. A 429 means the rate limiter fired. Check whether it was the flood tier (40)
+   or the send tier (5) — the log and the returned message differ.
 
 ### A deploy breaks production
 
@@ -483,50 +566,10 @@ is permitted without explicit approval.
 
 ## 16. Launch-day checklist
 
-**Pre-flight**
+Moved to **`LAUNCH_CHECKLIST.md`**, which is the single source of truth for
+what remains between today and the first real customer. It covers the ordered
+steps, the deferred work and why each item is deferred, the intended
+entitlement architecture, the three files that must be flipped together to
+enable indexing, and every environment variable to set.
 
-- [ ] Every launch blocker in `PRODUCTION_READINESS_AUDIT.md` §Part 4 is closed
-- [ ] `grep -rn '\[\[TODO_' --include='*.tsx' app components` returns **nothing**
-- [ ] Study materials exist and a delivery method is agreed
-- [ ] Order-notification email is live and tested
-- [ ] Privacy policy written; attorney has reviewed Terms, Refunds and Privacy
-- [ ] Contact form delivers to a real monitored inbox — send a test and watch it arrive
-- [ ] Testimonial moderation filter in place, or the page is removed
-- [ ] `/reset-password` exists and a full reset has been completed end to end
-
-**Stripe**
-
-- [ ] Account is in Bryana's name with her bank and tax details
-- [ ] `STRIPE_SECRET_KEY` set to the **live** key in Vercel (Production scope only)
-- [ ] Live webhook endpoint registered at `https://<domain>/api/webhook`
-- [ ] `STRIPE_WEBHOOK_SECRET` set to the **live** endpoint's secret
-- [ ] Test-mode purchase completed end to end; `amount_total` matches the catalogue
-- [ ] Webhook delivery confirmed 200 in **Recent deliveries**
-- [ ] Receipt emails enabled and confirmed received
-- [ ] Tax decision made and documented
-
-**Vercel**
-
-- [ ] Production domain attached, DNS resolving, HTTPS valid
-- [ ] `NEXT_PUBLIC_SITE_URL` set to the production origin
-- [ ] All required variables present in the **Production** scope
-- [ ] Production build green
-- [ ] Runtime logs clean
-
-**Flip indexing — all three, together**
-
-- [ ] `next.config.ts:10-14` — remove the `X-Robots-Tag` header block
-- [ ] `app/layout.tsx:51-63` — remove the `robots` metadata block
-- [ ] `app/robots.ts:13-19` — replace `disallow: "/"` with an allow rule
-- [ ] Add `app/sitemap.ts`
-- [ ] Add `generateMetadata` to `app/domain/[slug]/page.tsx`
-- [ ] Add an OG image
-- [ ] Verify: `curl -I https://<domain>/` shows **no** `X-Robots-Tag`
-
-**First 24 hours**
-
-- [ ] Place one real purchase with a real card
-- [ ] Confirm the notification email arrives
-- [ ] Fulfil it by hand, timed, to validate the process
-- [ ] Refund it and confirm the refund lands
-- [ ] Watch Vercel logs and Stripe events for the first real customer
+Do not maintain a second copy here.

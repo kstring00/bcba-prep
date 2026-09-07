@@ -1,10 +1,4 @@
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  "https://kkajncybxhoylvhhprom.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  "sb_publishable_zcwo0785jDmjDOnGAq_N8w_-dRm6PaG";
+import { supabaseConfig } from "./config";
 
 const SESSION_KEY = "bcba-prep-supabase-session";
 
@@ -54,11 +48,12 @@ function authError(payload: AuthResponse, fallback: string) {
 }
 
 async function authFetch(path: string, body: Record<string, unknown>) {
-  const response = await fetch(`${SUPABASE_URL}${path}`, {
+  const { url, publishableKey } = supabaseConfig();
+  const response = await fetch(`${url}${path}`, {
     method: "POST",
     headers: {
-      apikey: SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+      apikey: publishableKey,
+      Authorization: `Bearer ${publishableKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
@@ -102,7 +97,45 @@ export async function signUpWithPassword(email: string, password: string) {
 export async function requestPasswordReset(email: string) {
   await authFetch("/auth/v1/recover", {
     email: email.trim(),
+    // Supabase appends the recovery token to this URL as a fragment. The
+    // origin must also be listed under Authentication → URL Configuration →
+    // Redirect URLs in the Supabase dashboard, or the link silently bounces
+    // to the site root and the reset cannot be completed.
+    redirect_to: `${siteOrigin()}/reset-password`,
   });
+}
+
+function siteOrigin(): string {
+  if (browserAvailable()) return window.location.origin;
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+}
+
+/**
+ * Completes a password reset.
+ *
+ * The recovery link hands back a short-lived access token in the URL
+ * fragment. That token authorises exactly one thing — updating this user — so
+ * it is used directly rather than being written into the stored session.
+ */
+export async function updatePasswordWithRecoveryToken(
+  accessToken: string,
+  password: string,
+) {
+  const { url, publishableKey } = supabaseConfig();
+  const response = await fetch(`${url}/auth/v1/user`, {
+    method: "PUT",
+    headers: {
+      apikey: publishableKey,
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password }),
+  });
+
+  const payload = (await response.json()) as AuthResponse;
+  if (!response.ok) {
+    throw authError(payload, "We could not update your password.");
+  }
 }
 
 export function getStoredSession(): AuthSession | null {
@@ -160,10 +193,11 @@ export async function signOut() {
 
   if (session) {
     try {
-      await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+      const { url, publishableKey } = supabaseConfig();
+      await fetch(`${url}/auth/v1/logout`, {
         method: "POST",
         headers: {
-          apikey: SUPABASE_PUBLISHABLE_KEY,
+          apikey: publishableKey,
           Authorization: `Bearer ${session.access_token}`,
         },
       });
