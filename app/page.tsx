@@ -1,25 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
-import { Book } from "@/components/Book";
+import { motion, useInView, useReducedMotion } from "motion/react";
+import { useRef, useState } from "react";
 import { BundleCard } from "@/components/BundleCard";
 import { Florals, Ornament } from "@/components/Florals";
+import { Hardcover } from "@/components/Hardcover";
+import { PULL } from "@/components/hardcover-tokens";
 import { BOOK_TRANSITION } from "@/components/motion-config";
 import { domains } from "@/lib/domains";
 
 /**
- * Hand-stacked jog, in px, one per book. A fixed table rather than random,
- * so the pile is identical on every render and between server and client.
- * Scaled by --jog in CSS, which is reined in on narrow viewports.
+ * The settle-in plays once per page load. Coming back from a detail page the
+ * pile is already "known", and the returning book needs a visible target to
+ * fly into, so later mounts start at rest.
  */
-const JOG_X = [0, 34, 16, 40, 36, 2, 24, 8, 18];
-const JOG_W = [10, 0, 8, 2, 4, 12, 4, 0, 2];
+let entryPlayed = false;
 
 export default function LibraryPage() {
   const reduceMotion = useReducedMotion();
   const [openingSlug, setOpeningSlug] = useState<string | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [skipEntry] = useState(() => entryPlayed);
+
+  const stackRef = useRef<HTMLUListElement>(null);
+  const inView = useInView(stackRef, { once: true, amount: 0.15 });
+  if (inView) entryPlayed = true;
 
   return (
     <>
@@ -40,7 +45,7 @@ export default function LibraryPage() {
             </p>
           </div>
 
-          <ul className="stack" id="stack">
+          <ul className="stack" id="stack" ref={stackRef}>
             {domains.map((domain, index) => {
               const isOpening = domain.slug === openingSlug;
               const openingIndex = domains.findIndex(
@@ -49,13 +54,25 @@ export default function LibraryPage() {
               const distance =
                 openingIndex === -1 ? 0 : Math.abs(index - openingIndex);
 
+              // The volumes directly above and below a lifted one make room.
+              const neighbourShift =
+                hoveredIndex === null
+                  ? 0
+                  : index === hoveredIndex - 1
+                    ? -PULL.neighbourShift
+                    : index === hoveredIndex + 1
+                      ? PULL.neighbourShift
+                      : 0;
+
+              const lifted = isOpening || index === hoveredIndex;
+
               return (
                 <motion.li
                   key={domain.slug}
                   className="stack-item"
-                  // Each book above must paint over the receding top board of
-                  // the book below it, the way a real pile occludes itself.
-                  style={{ zIndex: domains.length - index }}
+                  // Each book paints over the one below it, the way a pile
+                  // occludes itself; a lifted book comes to the very front.
+                  style={{ zIndex: lifted ? domains.length + 1 : domains.length - index }}
                   // Motion has already taken over the opened book — the copy
                   // travelling to the detail page belongs to the incoming
                   // route — so this original fades fast, taking its contact
@@ -77,25 +94,21 @@ export default function LibraryPage() {
                   }
                   transition={BOOK_TRANSITION}
                 >
-                  <div
-                    className="stack-row"
-                    style={
-                      {
-                        "--i": index,
-                        "--dx": `${JOG_X[index]}px`,
-                        "--dw": `${JOG_W[index]}px`,
-                      } as React.CSSProperties
+                  <Hardcover
+                    domain={domain}
+                    index={index}
+                    count={domains.length}
+                    revealed={inView}
+                    skipEntry={skipEntry}
+                    neighbourShift={neighbourShift}
+                    opening={isOpening}
+                    onHoverChange={(hovered) =>
+                      setHoveredIndex((current) =>
+                        hovered ? index : current === index ? null : current,
+                      )
                     }
-                  >
-                    <Link
-                      href={`/domain/${domain.slug}`}
-                      className="book-box"
-                      onClick={() => setOpeningSlug(domain.slug)}
-                      aria-label={`Domain ${domain.letter}. ${domain.title} — ${domain.questions} questions, ${domain.percent}% of the exam`}
-                    >
-                      <Book domain={domain} variant="stack" index={index} />
-                    </Link>
-                  </div>
+                    onOpen={() => setOpeningSlug(domain.slug)}
+                  />
                 </motion.li>
               );
             })}
