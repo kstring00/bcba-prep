@@ -1,0 +1,479 @@
+/* ---------------------------------------------------------------
+   Hardcover volume, face up in the pile.
+
+   GEOMETRY (oblique projection, all static — nothing here transitions)
+
+     .link      row box: cover height + page depth. Owns the perspective.
+       .shadows contact + ambient shadow pairs, on the table, opacity only
+       .pose    the part that moves: jog, settle-in, hover pull, click pull
+         .box   shared-element box (layoutId) for the fold-open route change
+           .fore   fore-edge page block, right side, sheared down by skewY
+           .tail   tail page block, bottom, sheared right by skewX
+           .cover  cloth board: texture, sheen, spine band, groove, type
+
+   The two page blocks share one shear ratio (fore width = 0.6 x page depth,
+   so tan 31deg ~ 0.6 and tan 59deg ~ 1/0.6) which is what makes their edges
+   meet at the corner instead of overlapping.
+
+   Colour tokens live on .link so a light cloth can override a few of them.
+   --------------------------------------------------------------- */
+
+.link {
+  --hc-cover-h: var(--spine-depth);
+  --hc-pages-scale: 1;
+  --hc-depth: calc(var(--hc-pages) * var(--hc-pages-scale));
+  --hc-fore: calc(var(--hc-depth) * 0.6);
+  --hc-spine-w: 11px;
+  --hc-board: 2px;
+  --hc-square: 3px;
+  --hc-shade: 0.26;
+  --hc-line-period: 3px;
+
+  --hc-page: #f6efe1;
+  --hc-page-line: #d9ccb4;
+  --hc-page-deep: rgba(96, 74, 50, 0.32);
+
+  --hc-foil-1: #b08a45;
+  --hc-foil-2: #ecd89f;
+  --hc-foil-3: #c9a45d;
+  --hc-foil-4: #f4e6b6;
+  --hc-foil-5: #a77f3d;
+  --hc-foil-shadow: rgba(38, 24, 6, 0.6);
+
+  --hc-shadow: 52, 38, 30;
+  --hc-contact: 40, 26, 18;
+
+  --hc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --hc-ease-back: cubic-bezier(0.4, 0, 0.2, 1);
+
+  position: relative;
+  display: block;
+  height: calc(var(--hc-cover-h) + var(--hc-depth));
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  border-radius: 3px;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 6px;
+}
+
+/* The two pale cloths: dark stamping, a lighter lift, a softer spine. */
+.link[data-light] {
+  --hc-shade: 0.11;
+  --hc-foil-1: #6f5429;
+  --hc-foil-2: #a68449;
+  --hc-foil-3: #7a5d2f;
+  --hc-foil-4: #b8955a;
+  --hc-foil-5: #634a24;
+  --hc-foil-shadow: rgba(255, 252, 244, 0.55);
+}
+
+/* ---------------- shadows: their own layer, opacity only ---------------- */
+
+.shadows {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transform: translateX(var(--hc-jog-x)) rotate(var(--hc-jog-rot));
+}
+
+.shadow {
+  position: absolute;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 350ms var(--hc-ease-back);
+}
+
+/* Wide, soft, ambient. Sits under the volume at rest. */
+.ambient {
+  inset: 8px 3px -1px 3px;
+  background: rgba(var(--hc-shadow), 0.22);
+  filter: blur(9px);
+  opacity: 1;
+}
+
+/* ...and the spread version, offset in the direction of the lift. */
+.ambientWide {
+  inset: 10px -4px -8px 8px;
+  background: rgba(var(--hc-shadow), 0.26);
+  filter: blur(18px);
+}
+
+/* Tight, dark contact line directly beneath the tail. */
+.contact {
+  left: 4px;
+  right: 4px;
+  bottom: -1px;
+  height: 7px;
+  background: rgba(var(--hc-contact), 0.38);
+  filter: blur(3.5px);
+  opacity: 1;
+}
+
+/* Tighter still once the volume lifts, shifted under its new position. */
+.contactTight {
+  left: 14px;
+  right: 2px;
+  bottom: 1px;
+  height: 4px;
+  background: rgba(var(--hc-contact), 0.42);
+  filter: blur(2px);
+  transform: translate(8px, -3px);
+}
+
+.shadows[data-state="hover"] .shadow,
+.shadows[data-state="opening"] .shadow {
+  transition-duration: 250ms;
+  transition-timing-function: var(--hc-ease-out);
+}
+
+.shadows[data-state="hover"] .ambient,
+.shadows[data-state="hover"] .contact,
+.shadows[data-state="opening"] .ambient,
+.shadows[data-state="opening"] .contact {
+  opacity: 0;
+}
+
+.shadows[data-state="hover"] .ambientWide,
+.shadows[data-state="hover"] .contactTight,
+.shadows[data-state="opening"] .ambientWide,
+.shadows[data-state="opening"] .contactTight {
+  opacity: 1;
+}
+
+/* ---------------- the moving part ---------------- */
+
+.pose {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+
+.box {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------------- page block ---------------- */
+
+.tail,
+.fore {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Bottom edge: pages run left to right, so the lines stack vertically. */
+.tail {
+  left: 0;
+  top: var(--hc-cover-h);
+  width: calc(100% - var(--hc-fore));
+  height: var(--hc-depth);
+  transform-origin: 0 0;
+  transform: skewX(31deg);
+  border-radius: 0 0 1px 2px;
+  background-color: var(--hc-page);
+  background-image:
+    /* darkens toward the spine, so it never reads as a barcode */
+    linear-gradient(90deg, var(--hc-page-deep), rgba(96, 74, 50, 0.08) 34%, transparent 62%),
+    /* the top pages catch the light */
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 42%, rgba(80, 60, 40, 0.12)),
+    /* a second, slower rhythm breaks up the regular spacing */
+    repeating-linear-gradient(180deg, transparent 0 4px, rgba(120, 95, 68, 0.12) 4px 5px, transparent 5px 7px),
+    repeating-linear-gradient(
+      180deg,
+      var(--hc-page) 0 calc(var(--hc-line-period) - 1px),
+      var(--hc-page-line) calc(var(--hc-line-period) - 1px) var(--hc-line-period)
+    );
+}
+
+/* Right edge: the fore-edge, lines run top to bottom. */
+.fore {
+  left: calc(100% - var(--hc-fore));
+  top: 0;
+  width: var(--hc-fore);
+  height: var(--hc-cover-h);
+  transform-origin: 0 0;
+  transform: skewY(59deg);
+  background-color: var(--hc-page);
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(80, 60, 40, 0.22)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 30%, rgba(80, 60, 40, 0.14)),
+    repeating-linear-gradient(
+      90deg,
+      var(--hc-page) 0 calc(var(--hc-line-period) - 1px),
+      var(--hc-page-line) calc(var(--hc-line-period) - 1px) var(--hc-line-period)
+    );
+}
+
+/* Board edge and the square: the cover overhangs the page block by ~3px on
+   the head, tail and fore-edge, so a band of darkened cloth wraps the pages
+   on the outer edges. Two pseudos: the cloth, then the shade over it. */
+.tail::before,
+.tail::after,
+.fore::before,
+.fore::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.tail::before {
+  border-top: var(--hc-board) solid var(--hc-cloth);
+  border-right: var(--hc-square) solid var(--hc-cloth);
+}
+
+.tail::after {
+  border-top: var(--hc-board) solid rgba(0, 0, 0, calc(var(--hc-shade) + 0.16));
+  border-right: var(--hc-square) solid rgba(0, 0, 0, calc(var(--hc-shade) + 0.1));
+}
+
+.fore::before {
+  border-left: var(--hc-board) solid var(--hc-cloth);
+  border-top: var(--hc-square) solid var(--hc-cloth);
+  border-bottom: var(--hc-square) solid var(--hc-cloth);
+}
+
+.fore::after {
+  border-left: var(--hc-board) solid rgba(0, 0, 0, calc(var(--hc-shade) + 0.08));
+  border-top: var(--hc-square) solid rgba(0, 0, 0, calc(var(--hc-shade) + 0.04));
+  border-bottom: var(--hc-square) solid rgba(0, 0, 0, calc(var(--hc-shade) + 0.16));
+}
+
+/* ---------------- the board ---------------- */
+
+.cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(100% - var(--hc-fore));
+  height: var(--hc-cover-h);
+  overflow: hidden;
+  border-radius: 2px 1px 1px 2px;
+  background-color: var(--hc-cloth);
+  color: var(--hc-foil);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px 0 0 rgba(0, 0, 0, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    /* the 1px darker rule where the board meets the pages */
+    0 1px 0 rgba(0, 0, 0, 0.36);
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 26px 0 var(--hc-spine-w);
+}
+
+/* Bookcloth: a fine grain from feTurbulence plus a micro cross-hatch weave.
+   Under 4% opacity — felt, not seen. */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.038;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>"),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0 1px, transparent 1px 3px);
+  background-size: 160px 160px, 3px 3px, 3px 3px;
+}
+
+/* Sheen: light from the upper left, a touch of fall-off toward the fore-edge. */
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 350ms var(--hc-ease-back);
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 0.05) 78%, rgba(255, 255, 255, 0.05)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 24%, rgba(0, 0, 0, 0) 76%, rgba(0, 0, 0, 0.06));
+  mix-blend-mode: soft-light;
+}
+
+.pose[data-state="hover"] .cover::after,
+.pose[data-state="opening"] .cover::after {
+  opacity: 1;
+  transition-duration: 250ms;
+  transition-timing-function: var(--hc-ease-out);
+}
+
+.link[data-light] .cover::after {
+  opacity: 0.5;
+}
+
+/* Everything typographic sits above the texture and sheen. */
+.cover > :global(.spine-rule),
+.cover > :global(.spine-text),
+.cover > :global(.spine-motif),
+.cover > :global(.spine-weight),
+.cover > :global(.spine-edition) {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------------- spine band ---------------- */
+
+.spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: var(--hc-spine-w);
+  pointer-events: none;
+  border-radius: 2px 0 0 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, calc(var(--hc-shade) + 0.1)),
+    rgba(0, 0, 0, var(--hc-shade)) 45%,
+    rgba(0, 0, 0, calc(var(--hc-shade) + 0.16))
+  );
+  /* rounded outer edge, then the hinge groove: a dark inset line with a
+     lit rim beside it, and a whisper of shade falling onto the board */
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.14),
+    inset -1px 0 0 rgba(0, 0, 0, 0.38),
+    1px 0 0 rgba(255, 255, 255, 0.12),
+    3px 0 5px rgba(0, 0, 0, 0.12);
+}
+
+.headband,
+.tailband {
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  height: 3px;
+  border-radius: 1px;
+  opacity: 0.38;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 244, 214, 0.6) 0 2px,
+    rgba(0, 0, 0, 0.32) 2px 4px
+  );
+}
+
+.headband {
+  top: 3px;
+}
+
+.tailband {
+  bottom: 3px;
+}
+
+/* ---------------- foil ---------------- */
+
+/* The element's own text goes transparent and only reserves space; two
+   generated copies sit on it: a 1px-offset dark impression beneath, and the
+   gold-gradient face on top. Stamped, not printed. */
+.foil {
+  position: relative;
+  color: transparent;
+}
+
+.foil::before,
+.foil::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  white-space: inherit;
+  overflow: inherit;
+  text-overflow: inherit;
+  pointer-events: none;
+}
+
+.foil::before {
+  color: var(--hc-foil-shadow);
+  transform: translate(0.5px, 1px);
+}
+
+.foil::after {
+  color: transparent;
+  background-image: linear-gradient(
+    104deg,
+    var(--hc-foil-1) 0%,
+    var(--hc-foil-2) 34%,
+    var(--hc-foil-3) 52%,
+    var(--hc-foil-4) 72%,
+    var(--hc-foil-5) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:global(.spine-edition) .foil {
+  display: inline-block;
+}
+
+/* ---------------- responsive ---------------- */
+
+@media (max-width: 900px) {
+  .cover {
+    gap: 12px;
+    padding-right: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .link {
+    --hc-spine-w: 9px;
+    --hc-pages-scale: 0.85;
+    /* wider line period on small screens so the page edge does not moiré */
+    --hc-line-period: 4px;
+    --hc-square: 2px;
+    perspective: 900px;
+  }
+
+  /* One rhythm only: the second overlay is what shimmers at 2x/3x DPR. */
+  .tail {
+    background-image:
+      linear-gradient(90deg, var(--hc-page-deep), rgba(96, 74, 50, 0.08) 34%, transparent 62%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 42%, rgba(80, 60, 40, 0.12)),
+      repeating-linear-gradient(
+        180deg,
+        var(--hc-page) 0 calc(var(--hc-line-period) - 1px),
+        var(--hc-page-line) calc(var(--hc-line-period) - 1px) var(--hc-line-period)
+      );
+  }
+
+  .ambient {
+    filter: blur(7px);
+  }
+}
+
+/* Coarse pointers never hover; the lifted shadow pair is dead weight there. */
+@media (hover: none) {
+  .ambientWide,
+  .contactTight {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pose {
+    will-change: auto;
+  }
+
+  .shadow,
+  .cover::after {
+    transition: none;
+  }
+}

@@ -7,7 +7,8 @@
 
    THE 3D BOOK MODEL (CSS transforms only; no WebGL, no assets)
 
-     .stack-row        perspective container
+     .detail-cover-stage  perspective container (the home pile is the
+                          Hardcover component; see Hardcover.module.css)
        .book           transform-style: preserve-3d
                        transform-origin: top center
                        transform: translateZ(taper) rotateX(BOOK_TILT)
@@ -76,8 +77,6 @@
   --book-tilt: -100deg;
   --perspective: 1400px;
   --stack-gap: 10px;
-  --taper-w: 0px;
-  --jog: 1;
   --measure: 1440px;
   --pad: clamp(20px, 3.4vw, 54px);
 
@@ -96,7 +95,6 @@
     --perspective: 900px;
     --spine-depth: 68px;
     --stack-gap: 8px;
-    --jog: 0.4;
   }
 }
 
@@ -1124,40 +1122,6 @@ button {
   position: relative;
 }
 
-.stack-row {
-  /* --i is the book's index; --dx its horizontal jog and --dw its width jog,
-     from a fixed table set inline, not random, so server and client agree.
-
-     The jog is SUBTRACTED from the width as well as added to the margin.
-     Without that a jogged book overhangs its container, and because the body
-     clips overflow-x the bleed is invisible to a scroll-width check while
-     being perfectly visible on a phone. */
-  width: calc(
-    100% - var(--i, 0) * var(--taper-w) * 2 - var(--dx, 0px) * var(--jog) -
-      var(--dw, 0px) * var(--jog)
-  );
-  margin-left: calc(var(--dx, 0px) * var(--jog));
-  position: relative;
-  height: var(--spine-depth);
-  perspective: var(--perspective);
-  perspective-origin: 50% 0%;
-}
-
-/* The one contact shadow, cast onto the book beneath. */
-.stack-row::after {
-  content: "";
-  position: absolute;
-  left: 2%;
-  right: 2%;
-  top: calc(var(--spine-depth) - 8px);
-  height: 16px;
-  background: rgba(74, 58, 44, 0.3);
-  filter: blur(11px);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -1;
-}
-
 .book-box {
   position: absolute;
   inset: 0;
@@ -1726,7 +1690,6 @@ button {
 /* ---------------- reduced motion ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .stack-row,
   .detail-cover-stage {
     perspective: none;
   }
@@ -1738,14 +1701,6 @@ button {
 
   .face--spine {
     transform: none !important;
-  }
-
-  .stack-row .face--cover {
-    display: none;
-  }
-
-  .stack-row::after {
-    display: none;
   }
 
   .detail-cover-stage {
