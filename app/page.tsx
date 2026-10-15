@@ -4,10 +4,13 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { Book } from "@/components/Book";
+import { BryanaTeaser } from "@/components/BryanaTeaser";
 import { BundleCard } from "@/components/BundleCard";
 import { Florals, Ornament } from "@/components/Florals";
 import { BOOK_TRANSITION } from "@/components/motion-config";
 import { domains } from "@/lib/domains";
+import { domainSku } from "@/lib/catalog";
+import { useOwnership } from "@/lib/entitlements/context";
 
 /**
  * Hand-stacked jog, in px, one per book. A fixed table rather than random,
@@ -19,6 +22,7 @@ const JOG_W = [10, 0, 8, 2, 4, 12, 4, 0, 2];
 
 export default function LibraryPage() {
   const reduceMotion = useReducedMotion();
+  const { signedIn, owns } = useOwnership();
   const [openingSlug, setOpeningSlug] = useState<string | null>(null);
 
   return (
@@ -48,6 +52,7 @@ export default function LibraryPage() {
               );
               const distance =
                 openingIndex === -1 ? 0 : Math.abs(index - openingIndex);
+              const owned = signedIn && owns(domainSku(domain.slug));
 
               return (
                 <motion.li
@@ -88,12 +93,25 @@ export default function LibraryPage() {
                     }
                   >
                     <Link
-                      href={`/domain/${domain.slug}`}
+                      href={
+                        owned
+                          ? `/member/domain/${domain.slug}`
+                          : `/domain/${domain.slug}`
+                      }
                       className="book-box"
                       onClick={() => setOpeningSlug(domain.slug)}
-                      aria-label={`Domain ${domain.letter}. ${domain.title} — ${domain.questions} questions, ${domain.percent}% of the exam`}
+                      aria-label={
+                        owned
+                          ? `Open Domain ${domain.letter}, ${domain.title}, in your library`
+                          : `Domain ${domain.letter}. ${domain.title} — ${domain.questions} questions, ${domain.percent}% of the exam. Not yet unlocked.`
+                      }
                     >
                       <Book domain={domain} variant="stack" index={index} />
+                      {owned ? (
+                        <span className="shelf-owned" aria-hidden="true">
+                          ✓ Owned
+                        </span>
+                      ) : null}
                     </Link>
                   </div>
                 </motion.li>
@@ -102,6 +120,7 @@ export default function LibraryPage() {
           </ul>
 
           <BundleCard />
+          <BryanaTeaser />
         </div>
       </section>
     </>

@@ -4,6 +4,8 @@ import brandStyles from "./Brand.module.css";
 import footerStyles from "./Footer.module.css";
 
 export function Footer() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -64,6 +66,10 @@ export function Footer() {
             BACB<sup>&reg;</sup> and BCBA<sup>&reg;</sup> are registered marks of
             the Behavior Analyst Certification Board. They are used here only to
             identify the examination these materials are written to support.
+          </p>
+
+          <p className={footerStyles.trademark}>
+            &copy; {year} Bee the Behavior Bae. All rights reserved.
           </p>
         </div>
       </div>

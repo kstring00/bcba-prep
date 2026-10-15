@@ -11,6 +11,8 @@ export function CartPanel() {
     lines,
     open,
     setOpen,
+    blockedMessage,
+    clearBlocked,
     remove,
     subtotal,
     regularSubtotal,
@@ -131,6 +133,18 @@ export function CartPanel() {
                 Close
               </button>
             </div>
+
+            {/* Shown when an add was refused because the item is already
+                owned. The cart is where someone looks when a click seems to
+                have done nothing. */}
+            {blockedMessage ? (
+              <p className="cart-blocked" role="status">
+                {blockedMessage}
+                <button type="button" onClick={clearBlocked} aria-label="Dismiss">
+                  ×
+                </button>
+              </p>
+            ) : null}
 
             {lines.length === 0 ? (
               <p className="cart-empty">

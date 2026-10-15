@@ -3,10 +3,6 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  clearStoredSession,
-  updatePasswordWithRecoveryToken,
-} from "@/lib/supabase/auth-client";
 import styles from "../sign-in/sign-in.module.css";
 
 /**
@@ -83,10 +79,19 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      await updatePasswordWithRecoveryToken(accessToken, password);
-      // Force a clean sign-in with the new password rather than carrying the
-      // recovery token forward as a session.
-      clearStoredSession();
+      // The token goes to our own route, which performs the update server-side
+      // and clears any session cookie, so the person signs in fresh.
+      const response = await fetch("/api/auth/reset-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken, password }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "We could not update your password.");
+      }
       setPhase("done");
     } catch (caught) {
       setError(

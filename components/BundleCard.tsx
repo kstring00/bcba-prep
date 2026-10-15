@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { AddToCart } from "./AddToCart";
+import { OwnershipCta } from "./OwnershipCta";
 import {
   PRE_LAUNCH_BLURB,
   PRE_LAUNCH_HEADLINE,
@@ -42,22 +42,12 @@ export function BundleCard() {
           </>
         ) : null}
       </div>
-      {SALES_ENABLED ? (
-        <div className="buy-row">
-          <span className="price">{formatPrice(bundle.price)}</span>
-          <AddToCart
-            product={bundle}
-            tone="#c9a961"
-            sourceRef={cardRef}
-            label="License all 9 domains"
-          />
-        </div>
-      ) : (
-        <div className="prelaunch-note">
-          <strong>{PRE_LAUNCH_HEADLINE}</strong>
-          <p>{PRE_LAUNCH_BLURB}</p>
-        </div>
-      )}
+      <OwnershipCta
+        sku={bundle.entitlementSkus[0]}
+        product={bundle}
+        tone="#c9a961"
+        unlockLabel="License all 9 domains"
+      />
     </section>
   );
 }

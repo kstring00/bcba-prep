@@ -32,3 +32,23 @@ export const PRE_LAUNCH_BLURB =
 /** Returned by the checkout API while the gate is closed. */
 export const PRE_LAUNCH_API_MESSAGE =
   "BCBA Prep is not selling yet. Domain licenses are not available for purchase at this time.";
+
+
+/**
+ * LIVE-MODE GUARD.
+ *
+ * Opening the sales gate for test-mode QA must not also arm real payments.
+ * A live Stripe key is refused unless ALLOW_LIVE_PAYMENTS is explicitly
+ * "true", so the two decisions — "can people check out" and "is this real
+ * money" — stay separate.
+ *
+ * Returns a reason string when checkout must refuse, or null when it may
+ * proceed.
+ */
+export function liveModeBlocked(): string | null {
+  const key = process.env.STRIPE_SECRET_KEY ?? "";
+  const isLiveKey = key.startsWith("sk_live_") || key.startsWith("rk_live_");
+  if (!isLiveKey) return null;
+  if (process.env.ALLOW_LIVE_PAYMENTS === "true") return null;
+  return "A live Stripe key is present but ALLOW_LIVE_PAYMENTS is not \"true\".";
+}

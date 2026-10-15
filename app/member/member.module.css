@@ -694,3 +694,279 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ---------------- library sections ---------------- */
+
+.purchaseBanner {
+  margin: 28px 0 0;
+  padding: 18px 22px;
+  border: 1px solid rgba(100, 118, 72, 0.35);
+  border-radius: 16px;
+  background: rgba(100, 118, 72, 0.1);
+}
+
+.purchaseBanner strong {
+  display: block;
+  color: #44512f;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.purchaseBanner p {
+  margin: 5px 0 0;
+  color: var(--ink-dim);
+  font-size: 14px;
+}
+
+.librarySection {
+  margin-top: clamp(38px, 5vw, 64px);
+}
+
+.sectionHead {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.sectionHead h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 400;
+}
+
+.sectionHead p {
+  margin: 5px 0 0;
+  color: var(--ink-dim);
+  font-size: 14px;
+}
+
+.ownedCard {
+  margin-top: 18px;
+  padding: clamp(18px, 2.6vw, 26px);
+  border: 1px solid var(--gold-dim);
+  border-radius: 18px;
+  background: rgba(253, 250, 245, 0.8);
+}
+
+/* The item just purchased. A ring rather than a colour change, so it reads as
+   "here it is" without implying a different kind of item. */
+.ownedCardNew {
+  border-color: rgba(100, 118, 72, 0.5);
+  box-shadow: 0 0 0 4px rgba(100, 118, 72, 0.14);
+}
+
+.ownedCardHead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ownedSpine {
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 56px;
+  border-radius: 4px 7px 7px 4px;
+  font-family: var(--font-display);
+  font-size: 19px;
+}
+
+.ownedCardHead h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.7vw, 23px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.ownedCardHead p {
+  margin: 3px 0 0;
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.newFlag {
+  margin-left: auto;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #647648;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contentList {
+  display: grid;
+  gap: 9px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contentLink {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 15px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  transition: border-color 160ms var(--ease), transform 160ms var(--ease);
+}
+
+a.contentLink:hover {
+  border-color: var(--mauve-light);
+  transform: translateX(2px);
+}
+
+.contentPending {
+  background: rgba(241, 233, 221, 0.6);
+  color: var(--ink-dim);
+}
+
+.contentIcon {
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(169, 140, 176, 0.14);
+  color: var(--mauve-deep);
+}
+
+.contentLink strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.contentLink small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-faint);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.contentAction {
+  margin-left: auto;
+  color: var(--mauve-deep);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.libraryEmptyNote {
+  margin: 16px 0 0;
+  padding: 13px 15px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: 12px;
+  color: var(--ink-dim);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.lockedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+  gap: 11px;
+  margin-top: 24px;
+}
+
+.lockedHeading {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.lockedCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: rgba(253, 250, 245, 0.55);
+  color: var(--ink);
+  transition: border-color 160ms var(--ease);
+}
+
+.lockedCard:hover {
+  border-color: var(--gold);
+}
+
+.lockedSpine {
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 38px;
+  border-radius: 3px 5px 5px 3px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+.lockedCard strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lockedCard small {
+  display: block;
+  color: var(--ink-faint);
+  font-size: 11.5px;
+}
+
+.unlockAction {
+  margin-left: auto;
+  color: var(--gold-deep);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  .ownedCardHead {
+    flex-wrap: wrap;
+  }
+  .newFlag {
+    margin-left: 0;
+  }
+  .lockedGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.itemEyebrow {
+  margin: 0 0 4px !important;
+  color: var(--gold-deep);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.ownedCardHead h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(25px, 2.6vw, 36px);
+  font-weight: 400;
+  line-height: 1.12;
+}

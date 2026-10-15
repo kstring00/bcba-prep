@@ -10,12 +10,16 @@ import {
   type ReactNode,
 } from "react";
 import { BUNDLE_ID, getLicensePricing, getProduct } from "./products";
+import { useOwnership } from "./entitlements/context";
 
 export type CartLine = { productId: string; quantity: 1 };
 
 type CartValue = {
   lines: CartLine[];
   count: number;
+  /** Set when an add was refused because the item is already owned. */
+  blockedMessage: string | null;
+  clearBlocked: () => void;
   subtotal: number;
   regularSubtotal: number;
   savings: number;
@@ -39,12 +43,40 @@ const CartContext = createContext<CartValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [open, setOpen] = useState(false);
+  const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
+  const { ownedSkus } = useOwnership();
   const impactListeners = useRef(new Set<(velocity: number) => void>());
 
-  const add = useCallback((productId: string) => {
-    setLines((prev) => {
+  const clearBlocked = useCallback(() => setBlockedMessage(null), []);
+
+  const add = useCallback(
+    (productId: string) => {
       const product = getProduct(productId);
-      if (!product) return prev;
+      if (!product) return;
+
+      /*
+       * An owned item never enters the cart.
+       *
+       * This is the first of three layers. The storefront already shows
+       * "Open" rather than a buy button for owned items, and
+       * app/api/checkout/route.ts refuses the purchase outright. This layer
+       * catches the paths in between — a stale page, a bundle that overlaps
+       * something already owned, a double click.
+       *
+       * Refuses only when EVERY sku the product grants is already owned. A
+       * bundle that adds even one new domain is still worth buying, and the
+       * checkout route gives the precise error for the partial case.
+       */
+      const grants = product.entitlementSkus;
+      if (grants.length > 0 && grants.every((sku) => ownedSkus.includes(sku))) {
+        setBlockedMessage(
+          `You already own ${product.name}. Open it from My Library.`,
+        );
+        return;
+      }
+
+      setBlockedMessage(null);
+      setLines((prev) => {
 
       if (productId === BUNDLE_ID) {
         return [{ productId: BUNDLE_ID, quantity: 1 }];
@@ -55,9 +87,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return withoutBundle;
       }
 
-      return [...withoutBundle, { productId, quantity: 1 }];
-    });
-  }, []);
+        return [...withoutBundle, { productId, quantity: 1 }];
+      });
+    },
+    [ownedSkus],
+  );
 
   const remove = useCallback((productId: string) => {
     setLines((prev) => prev.filter((line) => line.productId !== productId));
@@ -85,7 +119,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       lines,
-      count: pricing.entitlementSlugs.length,
+      count: pricing.entitlementSkus.length,
+      blockedMessage,
+      clearBlocked,
       subtotal: pricing.total,
       regularSubtotal: pricing.regularTotal,
       savings: pricing.savings,
@@ -101,6 +137,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [
       lines,
       pricing,
+      blockedMessage,
+      clearBlocked,
       add,
       remove,
       clear,

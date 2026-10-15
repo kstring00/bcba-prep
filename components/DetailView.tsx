@@ -10,13 +10,11 @@ import {
 import { useCallback, useRef } from "react";
 import { AddToCart } from "./AddToCart";
 import { Book } from "./Book";
+import { OwnershipCta } from "./OwnershipCta";
 import type { Domain } from "@/lib/domains";
 import { SCORED_ITEMS } from "@/lib/domains";
-import {
-  PRE_LAUNCH_BLURB,
-  PRE_LAUNCH_HEADLINE,
-  SALES_ENABLED,
-} from "@/lib/launch";
+import { domainSku } from "@/lib/catalog";
+import { SALES_ENABLED } from "@/lib/launch";
 import { formatPrice, getProductForDomain } from "@/lib/products";
 import detailStyles from "./DetailView.module.css";
 
@@ -88,33 +86,17 @@ export function DetailView({ domain }: { domain: Domain }) {
           loaded into the site.
         </section>
 
+        <OwnershipCta
+          sku={domainSku(domain.slug)}
+          product={product}
+          tone={domain.cloth}
+          unlockLabel="Add domain license"
+        />
         {SALES_ENABLED ? (
-          <>
-            <div className="buy-row">
-              <span className="price">{price}</span>
-              {product ? (
-                <AddToCart
-                  product={product}
-                  tone={domain.cloth}
-                  sourceRef={stageRef}
-                  onDepart={onDepart}
-                  onArrive={onArrive}
-                  label="Add domain license"
-                />
-              ) : null}
-            </div>
-            <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--ink-dim)" }}>
-              Personal, non-transferable use. Any 3 domains $75 · any 5 $115 · all 9 $179.
-            </p>
-          </>
-        ) : (
-          /* No price is shown while the store is closed. Naming a figure for
-             something nobody can buy invites a customer to plan around it. */
-          <div className="prelaunch-note">
-            <strong>{PRE_LAUNCH_HEADLINE}</strong>
-            <p>{PRE_LAUNCH_BLURB}</p>
-          </div>
-        )}
+          <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--ink-dim)" }}>
+            Personal, non-transferable use. Any 3 domains $75 · any 5 $115 · all 9 $179.
+          </p>
+        ) : null}
 
         <Link href="/" className="back-link">
           &larr; Back to the stack

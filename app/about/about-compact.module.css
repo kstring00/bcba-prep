@@ -42,16 +42,7 @@
   padding: 8px !important;
 }
 
-.stats :global(.stats-inner) {
-  padding-top: 16px !important;
-  padding-bottom: 16px !important;
-}
 
-.stats :global(.stat) {
-  gap: 12px !important;
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
-}
 
 .resources {
   padding: clamp(30px, 4vw, 48px) 0 !important;
