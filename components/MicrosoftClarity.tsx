@@ -1,10 +1,13 @@
 import Script from "next/script";
 
 // Microsoft Clarity project IDs are public tracking identifiers, not secrets.
-// Keep the env override so the project can be changed without editing code,
-// while using the current BCBA Prep project by default in production.
-const CLARITY_PROJECT_ID =
-  process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim() || "ybt99474wv";
+//
+// There is no hardcoded default. A previous fallback meant analytics ran
+// against one specific project from every environment — including local and
+// preview builds — polluting the production figures and making the tag
+// impossible to turn off without a code change. Tracking is now off unless
+// NEXT_PUBLIC_CLARITY_PROJECT_ID is set for that environment.
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim();
 
 function validProjectId(value: string | undefined): value is string {
   return Boolean(value && /^[a-zA-Z0-9]+$/.test(value));

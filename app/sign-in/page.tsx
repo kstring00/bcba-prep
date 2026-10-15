@@ -1,19 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BeeMark } from "@/components/BeeMark";
-import {
-  getStoredSession,
-  requestPasswordReset,
-  signInWithPassword,
-  signUpWithPassword,
-} from "@/lib/supabase/auth-client";
 import styles from "./sign-in.module.css";
+
+/**
+ * Credentials go to our own API routes, which set httpOnly cookies. No token
+ * ever reaches client JavaScript, and there is no localStorage session.
+ */
+async function postJson(url: string, body: unknown) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = (await response.json().catch(() => ({}))) as {
+    error?: string;
+    needsEmailConfirmation?: boolean;
+  };
+  if (!response.ok) throw new Error(payload.error ?? "Something went wrong.");
+  return payload;
+}
 
 export default function SignInPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Set when something redirected here — e.g. checkout requiring sign-in, or
+  // a deep link into owned content. Send them back where they were going.
+  const nextPath = searchParams.get("next");
   const [mode, setMode] = useState<"sign-in" | "create">("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,34 +37,34 @@ export default function SignInPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (getStoredSession()) router.replace("/member");
-  }, [router]);
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setMessage(null);
     setError(null);
 
+    const destination = nextPath && nextPath.startsWith("/") ? nextPath : "/member";
+
     try {
       if (mode === "sign-in") {
-        await signInWithPassword(email, password);
-        router.push("/member");
+        await postJson("/api/auth/sign-in", { email, password });
+        router.push(destination);
+        // Refresh so the server re-renders with the new session, which makes
+        // every ownership-aware button on the site correct immediately.
         router.refresh();
         return;
       }
 
-      const result = await signUpWithPassword(email, password);
-      if (result.session) {
-        router.push("/member");
-        router.refresh();
-      } else {
+      const result = await postJson("/api/auth/sign-up", { email, password });
+      if (result.needsEmailConfirmation) {
         setMessage(
           "Your account has been created. Check your email to confirm it, then come back here to sign in.",
         );
         setMode("sign-in");
         setPassword("");
+      } else {
+        router.push(destination);
+        router.refresh();
       }
     } catch (caught) {
       setError(
@@ -71,8 +87,10 @@ export default function SignInPage() {
     setError(null);
     setMessage(null);
     try {
-      await requestPasswordReset(email);
-      setMessage("Password reset email sent. Check your inbox for the next step.");
+      await postJson("/api/auth/reset-request", { email });
+      setMessage(
+        "If that email has an account, a reset link is on its way. Open the link to choose a new password — it expires shortly, so use it soon.",
+      );
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -100,9 +118,9 @@ export default function SignInPage() {
               <span> BCBA Prep by Bee the Behavior Bae.</span>
             </h1>
             <p className={styles.lede}>
-              Sign in to return to the domains and study materials connected to
-              your account. New here? Create your account now so your library has
-              a home as BCBA Prep grows.
+              Sign in to your BCBA Prep account. Study materials are not
+              released yet &mdash; creating an account now simply means it is
+              ready and waiting when the library opens.
             </p>
 
             <div className={styles.promise}>
@@ -157,7 +175,7 @@ export default function SignInPage() {
               <p>
                 {mode === "sign-in"
                   ? "Use the email and password connected to your BCBA Prep account."
-                  : "Create the account that will hold your purchased domains and materials."}
+                  : "Create the account that will hold your study materials."}
               </p>
             </div>
 

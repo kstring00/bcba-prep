@@ -1,5 +1,15 @@
 # BCBA Prep architecture handoff — MVP first
 
+> **Superseded in part.** This file records the *intended destination
+> architecture* and still reads correctly as that. For the current state of the
+> site and the ordered list of what remains before launch, read
+> **`LAUNCH_CHECKLIST.md`** — it is the source of truth and this file is not.
+>
+> Two details here are now out of date: `/resources`, `/mock-exams` and
+> `/study-guides` no longer exist as routes (they were placeholder pages and
+> were deleted), and the site now carries a sales gate that keeps the store
+> closed until the materials are ready.
+
 > **Constraint rule:** finished sellable content and the first real sale come before member-platform infrastructure.
 >
 > This file records the intended destination architecture so the product does not paint itself into a corner. It is **not** a launch checklist. Do not provision Supabase, build the protected reader, or automate entitlements merely because designs for those systems exist here.

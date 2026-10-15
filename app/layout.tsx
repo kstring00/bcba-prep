@@ -6,6 +6,9 @@ import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CartProvider } from "@/lib/cart-context";
+import { OwnershipProvider } from "@/lib/entitlements/context";
+import { getSessionUser } from "@/lib/auth/session";
+import { getOwnedSkus } from "@/lib/entitlements/server";
 import "./globals.css";
 
 // Self-hosted by next/font at build time: the files are emitted into this
@@ -71,24 +74,48 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+/*
+ * Reading cookies makes every page dynamic. That is the cost of knowing who is
+ * signed in during the server render, and it is the right trade: the
+ * alternative is every card flashing "Unlock" before hydration corrects it,
+ * which looks broken to someone who has paid.
+ */
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Resolved once per request and handed down, so no client component has to
+  // fetch ownership for itself.
+  const user = await getSessionUser();
+  const ownedSkus = user ? await getOwnedSkus() : [];
+
   return (
     <html lang="en" className={`${display.variable} ${script.variable}`}>
       <body style={{ "--font-sans": SANS_STACK } as React.CSSProperties}>
-        <CartProvider>
-          <SiteHeader />
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <OwnershipProvider
+          value={{
+            signedIn: Boolean(user),
+            email: user?.email ?? null,
+            ownedSkus,
+          }}
+        >
+          <CartProvider>
+            <SiteHeader />
           {/* Pages own their own container: several sections are full-bleed
               bands, which a shared max-width wrapper would cut off. */}
-          <main className="main">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer />
-          <CartPanel />
-        </CartProvider>
+            <main className="main" id="main-content" tabIndex={-1}>
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <Footer />
+            <CartPanel />
+          </CartProvider>
+        </OwnershipProvider>
         <MicrosoftClarity />
       </body>
     </html>

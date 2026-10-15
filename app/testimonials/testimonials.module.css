@@ -367,7 +367,7 @@
   color: #302723;
   font: inherit;
   padding: 14px 15px;
-  outline: none;
+  /* outline intentionally kept: see the :focus-visible block in globals.css */
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 

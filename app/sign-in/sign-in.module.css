@@ -213,7 +213,7 @@
   padding: 0 16px;
   border: 1px solid var(--rule-strong);
   border-radius: 13px;
-  outline: none;
+  /* outline intentionally kept: see the :focus-visible block in globals.css */
   color: var(--ink);
   background: rgba(255, 255, 255, 0.62);
   font: inherit;
