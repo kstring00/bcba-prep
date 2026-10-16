@@ -253,3 +253,74 @@
     display: none !important;
   }
 }
+
+/*
+  The story column no longer carries an image.
+
+  The original grid reserved a second column for the studio photograph, which
+  has been removed; left in place it squeezed Bryana's copy into ~60% of the
+  panel and left a dead column beside it.
+*/
+.storySingle {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/*
+  Her copy is much longer than the placeholder text this layout was built
+  around, so the dark panel is now the taller of the two columns. Centring the
+  philosophy content shares the leftover height above and below it instead of
+  leaving one large void at the bottom.
+*/
+.philosophyCentered {
+  display: flex;
+  align-items: center;
+}
+
+/* Long-form reading: the 12.5px set for two short placeholder paragraphs is
+   too small for nine. */
+.storySingle :global(p:not(.script):not(.signature)) {
+  font-size: 14px !important;
+  line-height: 1.78 !important;
+  margin-bottom: 13px !important;
+  max-width: 62ch;
+}
+
+.storySingle :global(h2.display) {
+  margin-top: 26px !important;
+}
+
+/*
+  The original layout hid the portrait below 768px to keep the hero compact.
+  Featuring Bryana is the point of this page, and mobile is where most people
+  read it, so she is shown there too — as a modest circular portrait above the
+  copy rather than the full arch, which would push the heading off-screen.
+
+  Desktop is unchanged.
+*/
+@media (max-width: 767px) {
+  .heroGrid :global(.portrait) {
+    display: block !important;
+    width: 128px;
+    margin: 0 0 20px;
+    order: -1;
+  }
+
+  .heroGrid :global(.portrait-inner) {
+    border-radius: 50%;
+    aspect-ratio: 1;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .heroGrid :global(.portrait-fallback) {
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+
+  .heroGrid :global(.portrait-inner img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}

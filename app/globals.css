@@ -2018,168 +2018,31 @@ textarea:focus-visible,
   }
 }
 
-/* ---------------- founder (About) ---------------- */
 
-.founder-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
-  align-items: center;
-  gap: clamp(34px, 6vw, 80px);
-  padding-top: clamp(28px, 5vw, 64px);
-}
 
-.founder-copy {
-  max-width: 60ch;
-}
 
 /* Her verified background, stated plainly and high on the page. */
-.credential-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin: 30px 0 0;
-  padding: 0;
-  border: 1px solid var(--gold-dim);
-  border-radius: 14px;
-  background: rgba(253, 250, 245, 0.7);
-  overflow: hidden;
-}
 
-.credential-strip > div {
-  flex: 1 1 150px;
-  padding: 15px 18px;
-  border-right: 1px solid var(--gold-dim);
-}
 
-.credential-strip > div:last-child {
-  border-right: none;
-}
 
-.credential-strip dt {
-  color: var(--gold-deep);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
 
-.credential-strip dd {
-  margin: 5px 0 0;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(17px, 1.5vw, 21px);
-  line-height: 1.25;
-}
 
-.founder-portrait {
-  margin: 0;
-  position: relative;
-}
 
-.founder-portrait img {
-  display: block;
-  width: 100%;
-  /* Reserves the frame before the image loads, so the page does not jump. */
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border-radius: 20px;
-  border: 1px solid var(--gold-dim);
-  background: rgba(241, 233, 221, 0.75);
-  box-shadow: 0 26px 70px rgba(45, 31, 40, 0.16);
-  /* Until /public/bryana.jpg exists the alt text shows here; give it room to
-     read rather than clipping it to nothing. */
-  min-height: 260px;
-  color: var(--ink-dim);
-  font-size: 14px;
-}
 
-.founder-portrait figcaption {
-  display: grid;
-  gap: 2px;
-  margin-top: 14px;
-  text-align: center;
-}
 
-.founder-portrait figcaption strong {
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 500;
-}
 
-.founder-portrait figcaption span {
-  color: var(--ink-faint);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
 
-.founder-story {
-  padding: clamp(40px, 6vw, 86px) var(--pad);
-}
 
-.founder-story-inner {
-  max-width: 72ch;
-  margin: 0 auto;
-}
 
-.founder-story-inner h2 {
-  margin: clamp(34px, 4vw, 52px) 0 16px;
-  color: var(--ink);
-  font-size: clamp(27px, 2.7vw, 38px);
-  font-weight: 400;
-  line-height: 1.15;
-}
 
-.founder-story-inner h2:first-child {
-  margin-top: 0;
-}
 
-.founder-story-inner p {
-  margin: 0 0 18px;
-  color: var(--ink-body);
-  font-size: clamp(15px, 1.15vw, 17px);
-  line-height: 1.85;
-}
 
-.founder-signoff {
-  margin-top: clamp(34px, 4vw, 52px);
-  padding-top: 28px;
-  border-top: 1px solid var(--gold-dim);
-}
 
-.founder-signoff .signature {
-  display: block;
-  margin-bottom: 12px;
-  color: var(--gold-deep);
-}
 
 /* Each line of the sign-off sits on its own line, as written. */
-.founder-signoff p {
-  margin: 0 0 3px;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(17px, 1.5vw, 20px);
-  line-height: 1.5;
-}
 
-.founder-signoff p:nth-child(3) {
-  color: var(--mauve-deep);
-}
 
-.founder-signoff p:last-child {
-  color: var(--ink-faint);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
 
-.founder-cta {
-  display: grid;
-  place-items: center;
-  padding: 0 var(--pad) clamp(54px, 7vw, 96px);
-}
 
 .btn--large {
   min-height: 56px;
@@ -2227,21 +2090,9 @@ textarea:focus-visible,
 }
 
 @media (max-width: 900px) {
-  .founder-grid {
-    grid-template-columns: 1fr;
-  }
-  .founder-portrait {
-    order: -1;
-    max-width: 380px;
-  }
 }
 
 @media (max-width: 560px) {
-  .credential-strip > div {
-    flex: 1 1 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--gold-dim);
-  }
   .credential-strip > div:last-child {
     border-bottom: none;
   }
@@ -2296,4 +2147,123 @@ textarea:focus-visible,
   color: var(--ink-faint);
   font-size: 17px;
   line-height: 1;
+}
+
+/* ---------------- About: credentials band ---------------- */
+
+/*
+  Replaces the old four-figure stats band. Two cells only, because two is what
+  can actually be stated about Bryana without inventing a number.
+*/
+.credentials {
+  padding: clamp(24px, 3.4vw, 40px) var(--pad);
+  border-top: 1px solid var(--gold-dim);
+  border-bottom: 1px solid var(--gold-dim);
+  background: rgba(253, 250, 245, 0.55);
+}
+
+.credentials-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(20px, 4vw, 56px);
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.credential {
+  text-align: center;
+}
+
+.credential dt {
+  color: var(--gold-deep);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.credential dd {
+  margin: 7px 0 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(19px, 2.2vw, 29px);
+  font-weight: 400;
+  line-height: 1.22;
+}
+
+/* ---------------- About: portrait fallback ---------------- */
+
+/*
+  Shown only when /public/bryana.jpg is missing. Honeycomb mark on a soft
+  brand gradient — deliberate, not a broken image.
+*/
+.portrait-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 252, 244, 0.9), transparent 52%),
+    linear-gradient(152deg, rgba(169, 140, 176, 0.3), rgba(201, 169, 97, 0.34));
+  border: 1px solid var(--gold-dim);
+}
+
+.portrait-fallback--round {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.portrait-fallback-mark {
+  color: var(--gold-deep);
+  opacity: 0.72;
+}
+
+/* ---------------- About: sign-off ---------------- */
+
+/*
+  The sign-off sits inside the dark `.story` panel, so it takes the
+  on-night palette. Set against --ink it was near-invisible — dark text on a
+  dark ground — which a screenshot caught before this shipped.
+*/
+.signoff {
+  margin-top: clamp(26px, 3.4vw, 40px);
+  padding-top: 24px;
+  border-top: 1px solid rgba(201, 169, 97, 0.32);
+}
+
+.signoff p {
+  margin: 0 0 4px !important;
+  color: var(--on-night) !important;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.3vw, 18px) !important;
+  line-height: 1.5 !important;
+}
+
+.signoff .signature {
+  margin: 4px 0 8px !important;
+  color: var(--gold) !important;
+  font-family: var(--font-script);
+  font-size: clamp(30px, 3.4vw, 42px) !important;
+  line-height: 1 !important;
+}
+
+.signoff-role {
+  color: var(--on-night-dim) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* The emoji pair was wrapping onto its own line under the heading. */
+.about-hero h1.display {
+  text-wrap: balance;
+}
+
+@media (max-width: 560px) {
+  .credentials-inner {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
 }
