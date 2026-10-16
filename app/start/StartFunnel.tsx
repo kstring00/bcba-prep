@@ -5,16 +5,16 @@ import { useEffect } from "react";
 import { BeeMark } from "@/components/BeeMark";
 import { FounderPortrait } from "@/app/about/FounderPortrait";
 import { captureAttribution } from "@/lib/funnel/utm";
-import { CheatSheetCapture } from "./CheatSheetCapture";
+import { WaitlistSignup } from "./WaitlistSignup";
 import styles from "./start.module.css";
 
 /**
  * Link-in-bio layout.
  *
  * One column, thumb-reachable, no site nav. Order is deliberate: who she is,
- * the free thing, then the paid things. Someone who taps a bio link does not
- * yet know who Bryana is, so the photo and one line come first; asking for an
- * email before that is asking a stranger for a favour.
+ * then the waitlist, then everything else. Someone who taps a bio link does
+ * not yet know who Bryana is, so the photo and one line come first; asking a
+ * stranger for their email before that is asking for a favour.
  */
 type Destination = {
   href: string;
@@ -64,13 +64,13 @@ export function StartFunnel({ signedIn }: { signedIn: boolean }) {
             Hi, I&rsquo;m Bryana <span aria-hidden="true">🐝</span>
           </h1>
           <p className={styles.lede}>
-            Six years in ABA. I make BCBA exam prep feel less overwhelming —
-            start with the free cheat sheet.
+            Six years in ABA. I&rsquo;m building BCBA exam prep that feels
+            less overwhelming — and the founding list gets in first.
           </p>
         </header>
 
         {/* The conversion. First thing after the introduction. */}
-        <CheatSheetCapture />
+        <WaitlistSignup />
 
         <nav className={styles.links} aria-label="BCBA Prep">
           {DESTINATIONS.map((item) => (
@@ -92,9 +92,11 @@ export function StartFunnel({ signedIn }: { signedIn: boolean }) {
             <span className={styles.linkText}>
               <strong>{signedIn ? "My Library" : "Member sign in"}</strong>
               <small>
-                {signedIn
-                  ? "Open what you already own"
-                  : "Already bought something?"}
+                {/*
+                 * Not "already bought something?" — nothing is on sale, so
+                 * that question implies a store this page is a waitlist for.
+                 */}
+                {signedIn ? "Open what you already own" : "Already have an account?"}
               </small>
             </span>
             <span className={styles.linkArrow} aria-hidden="true">

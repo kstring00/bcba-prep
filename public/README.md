@@ -2,29 +2,14 @@
 
 Static files served at the site root.
 
-## cheat-sheet.pdf — NOT YET ADDED
+## No lead magnet file is needed
 
-The /start funnel offers a free **BCBA Domain Cheat Sheet**. The file does not
-exist yet.
+/start is a founding-member waitlist, not a download. There is deliberately
+no PDF to add here: the page offers first access at founding pricing and
+nothing else, so nothing has to be produced before it works.
 
-**To turn it on:**
-
-1. Put the PDF here as `public/cheat-sheet.pdf`.
-2. In `lib/funnel/config.ts`, change `CHEAT_SHEET_FILE` from `null` to
-   `"/cheat-sheet.pdf"`.
-3. Redeploy.
-
-Until then the funnel still works: emails are captured, each lead row records
-`delivered = false`, and both the page and the confirmation email say the
-sheet is coming rather than promising a download that is not there. Once the
-file exists, delivery is immediate and no other change is needed.
-
-To find everyone who signed up during the gap:
-
-```sql
-select email, created_at from public.leads where delivered = false
-order by created_at;
-```
+If a downloadable ever is added, it needs its own copy decisions — see the
+"WHAT THIS PAGE MUST NOT SAY" note at the top of lib/funnel/config.ts first.
 
 ## bryana.jpg — NOT YET ADDED
 

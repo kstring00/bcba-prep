@@ -2,37 +2,33 @@
 
 import { useState } from "react";
 import {
-  CHEAT_SHEET_BLURB,
-  CHEAT_SHEET_FILE,
-  CHEAT_SHEET_NAME,
-  cheatSheetReady,
+  WAITLIST_BLURB,
+  WAITLIST_CONFIRM_BODY,
+  WAITLIST_CONFIRM_HEADING,
+  WAITLIST_EYEBROW,
+  WAITLIST_HEADLINE,
 } from "@/lib/funnel/config";
 import { readAttribution } from "@/lib/funnel/utm";
 import styles from "./start.module.css";
 
 /**
- * THE PHONE → COMPUTER HANDOFF.
+ * THE FOUNDING MEMBER WAITLIST.
  *
- * Someone taps this from a bio link on a phone they cannot realistically
- * study on. Handing them a download right there means a file lost in an iOS
- * Files folder they will never open again.
+ * Someone taps this from a bio link on a phone. Nothing is on sale yet, so
+ * there is no purchase to ask for and — deliberately — no freebie to dangle
+ * either. What is actually on offer is a place in the queue, and that is
+ * worth something specific: founding-member pricing, and hearing first.
  *
- * So the email IS the handoff: the sheet goes to the inbox they will have
- * open on their laptop tonight. That is also why the confirmation says where
- * it went rather than just "thanks" — the mechanism has to be legible, or it
- * reads like an email grab.
- *
- * When the file already exists the page offers the direct download too, for
- * the minority on a desktop who want it immediately.
+ * The success state says what they joined rather than just "thanks", because
+ * a waitlist someone cannot picture is indistinguishable from an email grab.
+ * It does not promise a date, because nobody has set one.
  */
 type Phase = "idle" | "sending" | "done";
 
-export function CheatSheetCapture() {
+export function WaitlistSignup() {
   const [email, setEmail] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
-  const [delivered, setDelivered] = useState(false);
-  const ready = cheatSheetReady();
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,7 +39,7 @@ export function CheatSheetCapture() {
     const value = String(data.get("email") ?? "").trim();
 
     if (!value) {
-      setError("Enter your email and I'll send it over.");
+      setError("Enter your email to join the founding list.");
       return;
     }
 
@@ -63,14 +59,12 @@ export function CheatSheetCapture() {
 
       const payload = (await response.json().catch(() => ({}))) as {
         error?: string;
-        delivered?: boolean;
       };
 
       if (!response.ok) {
         throw new Error(payload.error ?? "Something went wrong.");
       }
 
-      setDelivered(Boolean(payload.delivered));
       setPhase("done");
     } catch (caught) {
       setPhase("idle");
@@ -84,49 +78,24 @@ export function CheatSheetCapture() {
     return (
       <div className={styles.capture} role="status">
         <p className={styles.captureEyebrow}>
-          <span aria-hidden="true">✓</span> Check your email
+          <span aria-hidden="true">✓</span> You&rsquo;re in
         </p>
-        <h2>
-          {delivered
-            ? "It's in your inbox."
-            : "You're on the list."}
-        </h2>
-        <p className={styles.captureBody}>
-          {delivered ? (
-            <>
-              Open that email on your laptop when you sit down to study —
-              that&rsquo;s why I sent it there instead of straight to your
-              phone.
-            </>
-          ) : (
-            <>
-              I&rsquo;m finishing the {CHEAT_SHEET_NAME} now. It lands in your
-              inbox the moment it&rsquo;s ready.
-            </>
-          )}
-        </p>
-
-        {delivered && CHEAT_SHEET_FILE ? (
-          <a className={styles.captureSubmit} href={CHEAT_SHEET_FILE} download>
-            Download it now
-          </a>
-        ) : null}
+        <h2>{WAITLIST_CONFIRM_HEADING}</h2>
+        <p className={styles.captureBody}>{WAITLIST_CONFIRM_BODY}</p>
+        {/*
+         * No download button and no "check your inbox for your file" — there
+         * is no file. The confirmation email is a receipt, not a delivery,
+         * and saying otherwise would send someone hunting for an attachment.
+         */}
       </div>
     );
   }
 
   return (
     <div className={styles.capture}>
-      <p className={styles.captureEyebrow}>Free</p>
-      <h2>{CHEAT_SHEET_NAME}</h2>
-      <p className={styles.captureBody}>{CHEAT_SHEET_BLURB}</p>
-
-      {!ready ? (
-        /* Honest about the gap, and still worth signing up for. */
-        <p className={styles.captureNote}>
-          Almost ready — add your email and I&rsquo;ll send it the day it&rsquo;s done.
-        </p>
-      ) : null}
+      <p className={styles.captureEyebrow}>{WAITLIST_EYEBROW}</p>
+      <h2>{WAITLIST_HEADLINE}</h2>
+      <p className={styles.captureBody}>{WAITLIST_BLURB}</p>
 
       <form onSubmit={submit} className={styles.captureForm}>
         <label className={styles.srOnly} htmlFor="lead-email">
@@ -156,18 +125,15 @@ export function CheatSheetCapture() {
           className={styles.captureSubmit}
           disabled={phase === "sending"}
         >
-          {phase === "sending"
-            ? "Sending…"
-            : ready
-              ? "Email it to me"
-              : "Send it when it's ready"}
+          {phase === "sending" ? "Joining…" : "Join the founding list"}
         </button>
       </form>
 
       {error ? <p className={styles.captureError}>{error}</p> : null}
 
       <p className={styles.captureFine}>
-        One email with the sheet. No spam, and you can unsubscribe any time.
+        One email when the doors open. No spam, and you can unsubscribe any
+        time.
       </p>
     </div>
   );
