@@ -32,6 +32,11 @@ export function Footer() {
               </small>
             </span>
           </Link>
+          <nav className="footer-links" aria-label="Site">
+            <Link href="/mock-exams">Mock Exams</Link>
+            <Link href="/study-break">Study Break</Link>
+            <Link href="/about">About</Link>
+          </nav>
           <nav className="footer-links" aria-label="Legal">
             <Link href="/terms">Terms</Link>
             <Link href="/privacy">Privacy</Link>

@@ -95,7 +95,7 @@ export function AddToCart({
     const s = source.getBoundingClientRect();
     const t = target.getBoundingClientRect();
 
-    // Centre to centre, measured live. Doing it this way means the landing
+    // Center to center, measured live. Doing it this way means the landing
     // stays accurate no matter what scale the element picks up in flight.
     const dx = t.left + t.width / 2 - (s.left + s.width / 2);
     const dy = t.top + t.height / 2 - (s.top + s.height / 2);
@@ -175,9 +175,9 @@ export function AddToCart({
       },
     );
 
-    let cancelled = false;
+    let canceled = false;
     travel.then(() => {
-      if (cancelled) return;
+      if (canceled) return;
       cancelAnimationFrame(raf);
       add(product.id);
       impact(arrivalSpeed.current);
@@ -186,7 +186,7 @@ export function AddToCart({
     });
 
     return () => {
-      cancelled = true;
+      canceled = true;
       cancelAnimationFrame(raf);
     };
   }, [add, flier, impact, onArrive, product.id]);

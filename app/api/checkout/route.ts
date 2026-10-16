@@ -51,7 +51,7 @@ export async function POST(request: Request) {
    * GATE 3 — SIGN-IN REQUIRED.
    *
    * Verified against Supabase, not merely decoded from a cookie. This is what
-   * makes fulfilment reliable: the Stripe session carries this user's id, so
+   * makes fulfillment reliable: the Stripe session carries this user's id, so
    * the webhook attaches the purchase to a real account instead of trying to
    * match on a typed email afterwards. No account, no checkout.
    */

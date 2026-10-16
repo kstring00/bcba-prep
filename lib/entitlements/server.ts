@@ -81,7 +81,7 @@ export function ownsDomain(ownedSkus: Sku[], slug: string): boolean {
   return ownedSkus.includes(domainSku(slug));
 }
 
-/** Domain slugs the user owns, in catalogue order. */
+/** Domain slugs the user owns, in catalog order. */
 export function ownedDomainSlugs(ownedSkus: Sku[]): string[] {
   return domains
     .map((domain) => domain.slug)

@@ -2,7 +2,7 @@
    BCBA Prep by Bryana Utley
 
    Cream ground, watercolour florals, gold hairlines, mauve accents.
-   Set from the reference design; every colour is a token so the whole
+   Set from the reference design; every color is a token so the whole
    palette moves from this one block.
 
    THE 3D BOOK MODEL (CSS transforms only; no WebGL, no assets)
@@ -66,6 +66,13 @@
   --gold: #c6a667;
   --gold-deep: #a8874a;
   --gold-dim: rgba(198, 166, 103, 0.36);
+
+  /* LAYOUT RULE — two widths, used everywhere.
+     Reading column and section shell. Anything wider than --w-section leaves
+     half the screen empty on a laptop; anything wider than --w-text makes
+     long-form copy hard to track line to line. */
+  --w-text: 640px;
+  --w-section: 1100px;
 
   --rule: rgba(27, 21, 18, 0.11);
   --rule-strong: rgba(27, 21, 18, 0.2);
@@ -309,6 +316,33 @@ button {
   color: #fff;
 }
 
+/*
+  Member Login / My Library: a filled gold pill, not an outline.
+
+  The shared `.pill` is a quiet outlined control — gold-dim border, gold-deep
+  text on cream. Next to the solid buttons elsewhere on the page it read as
+  disabled rather than secondary, which is the opposite of what the primary
+  account action should look like.
+
+  Dark ink on gold rather than white: white on #c6a667 measures about 2.1:1,
+  which fails AA for small uppercase text. Ink on gold measures ~6.5:1.
+*/
+.pill--login {
+  background: var(--gold);
+  border-color: var(--gold-deep);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(168, 135, 74, 0.26);
+}
+
+/* Hover deepens the gold and KEEPS the ink. White on --gold-deep measures
+   3.37:1, which fails AA for small text; ink on it measures 5.36:1. */
+.pill--login:hover {
+  background: var(--gold-deep);
+  border-color: var(--gold-deep);
+  color: var(--ink);
+}
+
 .nav-toggle {
   display: none;
   width: 44px;
@@ -455,89 +489,7 @@ button {
 
 /* ---------------- about: hero ---------------- */
 
-.about-hero {
-  padding: clamp(40px, 6vw, 84px) 0 clamp(50px, 7vw, 96px);
-}
-
-.about-hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 44%);
-  gap: clamp(30px, 5vw, 76px);
-  align-items: center;
-}
-
-.about-hero h1 {
-  font-size: clamp(40px, 6.4vw, 82px);
-  margin: 4px 0 0;
-}
-
-.about-hero .ornament {
-  margin: 26px 0 22px;
-}
-
-.about-lede {
-  max-width: 44ch;
-  font-size: clamp(14px, 1.05vw, 15.5px);
-  line-height: 1.72;
-  color: var(--ink-body);
-  margin: 0;
-}
-
-.portrait {
-  position: relative;
-  aspect-ratio: 5 / 6;
-  max-height: min(62vh, 520px);
-  max-width: 430px;
-  margin-left: auto;
-  border-radius: 999px 999px 14px 14px;
-  border: 1px solid var(--gold-dim);
-  padding: 10px;
-  background: var(--cream-card);
-}
-
-.portrait-inner {
-  height: 100%;
-  border-radius: 999px 999px 8px 8px;
-  background: var(--cream-deep);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 26px;
-  overflow: hidden;
-  color: var(--ink-faint);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-
-.portrait-inner img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-}
-
-@media (max-width: 860px) {
-  .about-hero-grid {
-    grid-template-columns: 1fr;
-    gap: 34px;
-  }
-
-  .portrait {
-    max-width: 340px;
-    margin: 0 auto;
-  }
-}
-
 /* ---------------- about: stats band ---------------- */
-
-
-
-
-
-
 
 /* Placeholder tokens are far longer than the figures that will replace
    them. Render them small so an unfilled stat does not blow out the band. */
@@ -561,10 +513,6 @@ button {
 
 /* ---------------- about: resources ---------------- */
 
-.resources {
-  padding: clamp(48px, 7vw, 92px) 0 clamp(40px, 6vw, 76px);
-  text-align: center;
-}
 
 .section-head {
   display: flex;
@@ -678,35 +626,6 @@ button {
 
 /* ---------------- about: split band ---------------- */
 
-.split {
-  display: grid;
-  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
-  align-items: stretch;
-}
-
-.story {
-  background: var(--night);
-  color: var(--on-night);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 42%);
-  gap: 26px;
-  align-items: center;
-  padding: clamp(34px, 4.4vw, 58px) clamp(24px, 3vw, 44px);
-}
-
-.story h2 {
-  color: var(--on-night);
-  font-size: clamp(22px, 2.5vw, 31px);
-  margin-bottom: 20px;
-}
-
-.story p {
-  font-size: 12.5px;
-  line-height: 1.8;
-  color: var(--on-night-dim);
-  margin: 0 0 14px;
-}
-
 .signature {
   font-family: var(--font-script);
   font-size: 38px;
@@ -715,13 +634,6 @@ button {
   margin-top: 22px;
 }
 
-.story-art {
-  aspect-ratio: 3 / 4;
-  border-radius: 999px 999px 4px 4px;
-  border: 1px solid var(--gold-dim);
-  background: var(--night-soft);
-  padding: 8px;
-}
 
 .story-art-inner {
   height: 100%;
@@ -739,35 +651,8 @@ button {
   text-transform: uppercase;
 }
 
-.philosophy {
-  position: relative;
-  background: var(--cream-deep);
-  padding: clamp(34px, 4.4vw, 58px) clamp(24px, 3vw, 48px);
-}
-
-.philosophy h2 {
-  font-size: clamp(22px, 2.6vw, 33px);
-  margin-bottom: 30px;
-}
-
-.steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  position: relative;
-  z-index: 2;
-}
-
-.step {
-  text-align: center;
-  position: relative;
-}
-
 /* Connector from this icon's edge to the next icon's edge. Anchored to the
-   column's own centre line, so it stays correct at any column width. */
+   column's own center line, so it stays correct at any column width. */
 .step:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -790,64 +675,10 @@ button {
   transform: translateY(-2.5px) rotate(45deg);
 }
 
-.step-icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 12px;
-  border-radius: 50%;
-  background: var(--cream-card);
-  border: 1px solid var(--gold-dim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--mauve-deep);
-  position: relative;
-}
 
 /* The number is the quiet index; the name is the label you read. */
-.step-n {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: var(--ink-faint);
-  margin-bottom: 4px;
-}
-
-.step-name {
-  font-family: var(--font-display);
-  font-size: 19px;
-  line-height: 1.1;
-  color: var(--ink);
-  margin: 0 0 7px;
-}
-
-.step p {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.55;
-  color: var(--ink-dim);
-}
-
-@media (max-width: 1000px) {
-  .split {
-    grid-template-columns: 1fr;
-  }
-}
 
 @media (max-width: 860px) {
-  .story {
-    grid-template-columns: 1fr;
-  }
-
-  .story-art {
-    max-width: 240px;
-    order: -1;
-  }
-
-  .steps {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px 12px;
-  }
 
   /* Connectors only make sense in a single row. */
   .step::before,
@@ -857,23 +688,6 @@ button {
 }
 
 /* ---------------- about: closing band ---------------- */
-
-.closing {
-  background: var(--mauve-band);
-  color: #fff;
-  position: relative;
-  z-index: 2;
-}
-
-.closing-inner {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: clamp(34px, 4vw, 54px) var(--pad);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 40%);
-  gap: clamp(24px, 4vw, 60px);
-  align-items: center;
-}
 
 .quote {
   display: grid;
@@ -910,7 +724,7 @@ button {
 }
 
 /* 7px of visible dot inside a 44px tap target: the padding carries the
-   touch area and background-clip keeps the paint at the centre. */
+   touch area and background-clip keeps the paint at the center. */
 .dot {
   width: 44px;
   height: 44px;
@@ -931,40 +745,7 @@ button {
   align-self: stretch;
 }
 
-.cta {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 20px;
-  align-items: center;
-}
-
-.cta-icon {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-}
-
-.cta h2 {
-  color: #fff;
-  font-size: clamp(19px, 2vw, 25px);
-  margin-bottom: 6px;
-}
-
-.cta p {
-  margin: 0 0 16px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.84);
-}
-
 @media (max-width: 900px) {
-  .closing-inner {
-    grid-template-columns: 1fr;
-  }
 
   .closing-rule {
     height: 1px;
@@ -1055,7 +836,6 @@ button {
   font-size: clamp(34px, 5vw, 60px);
 }
 
-/* Centred contexts: the ornament is display:block and needs the margins. */
 .home-head .ornament,
 .ornament--center {
   margin-left: auto;
@@ -1758,7 +1538,7 @@ button {
 /*
  * WCAG 2.2 SC 2.4.11 wants a focus indicator at 3:1 against its surroundings.
  * The browser default ring is thin and disappears against several of the
- * cloth colours in this palette, so every interactive element gets an
+ * cloth colors in this palette, so every interactive element gets an
  * explicit two-tone ring: a dark inner edge for contrast on pale ground, and
  * an outer offset that stays visible on the dark footer band.
  *
@@ -1895,291 +1675,9 @@ textarea:focus-visible,
 
 /* ---------------- mock exams ---------------- */
 
-.exams-head {
-  max-width: 62ch;
-  padding: clamp(26px, 4vw, 52px) 0 0;
-}
-
-.exams-lede {
-  margin: 20px 0 0;
-  color: var(--ink-body);
-  font-size: clamp(15px, 1.2vw, 17px);
-  line-height: 1.8;
-}
-
 .exams-what,
-.exams-list {
-  margin-top: clamp(38px, 5vw, 62px);
-}
 
 .exams-what h2,
-.exams-list h2 {
-  margin: 0 0 18px;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(26px, 2.4vw, 34px);
-  font-weight: 400;
-}
-
-.exams-points {
-  display: grid;
-  gap: 14px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  max-width: 68ch;
-}
-
-.exams-points li {
-  padding-left: 18px;
-  border-left: 2px solid var(--gold-dim);
-  color: var(--ink-body);
-  line-height: 1.7;
-}
-
-.exam-card {
-  display: flex;
-  gap: 20px;
-  max-width: 820px;
-  margin-top: 18px;
-  padding: clamp(20px, 3vw, 30px);
-  border: 1px solid var(--gold-dim);
-  border-radius: 20px;
-  background: rgba(253, 250, 245, 0.78);
-}
-
-.exam-card-mark {
-  flex: 0 0 48px;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--gold-dim);
-  border-radius: 50%;
-  color: var(--gold-deep);
-}
-
-.exam-card-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.exam-card h3 {
-  margin: 0 0 8px;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(21px, 1.9vw, 27px);
-  font-weight: 500;
-}
-
-.exam-card p {
-  margin: 0;
-  color: var(--ink-dim);
-  line-height: 1.7;
-}
-
-.exam-facts {
-  display: grid;
-  gap: 14px;
-  margin: 20px 0 0;
-}
-
-.exam-facts dt {
-  color: var(--ink-faint);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-}
-
-.exam-facts dd {
-  margin: 4px 0 0;
-  color: var(--ink-body);
-  line-height: 1.6;
-}
-
-.exam-note {
-  margin-top: 18px !important;
-  color: var(--mauve-deep);
-  font-size: 13px;
-}
-
-.exams-footer {
-  margin: clamp(44px, 6vw, 76px) 0 clamp(30px, 4vw, 50px);
-  padding-top: 24px;
-  border-top: 1px solid var(--rule);
-  color: var(--ink-dim);
-}
-
-@media (max-width: 560px) {
-  .exam-card {
-    flex-direction: column;
-    gap: 16px;
-  }
-}
-
-/* ---------------- founder (About) ---------------- */
-
-.founder-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
-  align-items: center;
-  gap: clamp(34px, 6vw, 80px);
-  padding-top: clamp(28px, 5vw, 64px);
-}
-
-.founder-copy {
-  max-width: 60ch;
-}
-
-/* Her verified background, stated plainly and high on the page. */
-.credential-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin: 30px 0 0;
-  padding: 0;
-  border: 1px solid var(--gold-dim);
-  border-radius: 14px;
-  background: rgba(253, 250, 245, 0.7);
-  overflow: hidden;
-}
-
-.credential-strip > div {
-  flex: 1 1 150px;
-  padding: 15px 18px;
-  border-right: 1px solid var(--gold-dim);
-}
-
-.credential-strip > div:last-child {
-  border-right: none;
-}
-
-.credential-strip dt {
-  color: var(--gold-deep);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.credential-strip dd {
-  margin: 5px 0 0;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(17px, 1.5vw, 21px);
-  line-height: 1.25;
-}
-
-.founder-portrait {
-  margin: 0;
-  position: relative;
-}
-
-.founder-portrait img {
-  display: block;
-  width: 100%;
-  /* Reserves the frame before the image loads, so the page does not jump. */
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border-radius: 20px;
-  border: 1px solid var(--gold-dim);
-  background: rgba(241, 233, 221, 0.75);
-  box-shadow: 0 26px 70px rgba(45, 31, 40, 0.16);
-  /* Until /public/bryana.jpg exists the alt text shows here; give it room to
-     read rather than clipping it to nothing. */
-  min-height: 260px;
-  color: var(--ink-dim);
-  font-size: 14px;
-}
-
-.founder-portrait figcaption {
-  display: grid;
-  gap: 2px;
-  margin-top: 14px;
-  text-align: center;
-}
-
-.founder-portrait figcaption strong {
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.founder-portrait figcaption span {
-  color: var(--ink-faint);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.founder-story {
-  padding: clamp(40px, 6vw, 86px) var(--pad);
-}
-
-.founder-story-inner {
-  max-width: 72ch;
-  margin: 0 auto;
-}
-
-.founder-story-inner h2 {
-  margin: clamp(34px, 4vw, 52px) 0 16px;
-  color: var(--ink);
-  font-size: clamp(27px, 2.7vw, 38px);
-  font-weight: 400;
-  line-height: 1.15;
-}
-
-.founder-story-inner h2:first-child {
-  margin-top: 0;
-}
-
-.founder-story-inner p {
-  margin: 0 0 18px;
-  color: var(--ink-body);
-  font-size: clamp(15px, 1.15vw, 17px);
-  line-height: 1.85;
-}
-
-.founder-signoff {
-  margin-top: clamp(34px, 4vw, 52px);
-  padding-top: 28px;
-  border-top: 1px solid var(--gold-dim);
-}
-
-.founder-signoff .signature {
-  display: block;
-  margin-bottom: 12px;
-  color: var(--gold-deep);
-}
-
-/* Each line of the sign-off sits on its own line, as written. */
-.founder-signoff p {
-  margin: 0 0 3px;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: clamp(17px, 1.5vw, 20px);
-  line-height: 1.5;
-}
-
-.founder-signoff p:nth-child(3) {
-  color: var(--mauve-deep);
-}
-
-.founder-signoff p:last-child {
-  color: var(--ink-faint);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.founder-cta {
-  display: grid;
-  place-items: center;
-  padding: 0 var(--pad) clamp(54px, 7vw, 96px);
-}
 
 .btn--large {
   min-height: 56px;
@@ -2226,22 +1724,8 @@ textarea:focus-visible,
   line-height: 1.3;
 }
 
-@media (max-width: 900px) {
-  .founder-grid {
-    grid-template-columns: 1fr;
-  }
-  .founder-portrait {
-    order: -1;
-    max-width: 380px;
-  }
-}
 
 @media (max-width: 560px) {
-  .credential-strip > div {
-    flex: 1 1 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--gold-dim);
-  }
   .credential-strip > div:last-child {
     border-bottom: none;
   }
@@ -2296,4 +1780,664 @@ textarea:focus-visible,
   color: var(--ink-faint);
   font-size: 17px;
   line-height: 1;
+}
+
+/* ---------------- About: credentials band ---------------- */
+
+/*
+  Replaces the old four-figure stats band. Two cells only, because two is what
+  can actually be stated about Bryana without inventing a number.
+*/
+
+/* ---------------- About: portrait fallback ---------------- */
+
+/*
+  Shown only when /public/bryana.jpg is missing. Honeycomb mark on a soft
+  brand gradient — deliberate, not a broken image.
+*/
+.portrait-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 252, 244, 0.9), transparent 52%),
+    linear-gradient(152deg, rgba(169, 140, 176, 0.3), rgba(201, 169, 97, 0.34));
+  border: 1px solid var(--gold-dim);
+}
+
+.portrait-fallback--round {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.portrait-fallback-mark {
+  color: var(--gold-deep);
+  opacity: 0.72;
+}
+
+/* ---------------- About: sign-off ---------------- */
+
+/*
+  The sign-off sits inside the dark `.story` panel, so it takes the
+  on-night palette. Set against --ink it was near-invisible — dark text on a
+  dark ground — which a screenshot caught before this shipped.
+*/
+.signoff {
+  margin-top: clamp(26px, 3.4vw, 40px);
+  padding-top: 24px;
+  border-top: 1px solid rgba(201, 169, 97, 0.32);
+}
+
+.signoff p {
+  margin: 0 0 4px !important;
+  color: var(--on-night) !important;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.3vw, 18px) !important;
+  line-height: 1.5 !important;
+}
+
+.signoff .signature {
+  margin: 4px 0 8px !important;
+  color: var(--gold) !important;
+  font-family: var(--font-script);
+  font-size: clamp(30px, 3.4vw, 42px) !important;
+  line-height: 1 !important;
+}
+
+.signoff-role {
+  color: var(--on-night-dim) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* The emoji pair was wrapping onto its own line under the heading. */
+
+/* ---------------- layout rule ---------------- */
+
+/*
+  Two centered widths, applied by class so a page never invents its own.
+  Mobile-first: both collapse to the viewport minus the side gutter, and only
+  start constraining once there is room.
+*/
+.col-text {
+  width: 100%;
+  max-width: var(--w-text);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+.col-section {
+  width: 100%;
+  max-width: var(--w-section);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+/* Section rhythm: 56px mobile, 96px desktop. */
+.band {
+  padding-block: 56px;
+}
+
+@media (min-width: 768px) {
+  .band {
+    padding-block: 96px;
+  }
+}
+
+
+/* ======================================================================
+   ABOUT
+   Mobile-first. Every band is a centered column; nothing is a card inside
+   a card, and no section leaves one half of the screen empty.
+   ====================================================================== */
+
+.about-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: 44px;
+}
+
+@media (min-width: 768px) {
+  .about-hero {
+    padding-block: 80px;
+  }
+}
+
+/*
+  Mobile: one column, portrait first and centered.
+  Desktop: balanced two columns, portrait sitting CLOSE to the copy rather
+  than flung to the far edge — the gap is capped so the two never drift apart
+  on a wide screen.
+*/
+.about-hero-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+  text-align: center;
+}
+
+.about-hero-copy {
+  max-width: 34ch;
+}
+
+/* Keeps "Meet the Bae Behind the Bees" on two balanced lines instead of
+   orphaning the emoji pair onto a third. */
+.about-hero h1 {
+  text-wrap: balance;
+}
+
+.about-lede {
+  margin: 18px 0 0;
+  color: var(--ink-body);
+  font-size: clamp(15px, 4vw, 17px);
+  line-height: 1.75;
+}
+
+.about-portrait {
+  order: -1;
+  margin: 0;
+  width: clamp(150px, 46vw, 210px);
+}
+
+.about-portrait img,
+.about-portrait .portrait-fallback {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  box-shadow: 0 16px 44px rgba(45, 31, 40, 0.14);
+}
+
+@media (min-width: 860px) {
+  /*
+    Balanced two-column. The copy column takes the slack and the portrait is a
+    fixed width beside it, so the pair stays centered as one block with the
+    portrait CLOSE to the text rather than pushed to the far edge.
+
+    The copy was capped at 22ch, which wrapped the heading onto three lines and
+    made the column look squeezed next to the portrait. 34ch gives the h1 two
+    comfortable lines at every size up to the cap.
+  */
+  .about-hero-grid {
+    grid-template-columns: minmax(0, 1fr) clamp(260px, 28vw, 340px);
+    align-items: center;
+    justify-items: stretch;
+    text-align: left;
+    gap: clamp(36px, 4.5vw, 60px);
+    max-width: 980px;
+  }
+
+  .about-hero-copy {
+    max-width: 34ch;
+    justify-self: end;
+  }
+
+  .about-hero h1 {
+    font-size: clamp(36px, 3.8vw, 50px);
+  }
+
+  .about-lede {
+    max-width: 38ch;
+  }
+
+  .about-portrait {
+    order: 0;
+    width: 100%;
+    justify-self: start;
+  }
+
+  .about-portrait img,
+  .about-portrait .portrait-fallback {
+    aspect-ratio: 4 / 5;
+    border-radius: 20px;
+  }
+}
+
+/* ---------------- credentials ---------------- */
+
+/* Three cells, degree first. Stacks on mobile; one row from 640px. */
+.credentials {
+  padding-block: 26px;
+  border-top: 1px solid var(--gold-dim);
+  border-bottom: 1px solid var(--gold-dim);
+  background: rgba(253, 250, 245, 0.6);
+}
+
+.credentials-inner {
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .credentials-inner {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 3vw, 44px);
+  }
+
+  .credential + .credential {
+    border-left: 1px solid var(--gold-dim);
+  }
+}
+
+.credential dt {
+  color: var(--gold-deep);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.credential dd {
+  margin: 6px 0 0;
+  padding-inline: 10px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(17px, 4.6vw, 23px);
+  font-weight: 400;
+  line-height: 1.26;
+}
+
+/* ---------------- story ---------------- */
+
+/* Light ground, single centered reading column. */
+.about-story {
+  background: var(--cream);
+}
+
+.about-story .script {
+  margin: 0 0 6px;
+  color: var(--mauve-light);
+  font-family: var(--font-script);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.about-story p {
+  margin: 0 0 15px;
+  color: var(--ink-body);
+  font-size: clamp(15px, 4vw, 17px);
+  line-height: 1.82;
+}
+
+.about-story h2 {
+  margin: 34px 0 14px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(25px, 6.4vw, 34px);
+  font-weight: 400;
+  line-height: 1.16;
+}
+
+.signoff {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid var(--gold-dim);
+}
+
+.signoff p {
+  margin: 0 0 4px !important;
+  color: var(--ink) !important;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 4vw, 18px) !important;
+  line-height: 1.5 !important;
+}
+
+.signoff .signature {
+  margin: 4px 0 8px !important;
+  color: var(--mauve-deep) !important;
+  font-family: var(--font-script);
+  font-size: clamp(32px, 9vw, 44px) !important;
+  line-height: 1 !important;
+}
+
+.signoff-role {
+  color: var(--ink-faint) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------------- philosophy band ---------------- */
+
+.philosophy-band {
+  position: relative;
+  overflow: hidden;
+  background: var(--cream-deep);
+  text-align: center;
+}
+
+.philosophy-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.philosophy-band .script {
+  margin: 0 0 6px;
+  color: var(--mauve-light);
+  font-family: var(--font-script);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.philosophy-band h2 {
+  max-width: 20ch;
+  margin: 0 auto 34px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(26px, 6.6vw, 40px);
+  font-weight: 400;
+  line-height: 1.14;
+}
+
+/* 2 columns on mobile, one horizontal row of 5 from 900px. */
+.steps-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 900px) {
+  .steps-row {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+  }
+}
+
+.step-cell {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+}
+
+.step-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 4px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  background: var(--cream-card);
+  color: var(--gold-deep);
+}
+
+.step-n {
+  color: var(--ink-faint);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.step-name {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(17px, 4.6vw, 21px);
+  font-weight: 500;
+}
+
+.step-cell p:last-child {
+  margin: 0;
+  max-width: 22ch;
+  color: var(--ink-dim);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------------- resources + closing ---------------- */
+
+.about-resources {
+  background: var(--cream);
+  text-align: center;
+}
+
+.about-resources .section-head {
+  margin-bottom: 22px;
+}
+
+.about-resources h2 {
+  margin: 10px 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(26px, 6.6vw, 38px);
+  font-weight: 400;
+  line-height: 1.14;
+}
+
+.about-resources .section-sub {
+  margin: 0 0 15px;
+  color: var(--ink-body);
+  font-size: clamp(15px, 4vw, 17px);
+  line-height: 1.8;
+}
+
+.about-closing {
+  background: var(--mauve-band);
+  text-align: center;
+}
+
+.about-closing-inner h2 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(25px, 6.4vw, 36px);
+  font-weight: 400;
+  line-height: 1.16;
+}
+
+.about-closing-inner p {
+  margin: 0 0 24px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: clamp(14px, 3.8vw, 16px);
+  line-height: 1.7;
+}
+
+/* ---------------- portrait fallback ---------------- */
+
+/*
+  Shown only when /public/bryana.jpg is missing. Honeycomb mark on a soft
+  brand gradient — deliberate, not a broken image.
+*/
+.portrait-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 252, 244, 0.9), transparent 52%),
+    linear-gradient(152deg, rgba(169, 140, 176, 0.3), rgba(201, 169, 97, 0.34));
+}
+
+.portrait-fallback--round {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.portrait-fallback-mark {
+  color: var(--gold-deep);
+  opacity: 0.72;
+}
+
+
+/* ======================================================================
+   MOCK EXAMS
+   One centered 640px column. One product block per exam, hairline only —
+   no card, and nothing boxed inside it.
+   ====================================================================== */
+
+.exams-page {
+  background: var(--cream);
+  padding-bottom: 56px;
+}
+
+@media (min-width: 768px) {
+  .exams-page {
+    padding-bottom: 96px;
+  }
+}
+
+.exams-head {
+  text-align: center;
+  padding-bottom: 0;
+}
+
+.exams-head .script {
+  margin: 0 0 4px;
+  color: var(--mauve-light);
+  font-family: var(--font-script);
+  font-size: clamp(22px, 5.6vw, 28px);
+  line-height: 1;
+}
+
+.exams-head h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(34px, 9vw, 54px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+.exams-lede {
+  margin: 18px 0 0;
+  color: var(--ink-body);
+  font-size: clamp(15px, 4vw, 17px);
+  line-height: 1.78;
+}
+
+.exams-what,
+.exams-list {
+  margin-top: clamp(40px, 7vw, 64px);
+}
+
+.exams-what h2,
+.exams-list h2 {
+  margin: 0 0 18px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(23px, 6vw, 30px);
+  font-weight: 400;
+}
+
+.exams-points {
+  display: grid;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exams-points li {
+  padding-left: 16px;
+  border-left: 2px solid var(--gold-dim);
+  color: var(--ink-body);
+  font-size: clamp(14.5px, 3.9vw, 16px);
+  line-height: 1.72;
+}
+
+/* The product block: a hairline rule above, nothing boxed. */
+.exam-block {
+  padding-top: 26px;
+  border-top: 1px solid var(--gold-dim);
+}
+
+.exam-block + .exam-block {
+  margin-top: 34px;
+}
+
+.exam-block h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(21px, 5.6vw, 27px);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.exam-blurb {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: clamp(14.5px, 3.9vw, 16px);
+  line-height: 1.72;
+}
+
+.exam-facts {
+  display: grid;
+  gap: 16px;
+  margin: 22px 0 0;
+}
+
+@media (min-width: 560px) {
+  .exam-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 28px;
+  }
+
+  /* "Who it is for" runs long; give it the full width. */
+  .exam-facts > div:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+.exam-facts dt {
+  color: var(--ink-faint);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.exam-facts dd {
+  margin: 5px 0 0;
+  color: var(--ink-body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.exam-note {
+  margin: 22px 0 0;
+  color: var(--mauve-deep);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.exam-block .prelaunch-note,
+.exam-block .buy-row {
+  margin-top: 22px;
+}
+
+.exams-footer {
+  margin-top: clamp(40px, 7vw, 64px);
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-dim);
+  font-size: 14.5px;
+}
+
+.exams-footer p {
+  margin: 0;
+}
+
+
+/* One muted line, for columns where a bordered notice would read as a card
+   inside a card. */
+.prelaunch-line {
+  margin: 22px 0 0;
+  max-width: 54ch;
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.7;
 }

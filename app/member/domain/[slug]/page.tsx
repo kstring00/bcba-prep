@@ -7,6 +7,7 @@ import { getLibraryContent, contentForSku } from "@/lib/entitlements/library";
 import { domainSku } from "@/lib/catalog";
 import { getDomain } from "@/lib/domains";
 import { ContentPanel } from "../../ContentPanel";
+import { RememberDomain } from "../../RememberDomain";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +57,9 @@ export default async function MemberDomainPage({
   const content = await getLibraryContent();
 
   return (
-    <ContentPanel
+    <>
+      <RememberDomain slug={slug} />
+      <ContentPanel
       eyebrow={`Domain ${domain.letter}`}
       title={domain.title}
       meta={`${domain.questions} of 175 scored items · ${domain.percent}%`}
@@ -64,11 +67,12 @@ export default async function MemberDomainPage({
       foil={domain.foil}
       spineLabel={domain.letter}
       items={contentForSku(content, sku)}
-      footer={
-        <Link href="/member" className="back-link">
-          &larr; Back to My Library
-        </Link>
-      }
-    />
+        footer={
+          <Link href="/member" className="back-link">
+            &larr; Back to My Library
+          </Link>
+        }
+      />
+    </>
   );
 }

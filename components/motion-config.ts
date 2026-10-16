@@ -18,7 +18,7 @@ export const BOOK_TRANSITION = {
  * makes each book's top face visible. See the derivation in globals.css.
  */
 export const BOOK_TILT = -100;
-/** How far a book eases open as it passes the vertical centre of the screen. */
+/** How far a book eases open as it passes the vertical center of the screen. */
 export const SCROLL_TILT_DELTA = -7;
 /** ...and how far it lifts toward the viewer while it does. */
 export const SCROLL_Z_LIFT = 16;

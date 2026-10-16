@@ -21,7 +21,7 @@ export function CartButton() {
   const reduceMotion = useReducedMotion();
   // Displacement when something lands in it. Springs from 0 back to 0,
   // seeded with the flier's arrival velocity, so the size of the knock is
-  // set by how fast the thing was travelling.
+  // set by how fast the thing was traveling.
   const knock = useMotionValue(0);
   const [ripple, setRipple] = useState(0);
   const rippleCount = useRef(0);

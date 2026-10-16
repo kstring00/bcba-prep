@@ -100,6 +100,19 @@ export function LibrarySections({ ownedSkus, content, highlightSkus }: Props) {
         </div>
       ) : null}
 
+      {/* The study break belongs in the daily routine, so it sits inside the
+          library rather than only in the nav. */}
+      <aside className={styles.breakPromo}>
+        <div>
+          <p className={styles.breakPromoEyebrow}>Take a breath</p>
+          <strong>Study Break</strong>
+          <p>Focus timer, breathing, desk stretches, and a place for your wins.</p>
+        </div>
+        <Link href="/study-break" className={styles.breakPromoLink}>
+          Open Study Break <span aria-hidden="true">→</span>
+        </Link>
+      </aside>
+
       {nothingOwned ? (
         <section className={styles.libraryPanel}>
           <h2>Nothing in your library yet</h2>

@@ -2,7 +2,7 @@
  * PRE-LAUNCH SALES GATE.
  *
  * BCBA Prep is not selling yet. The study materials are not finished, and
- * there is no fulfilment path — a completed payment today would leave a real
+ * there is no fulfillment path — a completed payment today would leave a real
  * customer with a receipt and nothing to download.
  *
  * This module is the single switch that keeps that from happening. It is
@@ -28,6 +28,11 @@ export const PRE_LAUNCH_HEADLINE = "Not yet available for purchase";
 
 export const PRE_LAUNCH_BLURB =
   "Bee is finishing her own BCBA certification before releasing these study materials. Domain licenses are not on sale yet — nothing here can be purchased today.";
+
+/** One-sentence form, for columns where the full blurb would be the second
+ *  thing on the page to say the same thing. */
+export const PRE_LAUNCH_LINE =
+  "Bee is finishing her own BCBA certification, so nothing is on sale yet.";
 
 /** Returned by the checkout API while the gate is closed. */
 export const PRE_LAUNCH_API_MESSAGE =

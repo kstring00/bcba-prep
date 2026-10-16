@@ -30,7 +30,7 @@ export function CartPanel() {
   const gated = !SALES_ENABLED;
 
   /*
-   * Modal keyboard behaviour. A slide-over that traps a keyboard user with no
+   * Modal keyboard behavior. A slide-over that traps a keyboard user with no
    * way out is worse than no slide-over: Escape must close it, and focus must
    * start inside it rather than staying behind on the page.
    */
