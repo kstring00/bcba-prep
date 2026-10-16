@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { clampPrefs, PREF_LIMITS, type TimerPrefs } from "@/lib/study-break/config";
+import { Gear } from "./TimerIcons";
 import styles from "./study-break.module.css";
 
 /**
@@ -74,13 +75,17 @@ export function TimerSettings({ prefs, onChange }: Props) {
 
   return (
     <div className={styles.settingsWrap} ref={panelRef}>
+      {/* A gear, not a labelled button: at 375px the word cost a line of
+          vertical space the one-screen layout cannot spare. */}
       <button
         type="button"
         className={styles.settingsToggle}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
+        aria-label="Timer settings"
+        title="Timer settings"
       >
-        Settings
+        <Gear />
       </button>
 
       {open ? (

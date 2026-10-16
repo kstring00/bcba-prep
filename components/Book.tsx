@@ -67,7 +67,7 @@ export function Book({ domain, variant, index = 0 }: Props) {
     target: rowRef,
     offset: ["start end", "end start"],
   });
-  // Peaks at 1 when the book is at the vertical centre of the screen.
+  // Peaks at 1 when the book is at the vertical center of the screen.
   const centrality = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
 
   const taperZ = index * TAPER_Z;

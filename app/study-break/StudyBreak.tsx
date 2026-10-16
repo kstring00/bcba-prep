@@ -33,17 +33,20 @@ import { WinsJournal } from "./WinsJournal";
 import styles from "./study-break.module.css";
 
 /**
- * The page's state machine and its light.
+ * ONE CALM SCREEN.
  *
- * THE SIGNATURE IDEA: the light changes with progress. During focus the page
- * sits in soft morning cream; during a break a warm golden-hour glow floods
- * in. That is one CSS custom property (`--golden`, 0 → 1) on the section,
- * driving a single overlay's opacity and a background interpolation. One
- * property, no repaint storm, and it reads as the sun moving rather than a
- * theme switching.
+ * During focus the viewport holds exactly one thing: the ring, the time, and
+ * one primary control. Everything else — the break modules, the domain CTA,
+ * the divider — appears only when it is relevant, which for the modules means
+ * during a break and for the CTA means after one ends.
  *
- * Chimes are off by default and the change is carried visually, through light,
- * not sound.
+ * Sized to fit 375x700 with no scrolling. The ring is driven by --ring-size,
+ * which is clamped against BOTH viewport width and height, so a short phone
+ * shrinks the circle instead of pushing the controls off-screen.
+ *
+ * THE SIGNATURE IDEA: the light changes with progress. One CSS custom
+ * property, --golden (0 to 1), drives a single overlay's opacity and a
+ * background interpolation. It reads as the sun moving, not a theme switching.
  */
 type Props = { signedIn: boolean; ownedSkus: Sku[] };
 
@@ -61,6 +64,9 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
   const [manual, setManual] = useState<ManualModule>(null);
   const [pouring, setPouring] = useState<number | null>(null);
   const [combGlow, setCombGlow] = useState(false);
+  /* True once a break has finished, so the domain CTA appears then and not
+     before. Cleared when focus starts again. */
+  const [breakFinished, setBreakFinished] = useState(false);
   const prevPhase = useRef(state.phase);
 
   const onBreak = state.phase !== "focus";
@@ -102,7 +108,6 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
     return () => window.clearInterval(id);
   }, [state]);
 
-  // Recompute the moment the tab comes back, so the jump is immediate.
   useEffect(() => {
     function onVisible() {
       if (!document.hidden) setNow(Date.now());
@@ -121,16 +126,15 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
     let next = advance(state, prefs);
 
     /*
-     * A break starts itself. "The page glides into Break mode" — it does not
-     * wait to be asked, and the guided sequence begins at the same moment.
+     * A break starts itself — the page glides into Break mode rather than
+     * waiting to be asked, and the guided sequence begins at the same moment.
      *
      * This is also what makes the golden-hour light work: --golden is derived
-     * from how far through the break we are, and a paused phase never
-     * advances `now`, so the light would sit frozen at 0 for the whole break.
-     * Caught in testing exactly that way.
+     * from how far through the break we are, and a paused phase never advances
+     * `now`, so the light would sit frozen at 0. Caught in testing that way.
      *
      * The next FOCUS block is deliberately left paused. Resuming work should
-     * be a decision, not something that happens to you while you stretch.
+     * be a decision, not something that happens while you stretch.
      */
     if (next.phase !== "focus") {
       next = start(next, Date.now());
@@ -140,21 +144,19 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
     setState(next);
 
     if (finishedPhase === "focus") {
-      // The honey pour: fill the cell for the round that just completed.
       const cellIndex = next.round - 1;
       setPouring(cellIndex);
       window.setTimeout(() => setPouring(null), 1300);
-
-      if (next.phase === "longBreak") {
-        setCombGlow(true);
-      }
-      // Guided break is the default when focus ends — one tap, not a menu.
+      if (next.phase === "longBreak") setCombGlow(true);
       setGuided(true);
       setManual(null);
+      setBreakFinished(false);
     } else {
       setCombGlow(false);
       setGuided(false);
       setManual(null);
+      // A break just ended: now the domain CTA is the useful next thing.
+      setBreakFinished(true);
     }
 
     setAnnouncement(phaseAnnouncement(next.phase));
@@ -169,14 +171,19 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
     prevPhase.current = state.phase;
   }, [state.phase]);
 
+  // Starting focus again clears the post-break CTA.
+  useEffect(() => {
+    if (state.phase === "focus" && isRunning(state)) setBreakFinished(false);
+  }, [state]);
+
   // ---- golden hour -------------------------------------------------------
-  /*
-   * Interpolates toward full golden hour across the break, and sits at 0
-   * during focus. A single number, consumed by CSS.
-   */
   const golden = useMemo(() => {
     if (!onBreak) return 0;
-    const total = Math.max(1, prefs[state.phase === "break" ? "breakMinutes" : "longBreakMinutes"] * 60_000);
+    const total = Math.max(
+      1,
+      prefs[state.phase === "break" ? "breakMinutes" : "longBreakMinutes"] *
+        60_000,
+    );
     const elapsed = total - remaining;
     return Math.min(1, Math.max(0, elapsed / total));
   }, [onBreak, prefs, state.phase, remaining]);
@@ -186,16 +193,15 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
       className={`${styles.page}${onBreak ? ` ${styles.pageBreak}` : ""}`}
       style={{ "--golden": golden.toFixed(3) } as React.CSSProperties}
     >
-      {/* The warm overlay. One element, opacity only. */}
       <div className={styles.goldenWash} aria-hidden="true" />
       <AmbientFlecks />
 
-      {/* Phase changes are announced; the ticking clock is not. */}
       <p className={styles.srOnly} role="status" aria-live="polite">
         {announcement}
       </p>
 
-      <div className={styles.shell}>
+      {/* ---- THE ONE SCREEN: ring, time, one control, comb ---- */}
+      <div className={styles.stage}>
         <header className={styles.head}>
           <p className={styles.script}>Take a breath</p>
           <h1>Study Break</h1>
@@ -218,15 +224,20 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
               window.setTimeout(() => setPouring(null), 1300);
               setCombGlow(next.phase === "longBreak");
               setGuided(true);
+              setBreakFinished(false);
+              setState(start(next, Date.now()));
             } else {
               setCombGlow(false);
               setGuided(false);
+              setBreakFinished(true);
+              setState(next);
             }
-            setState(next);
+            setNow(Date.now());
             setAnnouncement(phaseAnnouncement(next.phase));
           }}
         />
 
+        {/* Small, just under the ring. */}
         <div className={styles.combRow}>
           <Honeycomb
             total={prefs.roundsBeforeLongBreak}
@@ -236,89 +247,89 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
           />
           <TimerSettings prefs={prefs} onChange={updatePrefs} />
         </div>
-
-        {combGlow ? (
-          <p className={styles.combMessage}>Sweet work today 🐝</p>
-        ) : null}
-
-        {/* ---- break ---- */}
-        {onBreak ? (
-          <div className={styles.breakZone}>
-            {guided ? (
-              <GuidedBreak
-                signedIn={signedIn}
-                dev={dev}
-                onFinish={() => setGuided(false)}
-              />
-            ) : (
-              <>
-                <div className={styles.breakOffer}>
-                  <p className={styles.script}>Your break</p>
-                  <button
-                    type="button"
-                    className={styles.primaryControl}
-                    onClick={() => setGuided(true)}
-                  >
-                    Start my break
-                  </button>
-                  <p className={styles.breakHint}>
-                    Five guided minutes: breathe, stretch, write one win, then
-                    quiet.
-                  </p>
-                </div>
-
-                <BreakCta signedIn={signedIn} ownedSkus={ownedSkus} />
-              </>
-            )}
-          </div>
-        ) : null}
-
-        {/* ---- the four modules, always available individually ---- */}
-        <div className={styles.modules}>
-          <p className={styles.modulesLabel}>Or pick one</p>
-          <div className={styles.moduleRow}>
-            {(
-              [
-                ["breathe", "Breathe"],
-                ["stretch", "Stretch"],
-                ["listen", "Listen"],
-                ["write", "Write a win"],
-              ] as Array<[Exclude<ManualModule, null>, string]>
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                className={`${styles.moduleChip}${manual === id ? ` ${styles.moduleChipOn}` : ""}`}
-                aria-expanded={manual === id}
-                onClick={() => setManual((m) => (m === id ? null : id))}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {manual ? (
-            <div className={styles.modulePanel}>
-              {manual === "breathe" ? <BreathingOrb duration={60} /> : null}
-              {manual === "stretch" ? <DeskStretches /> : null}
-              {manual === "listen" ? <LofiPlayer /> : null}
-              {manual === "write" ? <WinsJournal signedIn={signedIn} /> : null}
-            </div>
-          ) : null}
-        </div>
-
-        {!onBreak ? (
-          <div className={styles.footCta}>
-            <BreakCta signedIn={signedIn} ownedSkus={ownedSkus} />
-          </div>
-        ) : null}
-
-        {dev ? (
-          <p className={styles.devBadge}>
-            dev mode — 10s focus / 5s break
-          </p>
-        ) : null}
       </div>
+
+      {/* ---- everything below is break-only ---- */}
+      {onBreak || breakFinished ? (
+        <div className={styles.belowFold}>
+          <div className="col-text">
+            {combGlow ? (
+              <p className={styles.combMessage}>Sweet work today 🐝</p>
+            ) : null}
+
+            {onBreak ? (
+              guided ? (
+                <GuidedBreak
+                  signedIn={signedIn}
+                  dev={dev}
+                  onFinish={() => setGuided(false)}
+                />
+              ) : (
+                <>
+                  <div className={styles.breakOffer}>
+                    <p className={styles.script}>Your break</p>
+                    <button
+                      type="button"
+                      className={styles.primaryControl}
+                      onClick={() => setGuided(true)}
+                    >
+                      Start my break
+                    </button>
+                    <p className={styles.breakHint}>
+                      Five guided minutes: breathe, stretch, write one win,
+                      then quiet.
+                    </p>
+                  </div>
+
+                  <div className={styles.modules}>
+                    <p className={styles.modulesLabel}>Or pick one</p>
+                    <div className={styles.moduleRow}>
+                      {(
+                        [
+                          ["breathe", "Breathe"],
+                          ["stretch", "Stretch"],
+                          ["listen", "Listen"],
+                          ["write", "Write a win"],
+                        ] as Array<[Exclude<ManualModule, null>, string]>
+                      ).map(([id, label]) => (
+                        <button
+                          key={id}
+                          type="button"
+                          className={`${styles.moduleChip}${manual === id ? ` ${styles.moduleChipOn}` : ""}`}
+                          aria-expanded={manual === id}
+                          onClick={() =>
+                            setManual((m) => (m === id ? null : id))
+                          }
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {manual ? (
+                      <div className={styles.modulePanel}>
+                        {manual === "breathe" ? <BreathingOrb duration={60} /> : null}
+                        {manual === "stretch" ? <DeskStretches /> : null}
+                        {manual === "listen" ? <LofiPlayer /> : null}
+                        {manual === "write" ? <WinsJournal signedIn={signedIn} /> : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </>
+              )
+            ) : null}
+
+            {/* The domain CTA appears only after a break ends. */}
+            {breakFinished && !onBreak ? (
+              <div className={styles.footCta}>
+                <BreakCta signedIn={signedIn} ownedSkus={ownedSkus} />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {dev ? <p className={styles.devBadge}>dev mode — 10s / 5s</p> : null}
     </section>
   );
 }
@@ -339,7 +350,6 @@ function playChime() {
     const gain = ctx.createGain();
     osc.type = "sine";
     osc.frequency.value = 528;
-    // Gentle attack and a long tail, so it reads as a chime, not a beep.
     gain.gain.setValueAtTime(0, ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0.09, ctx.currentTime + 0.08);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.6);

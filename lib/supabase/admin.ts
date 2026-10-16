@@ -27,7 +27,7 @@ export function serviceRoleKey(): string {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) {
     throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY is not set. Fulfilment and protected " +
+      "SUPABASE_SERVICE_ROLE_KEY is not set. Fulfillment and protected " +
         "content delivery cannot work without it.",
     );
   }

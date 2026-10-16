@@ -73,17 +73,17 @@ export function WinsJournal({ signedIn, compact = false }: Props) {
 
   useEffect(() => {
     if (!signedIn) return;
-    let cancelled = false;
+    let canceled = false;
     fetch("/api/wins")
       .then((r) => r.json())
       .then((data: { wins?: Win[] }) => {
-        if (!cancelled) setWins(data.wins ?? []);
+        if (!canceled) setWins(data.wins ?? []);
       })
       .catch(() => {
         /* An unreachable journal should not break the break page. */
       });
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [signedIn]);
 

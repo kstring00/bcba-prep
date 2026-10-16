@@ -42,7 +42,7 @@ function FrozenRouter({ children }: { children: ReactNode }) {
  * `popLayout` keeps both trees alive for one transition and pulls the
  * outgoing one out of flow (absolutely positioned at its measured size), so
  * the eight unselected spines fade and drop away *while* the ninth travels
- * and rotates. That is the described behaviour; `wait` cannot produce it.
+ * and rotates. That is the described behavior; `wait` cannot produce it.
  *
  * The alternative was the native View Transitions API, which does shared
  * elements across a document swap without any of this. It was not taken

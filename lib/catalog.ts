@@ -1,7 +1,7 @@
 import { domains } from "./domains";
 
 /**
- * THE CATALOGUE — one place that answers "what can be owned, and what is it?"
+ * THE CATALOG — one place that answers "what can be owned, and what is it?"
  *
  * Everything sellable resolves to one or more **SKUs**. A SKU is the unit of
  * ownership: an entitlement row grants exactly one SKU, and a piece of content

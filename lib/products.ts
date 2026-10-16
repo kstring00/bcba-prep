@@ -2,11 +2,11 @@ import { domains } from "./domains";
 import { domainSku, isPurchasable, mockExams, type Sku } from "./catalog";
 
 /**
- * Sellable license catalogue.
+ * Sellable license catalog.
  *
  * THIS FILE IS THE SERVER-SIDE SOURCE OF TRUTH FOR PRICING.
  * The browser may send product ids only. Checkout always derives the amount,
- * license scope, and entitlement slugs from this catalogue on the server.
+ * license scope, and entitlement slugs from this catalog on the server.
  */
 export type Product = {
   id: string;
@@ -64,7 +64,7 @@ const bundle: Product = {
 };
 
 /**
- * Mock exams as sellable products. Each is excluded from the catalogue until
+ * Mock exams as sellable products. Each is excluded from the catalog until
  * its price is set, so an unpriced exam cannot be added to a cart or reach
  * checkout — see isPurchasable().
  */

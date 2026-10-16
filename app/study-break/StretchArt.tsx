@@ -1,7 +1,7 @@
 /**
  * Line-art illustrations for the desk stretches.
  *
- * Inline SVG, brand stroke colour, no raster assets and no stock photography —
+ * Inline SVG, brand stroke color, no raster assets and no stock photography —
  * consistent with the rest of the site, which uses no image files at all.
  *
  * Each figure is drawn seated, because every one of these is a stretch you do

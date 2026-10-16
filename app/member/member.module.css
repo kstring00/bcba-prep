@@ -750,7 +750,7 @@
   background: rgba(253, 250, 245, 0.8);
 }
 
-/* The item just purchased. A ring rather than a colour change, so it reads as
+/* The item just purchased. A ring rather than a color change, so it reads as
    "here it is" without implying a different kind of item. */
 .ownedCardNew {
   border-color: rgba(100, 118, 72, 0.5);

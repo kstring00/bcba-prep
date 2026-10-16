@@ -5,7 +5,7 @@ export const metadata = { title: "Privacy" };
 /**
  * Written to describe what this site actually does today, not a generic
  * template. If a data flow changes — a new form, a new third party, automated
- * fulfilment — this page has to change with it.
+ * fulfillment — this page has to change with it.
  */
 export default function PrivacyPage() {
   return (

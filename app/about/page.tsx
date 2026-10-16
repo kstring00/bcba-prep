@@ -6,13 +6,11 @@ import {
   BookIcon,
   Brain,
   Chart,
-  Envelope,
   Pencil,
   Trophy,
 } from "@/components/Icons";
 import { AboutCta } from "./AboutCta";
 import { FounderPortrait } from "./FounderPortrait";
-import compact from "./about-compact.module.css";
 
 export const metadata: Metadata = {
   title: "About Bryana | BCBA Prep by Bee the Behavior Bae",
@@ -67,16 +65,16 @@ export default function AboutPage() {
   return (
     <>
       {/* ---------- compact hero ---------- */}
-      <section className={`about-hero bleed ${compact.hero}`}>
+      <section className="about-hero">
         <Florals variant="hero-left" className="floral floral--hero-left" />
         <Florals variant="hero-right" className="floral floral--hero-right" />
 
-        <div className={`bleed-inner about-hero-grid ${compact.heroGrid}`}>
-          <div className={compact.heroCopy}>
+        <div className="about-hero-grid col-section">
+          <div className="about-hero-copy">
             <p className="script">Hi, I&rsquo;m Bryana</p>
             <h1 className="display">Meet the Bae Behind the Bees 🐝💗</h1>
             <Ornament />
-            <p className={`about-lede ${compact.lede}`}>
+            <p className="about-lede">
               Welcome to Bee the Behavior Bae, where we&rsquo;re making BCBA
               exam preparation feel{" "}
               <span className="accent">
@@ -85,19 +83,27 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className={`portrait ${compact.portrait}`}>
-            <div className="portrait-inner">
-              <FounderPortrait />
-            </div>
-          </div>
+          <figure className="about-portrait">
+            <FounderPortrait />
+          </figure>
         </div>
       </section>
 
       {/* ---------- credentials ---------- */}
       {/* Replaces the old four-figure stats band. Two cells, both verifiable,
           both supplied by Bryana — no invented numbers. */}
-      <section className="credentials" aria-label="Background">
-        <dl className="credentials-inner">
+      <section className="credentials" aria-label="Credentials">
+        <dl className="credentials-inner col-section">
+          {/*
+            TODO — CONFIRM WITH BRYANA.
+            Exact degree name and the awarding school. Shown as written here
+            until she confirms; if the degree title differs, correct this one
+            line rather than inventing an abbreviation.
+          */}
+          <div className="credential">
+            <dt>Education</dt>
+            <dd>M.S. in Applied Behavior Analysis</dd>
+          </div>
           <div className="credential">
             <dt>Experience</dt>
             <dd>6 years in ABA</dd>
@@ -110,10 +116,12 @@ export default function AboutPage() {
       </section>
 
       {/* ---------- story + philosophy ---------- */}
-      <section className={`split ${compact.split}`}>
-        <div className={`story ${compact.story} ${compact.storySingle}`}>
-          <div>
-            <p className="script script--gold">My Story</p>
+      {/* Single centered reading column on light ground. The old split put
+          this beside the philosophy band, which left one tall dark panel
+          against a short light one. */}
+      <section className="about-story band">
+        <div className="col-text">
+          <p className="script">My Story</p>
 
             <p>
               Hey, Behavior Bae! Welcome to Bee the Behavior Bae, where
@@ -170,97 +178,73 @@ export default function AboutPage() {
             <p>Let&rsquo;s study, grow, and get that PASS, Behavior Bae! 🐝💗</p>
 
             {/* Three separate lines, as written. */}
-            <div className="signoff">
-              <p>With love and a little bit of gold,</p>
-              <p className="signature">Bryana</p>
-              <p className="signoff-role">Founder, Bee the Behavior Bae</p>
-            </div>
+          <div className="signoff">
+            <p>With love and a little bit of gold,</p>
+            <p className="signature">Bryana</p>
+            <p className="signoff-role">Founder, Bee the Behavior Bae</p>
           </div>
         </div>
+      </section>
 
-        <div className={`philosophy bleed ${compact.philosophy} ${compact.philosophyCentered}`}>
-          <Florals variant="band-right" className="floral floral--band-right" />
-          <div style={{ position: "relative", zIndex: 2 }}>
-            <p className="script">My Teaching Philosophy</p>
-            <h2 className="display">
-              You Don&rsquo;t Need More Hours. You Need a Better System.
-            </h2>
+      {/* ---------- philosophy: its own full-width band ---------- */}
+      <section className="philosophy-band band">
+        <Florals variant="band-right" className="floral floral--band-right" />
+        <div className="col-section philosophy-inner">
+          <p className="script">My Teaching Philosophy</p>
+          <h2 className="display">
+            You Don&rsquo;t Need More Hours. You Need a Better System.
+          </h2>
 
-            <ol className={`steps ${compact.steps}`}>
-              {STEPS.map((s, i) => (
-                <li className="step" key={s.name}>
-                  <span className="step-icon">{s.icon}</span>
-                  <div className="step-n">{i + 1}</div>
-                  <p className="step-name">{s.name}</p>
-                  <p>{s.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
+          <ol className="steps-row">
+            {STEPS.map((step, i) => (
+              <li className="step-cell" key={step.name}>
+                <span className="step-icon">{step.icon}</span>
+                <span className="step-n">{i + 1}</span>
+                <p className="step-name">{step.name}</p>
+                <p>{step.body}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
       {/* ---------- premium resources ---------- */}
-      <section className={`resources bleed ${compact.resources}`}>
-        <Florals
-          variant="corner-right"
-          className="floral floral--corner-right"
-        />
-        <div className={`bleed-inner ${compact.resourcesInner}`}>
-          <div className={compact.resourcesHeading}>
-            <div className="section-head">
-              <Ornament />
-              <h2 className="display">
-                Premium Resources. <span className="accent">Built the Hard Way.</span>
-              </h2>
-              <Ornament />
-            </div>
+      <section className="about-resources band">
+        <div className="col-text">
+          <div className="section-head">
+            <Ornament />
+            <h2 className="display">
+              Premium Resources. <span className="accent">Built the Hard Way.</span>
+            </h2>
+            <Ornament />
           </div>
 
-          <div className={compact.resourcesCopy}>
-            <p className="section-sub">
-              These materials were not assembled overnight. They are the fruit
-              of long hours spent studying, organizing, writing, revising, and
-              designing until the information felt clear, useful, and worth
-              studying from.
-            </p>
-            <p className="section-sub">
-              There are no separate mock-exam, study-guide, or coaching
-              products to chase around the site. Choose the domain you need,
-              and your purchase gives you access to the materials Bee created
-              for that domain&mdash;kept together as one focused body of work.
-            </p>
-          </div>
+          {/*
+            The second paragraph used to say there were "no separate mock-exam,
+            study-guide, or coaching products". Mock Exams is now its own
+            product line, so that sentence contradicted the storefront and has
+            been removed rather than reworded around.
+          */}
+          <p className="section-sub">
+            These materials were not assembled overnight. They are the fruit of
+            long hours spent studying, organizing, writing, revising, and
+            designing until the information felt clear, useful, and worth
+            studying from.
+          </p>
+          <p className="section-sub">
+            Choose the domain you need, and your purchase gives you access to
+            the materials Bee created for that domain&mdash;kept together as
+            one focused body of work.
+          </p>
         </div>
       </section>
 
       {/* ---------- CTA ---------- */}
-      <section className={`closing bleed ${compact.closing}`}>
-        <Florals
-          variant="corner-right"
-          className="floral floral--corner-right"
-        />
-        <div className="closing-inner">
-          <div
-            className="cta"
-            style={{
-              gridColumn: "1 / -1",
-              width: "min(720px, 100%)",
-              justifySelf: "center",
-            }}
-          >
-            <span className="cta-icon" aria-hidden="true">
-              <Envelope />
-            </span>
-            <div>
-              <h2 className="display">Ready to Choose Your Next Domain?</h2>
-              <p>
-                Start with the part of the exam you&rsquo;re ready to work on
-                next.
-              </p>
-              <AboutCta />
-            </div>
-          </div>
+      <section className="about-closing band">
+        <div className="col-text about-closing-inner">
+          <h2 className="display">Ready to Choose Your Next Domain?</h2>
+          <p>Start with the part of the exam you&rsquo;re ready to work on next.</p>
+          <AboutCta />
         </div>
       </section>
     </>

@@ -62,7 +62,7 @@ export default function LibraryPage() {
                   // the book below it, the way a real pile occludes itself.
                   style={{ zIndex: domains.length - index }}
                   // Motion has already taken over the opened book — the copy
-                  // travelling to the detail page belongs to the incoming
+                  // traveling to the detail page belongs to the incoming
                   // route — so this original fades fast, taking its contact
                   // shadow with it. The other eight fall away, nearest first.
                   exit={

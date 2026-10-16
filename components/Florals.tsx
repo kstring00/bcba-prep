@@ -16,9 +16,9 @@ import { useId } from "react";
  */
 
 type Palette = {
-  /** Wash colour at the base of the petal. */
+  /** Wash color at the base of the petal. */
   from: string;
-  /** Wash colour at the tip. */
+  /** Wash color at the tip. */
   to: string;
 };
 

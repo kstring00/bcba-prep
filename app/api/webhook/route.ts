@@ -8,12 +8,12 @@ import { getStripe } from "@/lib/stripe";
 export const runtime = "nodejs";
 
 /**
- * FULFILMENT.
+ * FULFILLMENT.
  *
  * Stripe is the only thing that may tell this route a payment happened, and
  * the signature check below is what proves it. Everything granted comes from
  * the session metadata that app/api/checkout/route.ts wrote server-side from
- * the trusted catalogue — never from anything a browser sent.
+ * the trusted catalog — never from anything a browser sent.
  *
  * Writes use the service-role key because there is no user session here:
  * Stripe is the caller, not the buyer's browser. That is also why RLS has no
@@ -278,7 +278,7 @@ export async function POST(request: Request) {
      * a duplicate and skipped — losing the grant. Release the claim first so
      * the retry genuinely re-runs.
      */
-    console.error("[webhook] fulfilment failed", error);
+    console.error("[webhook] fulfillment failed", error);
     try {
       await fetch(
         restUrl(`/rest/v1/webhook_events?event_id=eq.${encodeURIComponent(event.id)}`),
@@ -287,6 +287,6 @@ export async function POST(request: Request) {
     } catch (cleanupError) {
       console.error("[webhook] could not release event claim", cleanupError);
     }
-    return NextResponse.json({ error: "Fulfilment failed" }, { status: 500 });
+    return NextResponse.json({ error: "Fulfillment failed" }, { status: 500 });
   }
 }

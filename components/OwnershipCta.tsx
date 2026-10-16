@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { AddToCart } from "./AddToCart";
 import { useOwnership } from "@/lib/entitlements/context";
-import { PRE_LAUNCH_BLURB, PRE_LAUNCH_HEADLINE, SALES_ENABLED } from "@/lib/launch";
+import {
+  PRE_LAUNCH_BLURB,
+  PRE_LAUNCH_HEADLINE,
+  PRE_LAUNCH_LINE,
+  SALES_ENABLED,
+} from "@/lib/launch";
 import { formatPrice, type Product } from "@/lib/products";
 import { describeSku, type Sku } from "@/lib/catalog";
 
@@ -30,11 +35,17 @@ type Props = {
   sku: Sku;
   /** The sellable product, when one exists. Absent → unpriced/coming soon. */
   product?: Product;
-  /** Cloth colour for the add-to-cart flight animation. */
+  /** Cloth color for the add-to-cart flight animation. */
   tone: string;
   unlockLabel?: string;
   /** Show the price next to the control. */
   showPrice?: boolean;
+  /**
+   * Render the unavailable states as one muted line instead of a bordered
+   * box. Used where the surrounding block is already a plain column and a
+   * box would read as a card inside a card.
+   */
+  quietNotice?: boolean;
 };
 
 export function OwnershipCta({
@@ -43,6 +54,7 @@ export function OwnershipCta({
   tone,
   unlockLabel = "Unlock",
   showPrice = true,
+  quietNotice = false,
 }: Props) {
   const { owns, signedIn } = useOwnership();
   const display = describeSku(sku);
@@ -67,6 +79,9 @@ export function OwnershipCta({
 
   // ---- Store closed ----
   if (!SALES_ENABLED) {
+    if (quietNotice) {
+      return <p className="prelaunch-line">{PRE_LAUNCH_LINE}</p>;
+    }
     return (
       <div className="prelaunch-note">
         <strong>{PRE_LAUNCH_HEADLINE}</strong>
@@ -77,6 +92,8 @@ export function OwnershipCta({
 
   // ---- Exists but has no price yet ----
   if (!product) {
+    // The caller already says why in its own one-line note.
+    if (quietNotice) return null;
     return (
       <div className="prelaunch-note">
         <strong>Coming soon</strong>
