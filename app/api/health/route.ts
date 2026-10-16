@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { SALES_ENABLED } from "@/lib/launch";
 import { missingSupabaseVars, supabaseConfig } from "@/lib/supabase/config";
@@ -15,16 +16,40 @@ export const dynamic = "force-dynamic";
  * this deployment actually configured" in one request, without needing the
  * Vercel log viewer.
  *
- * DISCLOSURE: this reports *names* of absent variables and whether secrets are
- * present — never a value, never a partial value, never a length. Naming an
- * absent variable is the whole point; leaking what is in a present one would
- * defeat it. The two Supabase variables are publishable browser values in any
- * case, and the rest are reported only as true/false.
+ * ACCESS: gated on the HEALTH_CHECK_TOKEN secret, sent as an x-health-token
+ * header. Without a matching header the route answers 404, not 401 — a 401
+ * would confirm the endpoint exists and invite guessing, while a 404 makes it
+ * indistinguishable from any other path that is not there.
  *
- * If you would rather this not be world-readable once the site has customers,
- * the cheapest change is to require a header checked against a new secret and
- * return 404 without it.
+ * It fails CLOSED. If HEALTH_CHECK_TOKEN is not set in an environment, there
+ * is no token that could match, so the route is simply 404 everywhere. An
+ * unset secret must never be the same thing as an open door.
+ *
+ * DISCLOSURE: to a caller holding the token, this reports *names* of absent
+ * variables and whether secrets are present — never a value, never a partial
+ * value, never a length. Naming an absent variable is the whole point;
+ * leaking what is in a present one would defeat it.
  */
+
+/**
+ * Constant-time token comparison.
+ *
+ * Both sides are hashed first so the comparison always runs over 32 bytes:
+ * timingSafeEqual throws on a length mismatch, and catching that would itself
+ * leak the length of the real token through the difference between "threw"
+ * and "compared". Hashing removes length from the problem entirely.
+ */
+function tokenMatches(provided: string | null): boolean {
+  const expected = process.env.HEALTH_CHECK_TOKEN;
+
+  // Fail closed: no configured token means nothing can match.
+  if (!expected || !provided) return false;
+
+  return timingSafeEqual(
+    createHash("sha256").update(provided).digest(),
+    createHash("sha256").update(expected).digest(),
+  );
+}
 
 /** Present/absent only. Never returns or logs the value. */
 function present(name: string): boolean {
@@ -65,7 +90,17 @@ async function probeSupabase(): Promise<{
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!tokenMatches(request.headers.get("x-health-token"))) {
+    // Deliberately indistinguishable from a path that does not exist. No log
+    // line either: a failed probe is not interesting, and logging the
+    // supplied value would write a near-miss of the real token into the logs.
+    return new NextResponse("Not Found", {
+      status: 404,
+      headers: { "Cache-Control": "no-store, private" },
+    });
+  }
+
   const missingSupabase = missingSupabaseVars();
   const supabase = await probeSupabase();
 
