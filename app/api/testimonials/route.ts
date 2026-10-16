@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { isEmailConfigured, sendEmail } from "@/lib/email";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
 import { adminHeaders, hasServiceRole, restUrl } from "@/lib/supabase/admin";
-import { supabaseConfig } from "@/lib/supabase/config";
+import { supabaseConfig, supabaseHeaders } from "@/lib/supabase/config";
 
 type Submission = {
   displayName?: unknown;
@@ -62,10 +62,7 @@ export async function GET() {
     const response = await fetch(
       `${url}/rest/v1/testimonials?select=id,display_name,quote,created_at&status=eq.approved&order=created_at.desc&limit=16`,
       {
-        headers: {
-          apikey: publishableKey,
-          Authorization: `Bearer ${publishableKey}`,
-        },
+        headers: supabaseHeaders(publishableKey),
         cache: "no-store",
       },
     );

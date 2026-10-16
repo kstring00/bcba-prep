@@ -1,4 +1,4 @@
-import { supabaseConfig } from "@/lib/supabase/config";
+import { supabaseConfig, supabaseHeaders } from "@/lib/supabase/config";
 
 /**
  * Thin wrapper over Supabase's GoTrue HTTP API, called only from the server.
@@ -56,11 +56,7 @@ async function authFetch(
 
   const response = await fetch(`${url}${path}`, {
     method: "POST",
-    headers: {
-      apikey: publishableKey,
-      Authorization: `Bearer ${publishableKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: supabaseHeaders(publishableKey),
     body: JSON.stringify(body),
     cache: "no-store",
   });
@@ -114,11 +110,7 @@ export async function updatePassword(accessToken: string, password: string) {
 
   const response = await fetch(`${url}/auth/v1/user`, {
     method: "PUT",
-    headers: {
-      apikey: publishableKey,
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
+    headers: supabaseHeaders(publishableKey, accessToken),
     body: JSON.stringify({ password }),
     cache: "no-store",
   });
