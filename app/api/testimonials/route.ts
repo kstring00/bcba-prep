@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { isEmailConfigured, sendEmail } from "@/lib/email";
-import { supabaseConfig } from "@/lib/supabase/config";
+import { clientKey, rateLimit } from "@/lib/rate-limit";
+import { adminHeaders, hasServiceRole, restUrl } from "@/lib/supabase/admin";
+import { supabaseConfig, supabaseHeaders } from "@/lib/supabase/config";
 
 type Submission = {
   displayName?: unknown;
@@ -27,7 +29,10 @@ async function notifyReviewer(input: {
 
   await sendEmail({
     to: process.env.TESTIMONIAL_REVIEW_EMAIL || undefined,
-    subject: `New BCBA Prep testimonial from ${input.displayName}`,
+    // Stripped of newlines before it reaches a header position. Resend's
+    // JSON API encodes headers so this is not SMTP injection, but a CR or LF
+    // in a subject line is never something anyone wants.
+    subject: `New BCBA Prep testimonial from ${input.displayName.replace(/[\r\n]+/g, " ")}`,
     replyTo: input.email,
     text: [
       "A new testimonial is waiting for review in Supabase.",
@@ -57,10 +62,7 @@ export async function GET() {
     const response = await fetch(
       `${url}/rest/v1/testimonials?select=id,display_name,quote,created_at&status=eq.approved&order=created_at.desc&limit=16`,
       {
-        headers: {
-          apikey: publishableKey,
-          Authorization: `Bearer ${publishableKey}`,
-        },
+        headers: supabaseHeaders(publishableKey),
         cache: "no-store",
       },
     );
@@ -78,6 +80,21 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  /*
+   * This was the one public write path with no rate limit. Two tiers, for the
+   * same reason as the lead form: a flood guard counts EVERY request so a
+   * script cannot hammer the endpoint, while the submission limit counts only
+   * requests that passed validation, so somebody fumbling the form half a
+   * dozen times is not locked out for an hour.
+   */
+  const flood = rateLimit(clientKey(request, "testimonial-flood"), 40, 10 * 60 * 1000);
+  if (!flood.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a few minutes." },
+      { status: 429, headers: { "Retry-After": String(flood.retryAfterSeconds) } },
+    );
+  }
+
   let body: Submission;
   try {
     body = (await request.json()) as Submission;
@@ -128,16 +145,37 @@ export async function POST(request: Request) {
     );
   }
 
-  const { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY } =
-    supabaseConfig();
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/testimonials`, {
+  const submission = rateLimit(clientKey(request, "testimonial"), 3, 60 * 60 * 1000);
+  if (!submission.allowed) {
+    return NextResponse.json(
+      { error: "Thanks — you have already sent a note recently." },
+      { status: 429, headers: { "Retry-After": String(submission.retryAfterSeconds) } },
+    );
+  }
+
+  /*
+   * Written with the SERVICE-ROLE key, not the publishable one.
+   *
+   * The publishable key is NEXT_PUBLIC_ and ships to every browser. Using it
+   * here required `anon` to hold INSERT on the table — and an anon INSERT
+   * grant means anyone can POST straight to /rest/v1/testimonials and set
+   * status: 'approved' themselves, publishing to the site without review.
+   * Writing from the server instead lets 0004 revoke anon's INSERT entirely,
+   * which is what makes the moderation queue real rather than a convention.
+   *
+   * `status` is hard-coded below and is never read from the request body.
+   */
+  if (!hasServiceRole()) {
+    console.error("[testimonials] SUPABASE_SERVICE_ROLE_KEY is not set");
+    return NextResponse.json(
+      { error: "We could not save your note right now. Please try again later." },
+      { status: 503 },
+    );
+  }
+
+  const response = await fetch(restUrl("/rest/v1/testimonials"), {
     method: "POST",
-    headers: {
-      apikey: SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      "Content-Type": "application/json",
-      Prefer: "return=minimal",
-    },
+    headers: { ...adminHeaders(), Prefer: "return=minimal" },
     body: JSON.stringify({
       display_name: displayName,
       email,
