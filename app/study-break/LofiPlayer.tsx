@@ -18,7 +18,16 @@ import styles from "./study-break.module.css";
 function toEmbedUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
-    if (!parsed.hostname.endsWith("spotify.com")) return null;
+    /*
+     * Exact hosts, not endsWith("spotify.com") — that also matches
+     * "evil-spotify.com" and "notspotify.com". The iframe src is rebuilt from
+     * a hardcoded origin below, so this was never exploitable here, but a
+     * suffix check is the kind of thing that gets copied somewhere it does
+     * matter.
+     */
+    const ALLOWED_HOSTS = ["open.spotify.com", "spotify.com", "www.spotify.com"];
+    if (!ALLOWED_HOSTS.includes(parsed.hostname)) return null;
+    if (parsed.protocol !== "https:") return null;
     // /playlist/{id} → /embed/playlist/{id}
     const match = parsed.pathname.match(/\/(playlist|album|track)\/([A-Za-z0-9]+)/);
     if (!match) return null;

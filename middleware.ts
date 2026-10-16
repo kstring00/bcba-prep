@@ -5,6 +5,7 @@ import {
   REFRESH_SKEW_SECONDS,
   decodeUnverified,
 } from "@/lib/auth/session";
+import { supabaseHeaders } from "@/lib/supabase/config";
 
 /**
  * Keeps the session alive.
@@ -41,11 +42,7 @@ export async function middleware(request: NextRequest) {
       `${supabaseUrl}/auth/v1/token?grant_type=refresh_token`,
       {
         method: "POST",
-        headers: {
-          apikey: publishableKey,
-          Authorization: `Bearer ${publishableKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: supabaseHeaders(publishableKey),
         body: JSON.stringify({ refresh_token: refreshToken }),
         cache: "no-store",
       },

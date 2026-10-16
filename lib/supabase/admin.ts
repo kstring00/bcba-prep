@@ -1,4 +1,4 @@
-import { supabaseConfig } from "./config";
+import { supabaseConfig, supabaseHeaders } from "./config";
 
 /**
  * SERVICE-ROLE ACCESS. SERVER ONLY. READ THIS BEFORE USING IT.
@@ -38,14 +38,16 @@ export function hasServiceRole(): boolean {
   return Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
-/** Headers for a service-role REST call. Bypasses RLS — see the note above. */
+/**
+ * Headers for a service-role REST call. Bypasses RLS — see the note above.
+ *
+ * Built by supabaseHeaders so that a current-generation `sb_secret_` key is
+ * sent in `apikey` only. Sent as a Bearer token it would be parsed as a JWT
+ * and rejected, and the resulting "Invalid JWT" looks like a bad key rather
+ * than a bad header.
+ */
 export function adminHeaders(): Record<string, string> {
-  const key = serviceRoleKey();
-  return {
-    apikey: key,
-    Authorization: `Bearer ${key}`,
-    "Content-Type": "application/json",
-  };
+  return supabaseHeaders(serviceRoleKey());
 }
 
 export function restUrl(path: string): string {
@@ -70,7 +72,15 @@ export async function createSignedUrl(
   const { url } = supabaseConfig();
 
   const response = await fetch(
-    `${url}/storage/v1/object/sign/materials/${storagePath}`,
+    /*
+     * Each path segment is encoded separately: encoding the whole string
+     * would destroy the slashes that make it a path, and leaving it raw would
+     * let a "../" in a storage_path walk out of the materials bucket. The
+     * value comes from the database rather than a request, so this is depth
+     * rather than a live hole.
+     */
+    `${url}/storage/v1/object/sign/materials/` +
+      storagePath.split("/").map(encodeURIComponent).join("/"),
     {
       method: "POST",
       headers: adminHeaders(),
