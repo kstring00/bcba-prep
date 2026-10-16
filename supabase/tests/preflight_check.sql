@@ -54,13 +54,22 @@ select
   coalesce((select bool_or(c.relrowsecurity) from pg_class c
             join pg_namespace n on n.oid = c.relnamespace
             where n.nspname='public' and c.relname='testimonials'), false) as rls_enabled,
+  -- anon can insert when it holds the INSERT grant AND either RLS is off
+  -- (policies are not consulted at all) or some policy permits the insert.
+  -- The RLS-off half matters: requiring a policy would report a reassuring
+  -- "no" on a table where anon can write freely because nothing is enforced.
   case when exists (
     select 1 from information_schema.role_table_grants
     where table_schema='public' and table_name='testimonials'
       and grantee='anon' and privilege_type='INSERT'
-  ) and exists (
-    select 1 from pg_policy p
-    where p.polrelid = to_regclass('public.testimonials') and p.polcmd in ('a','*')
+  ) and (
+    not coalesce((select bool_or(c.relrowsecurity) from pg_class c
+                  join pg_namespace n on n.oid = c.relnamespace
+                  where n.nspname='public' and c.relname='testimonials'), false)
+    or exists (
+      select 1 from pg_policy p
+      where p.polrelid = to_regclass('public.testimonials') and p.polcmd in ('a','*')
+    )
   ) then 'yes  <-- strangers can publish' else 'no' end                 as anon_can_insert,
   case when exists (
     select 1 from information_schema.column_privileges
