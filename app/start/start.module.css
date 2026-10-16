@@ -1,13 +1,16 @@
 /*
   /start — link-in-bio.
 
-  Mobile-first and single-column at every width. It does NOT widen into two
-  columns on desktop: the page's value is being one uncluttered thumb-sized
-  list, and most of the traffic will never see a desktop viewport anyway.
-  Desktop just gets a little more air.
+  Mobile-first. The stacked 480px column is the base and the real design:
+  most of this traffic arrives from a bio link on a phone, and that layout is
+  deliberately narrower than --w-text (640px) because a bio page reads as a
+  card, not an article.
 
-  Narrower than --w-text (640px) on purpose — a bio page reads as a card, not
-  an article.
+  From 1024px it becomes two columns — introduction beside the signup card,
+  link row beneath — because at desktop widths the single narrow column left
+  most of the screen empty, which reads as an unfinished page rather than a
+  focused one. Everything below the 1024px breakpoint is untouched by that
+  change: the mobile layout is not a narrowed desktop one.
 */
 .page {
   min-height: calc(100svh - var(--header-h));
@@ -311,5 +314,93 @@
   .link:hover,
   .captureSubmit:hover:not(:disabled) {
     transform: none;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP — two columns
+   ==========================================================================
+
+   1024px, not 768px: a tablet in portrait is closer to the phone case than
+   the desktop one, and splitting at 768 would put two cramped columns on an
+   iPad where one comfortable column works better.
+
+   The DOM order is introduction, signup, links, footer — which is the right
+   reading order on a phone and stays the right source order here. Grid areas
+   do the rearranging, so nothing about the markup changes and a screen
+   reader still meets the page in the order it was written.
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  /* Centres the whole card vertically in the viewport rather than hanging it
+     from the top. The min-height is already set above. */
+  .page {
+    display: grid;
+    align-content: center;
+  }
+
+  .shell {
+    max-width: var(--w-section);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "head capture"
+      "links links"
+      "foot  foot";
+    align-items: center;
+    column-gap: clamp(40px, 5vw, 72px);
+    row-gap: clamp(28px, 3.2vw, 40px);
+    /* Tighter than the mobile padding so the whole page clears the fold at
+       1440x900 — the fold is the constraint here, not the rhythm. */
+    padding-block: clamp(28px, 3.5vw, 44px);
+  }
+
+  /*
+   * Left column. Left-aligned rather than centred: a centred column of text
+   * beside a card reads as two things that happen to be adjacent, where a
+   * flush left edge reads as one layout.
+   */
+  .head {
+    grid-area: head;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .capture {
+    grid-area: capture;
+    /* The mobile rule stacks it under the introduction; here they are side
+       by side and that gap is the column gap's job. */
+    margin-top: 0;
+  }
+
+  .links {
+    grid-area: links;
+    /* auto-fit rather than a fixed five, so the row degrades to two lines
+       instead of crushing the labels if a link is ever added. */
+    grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+    gap: 12px;
+    margin-top: 0;
+  }
+
+  /*
+   * In a row the cards are tall and narrow rather than wide and short, so
+   * the label stacks above the note and the arrow drops to the bottom
+   * corner. min-height keeps the row even when one label wraps to two lines.
+   */
+  .link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-height: 104px;
+    padding: 14px 16px;
+  }
+
+  .linkArrow {
+    margin-top: auto;
+  }
+
+  .foot {
+    grid-area: foot;
+    margin-top: 0;
   }
 }

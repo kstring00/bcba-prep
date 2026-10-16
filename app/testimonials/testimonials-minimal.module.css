@@ -11,10 +11,15 @@
    reads as Bryana's rather than as a generic review wall. One is the point;
    a second would start rebuilding the collage.
 
-   Mobile first: the traffic arrives from TikTok, so the stacked layout is
-   the base and the only thing the desktop breakpoint changes is breathing
-   room. There is no multi-column grid at any width — see the note on the
-   quote list below.
+   Mobile first: the traffic arrives from TikTok, so the stacked column is
+   the base. From 1024px the PAGE splits into two columns — quotes on the
+   left, the form on the right — because a single 640px column on a desktop
+   screen turned a short page into a long scroll with half the window empty.
+
+   Note what does NOT become a grid: the quotes themselves. They stay a
+   single stack inside their column at every width. That is the distinction
+   that keeps one testimonial looking deliberate — see the note on the quote
+   list below.
    ========================================================================== */
 
 /*
@@ -79,12 +84,15 @@
 }
 
 /*
- * Always stacked, at every width.
+ * The quotes are always one stack, at every width.
  *
- * A grid is what forces the "looks broken with one" problem: a lone card in
- * a three-column row reads as two that failed to load. A single column is
- * the same shape whether there are one, three or twelve, which is what lets
- * this page look deliberate at any count.
+ * A grid of quote cards is what forces the "looks broken with one" problem:
+ * a lone card in a three-column row reads as two that failed to load. One
+ * stack is the same shape whether there are one, three or twelve.
+ *
+ * The desktop layout gets its width back by putting the FORM beside this
+ * column rather than by splitting this column, so the page uses the screen
+ * without reintroducing that problem.
  */
 .quote {
   padding: 32px 0;
@@ -363,16 +371,103 @@
 
 /* ---------------- desktop: more room, same shape ---------------- */
 
-@media (min-width: 760px) {
+/* A little more air once there is room, still one column. */
+@media (min-width: 760px) and (max-width: 1023px) {
   .page {
-    padding: 96px 0 112px;
-  }
-
-  .head {
-    margin-bottom: 56px;
+    padding: 72px 0 88px;
   }
 
   .quote {
-    padding: 40px 0;
+    padding: 36px 0;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP — quotes and form side by side
+   ==========================================================================
+
+   The single column was correct and too tall: on a laptop it pushed the form
+   below the fold and left half the window empty, so the page read as a long
+   scroll rather than a short answer to "does this work for someone like me?"
+
+   Source order is heading, quotes, form, footer — the right reading order on
+   a phone. Grid areas rearrange it, so the markup is untouched and a screen
+   reader still meets the page in the order it was written.
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 64px 0 72px;
+  }
+
+  .shell {
+    width: min(var(--w-section), 100%);
+    display: grid;
+    /* The quotes earn the wider side; the form is a column of short fields
+       and gets narrow and tidy rather than stretched. */
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-areas:
+      "head  head"
+      "body  form"
+      "next  next";
+    column-gap: clamp(48px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .head {
+    grid-area: head;
+    margin-bottom: 40px;
+  }
+
+  /* Both the quote list and the zero state occupy the same slot, so the
+     page has one shape whether or not anyone has written yet. */
+  .quotes,
+  .empty {
+    grid-area: body;
+    margin-bottom: 0;
+  }
+
+  .empty {
+    text-align: left;
+  }
+
+  .emptyBody {
+    margin-left: 0;
+  }
+
+  .quote {
+    padding: 28px 0;
+  }
+
+  .form {
+    grid-area: form;
+    /* The rule above it is the mobile separator; side by side the column gap
+       does that job and a line across the top of the form just boxes it in. */
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /*
+   * Tighter fields, and a shorter note box.
+   *
+   * The form is the tallest thing on the page, so its height sets the whole
+   * layout's. On the one-quote page that left a column of dead space beside
+   * it; shrinking the form closes most of that gap AND takes the page height
+   * down, which is the actual ask — fit more on the screen.
+   *
+   * The box still grows: it is resizable, and the field scrolls, so a long
+   * note is not cramped by a short starting height.
+   */
+  .field {
+    margin-bottom: 18px;
+  }
+
+  .field textarea {
+    min-height: 84px;
+  }
+
+  .next {
+    grid-area: next;
+    margin-top: 48px;
   }
 }
