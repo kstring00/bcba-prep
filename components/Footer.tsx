@@ -1,10 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BeeMark } from "./BeeMark";
 import brandStyles from "./Brand.module.css";
 import footerStyles from "./Footer.module.css";
 
 export function Footer() {
+  const pathname = usePathname();
   const year = new Date().getFullYear();
+
+  // See the note in SiteHeader: /start carries its own minimal footer.
+  if (pathname === "/start") return null;
 
   return (
     <footer className="footer">

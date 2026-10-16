@@ -75,6 +75,14 @@ export function SiteHeader() {
     }
   }
 
+  /*
+   * /start is a link-in-bio page: its value is being one uncluttered screen
+   * for someone arriving from an Instagram or TikTok bio. A six-item nav
+   * competing with the link stack is exactly what it exists to avoid, so the
+   * site chrome is suppressed there. The Footer does the same.
+   */
+  if (pathname === "/start") return null;
+
   return (
     <header className="site-header">
       <Link
