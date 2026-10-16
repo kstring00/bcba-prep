@@ -70,7 +70,15 @@ export async function createSignedUrl(
   const { url } = supabaseConfig();
 
   const response = await fetch(
-    `${url}/storage/v1/object/sign/materials/${storagePath}`,
+    /*
+     * Each path segment is encoded separately: encoding the whole string
+     * would destroy the slashes that make it a path, and leaving it raw would
+     * let a "../" in a storage_path walk out of the materials bucket. The
+     * value comes from the database rather than a request, so this is depth
+     * rather than a live hole.
+     */
+    `${url}/storage/v1/object/sign/materials/` +
+      storagePath.split("/").map(encodeURIComponent).join("/"),
     {
       method: "POST",
       headers: adminHeaders(),
