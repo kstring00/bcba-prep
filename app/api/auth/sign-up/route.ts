@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authFailure } from "@/lib/auth/failure";
 import { AuthError, signUpWithPassword } from "@/lib/auth/supabase-auth";
 import { setSessionCookies, tokensFromAuthResponse } from "@/lib/auth/session";
 import {
@@ -66,10 +67,6 @@ export async function POST(request: Request) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
-    console.error("[auth/sign-up]", error);
-    return NextResponse.json(
-      { error: "We could not create your account. Please try again." },
-      { status: 500 },
-    );
+    return authFailure("auth/sign-up", error).response;
   }
 }
