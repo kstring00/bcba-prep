@@ -22,6 +22,13 @@
 -- is read in the Supabase dashboard, which also uses the service role.
 -- ==========================================================================
 
+-- ==========================================================================
+-- ONE TRANSACTION. Everything below either applies together or not at all.
+-- DDL is transactional in Postgres, so a failure partway through rolls back
+-- rather than leaving the table created but still reachable by anon.
+-- ==========================================================================
+begin;
+
 create extension if not exists pgcrypto;
 
 create table if not exists public.leads (
@@ -60,12 +67,57 @@ create index if not exists leads_campaign_idx on public.leads (utm_campaign, cre
 
 alter table public.leads enable row level security;
 
--- Deliberately no grants and no policies. See the header.
+-- Deliberately no grants and no policies for the browser-facing roles.
 revoke all on public.leads from anon, authenticated;
+
+-- The service role, explicitly.
+--
+-- On Supabase this role already holds privileges through the platform's
+-- default grants, so this line changes nothing there. It is here so the file
+-- does not DEPEND on that: a migration whose correctness rests on a grant
+-- made somewhere else, by someone else, is how the testimonials table ended
+-- up in a shape no file recorded. app/api/lead/route.ts is the only writer,
+-- and this is the grant it needs.
+grant all on public.leads to service_role;
+
+-- Drop any policy that exists, by enumeration rather than by name.
+--
+-- On a fresh database this does nothing: the table is new and has none. It
+-- is here because permissive policies OR together, so one policy added later
+-- in the dashboard — the "Enable read access for all users" template is one
+-- click away — would expose every captured email address, and re-running
+-- this file is how someone would expect to undo that. Naming policies to
+-- drop cannot protect against a policy nobody wrote down. (0004 learned this
+-- the hard way on testimonials.)
+--
+-- After this block the table has zero policies, which with RLS enabled means
+-- anon and authenticated are denied everything.
+do $$
+declare
+  existing record;
+begin
+  for existing in
+    select polname from pg_policy where polrelid = 'public.leads'::regclass
+  loop
+    execute format('drop policy if exists %I on public.leads', existing.polname);
+    raise notice '0003: dropped pre-existing policy "%" on leads.', existing.polname;
+  end loop;
+end
+$$;
+
+commit;
 
 -- --------------------------------------------------------------------------
 -- Verification
 -- --------------------------------------------------------------------------
+-- These are comments, not statements: nothing below runs, so pasting the
+-- whole file never produces an expected-error that looks like a failure.
+--
+-- Zero policies and RLS on is the whole protection. Confirm with:
+--   select relrowsecurity from pg_class where relname = 'leads';   -- must be t
+--   select count(*) from pg_policy
+--     where polrelid = 'public.leads'::regclass;                   -- must be 0
+--
 -- As an ordinary signed-in user, BOTH of these must fail:
 --   select * from public.leads;
 --   insert into public.leads (email) values ('probe@example.com');
