@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authFailure } from "@/lib/auth/failure";
 import { requestPasswordReset } from "@/lib/auth/supabase-auth";
 import { cleanEmail, siteOrigin, validEmail } from "@/lib/auth/validate";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
@@ -42,7 +43,13 @@ export async function POST(request: Request) {
       `${siteOrigin(request)}/reset-password`,
     );
   } catch (error) {
-    console.error("[auth/reset-request]", error);
+    /*
+     * The response below is always { sent: true }, deliberately: telling the
+     * caller this address failed would tell them which addresses have
+     * accounts. So the classification exists purely for the log — the
+     * response it builds is discarded on purpose.
+     */
+    authFailure("auth/reset-request", error);
   }
 
   return NextResponse.json({ sent: true });

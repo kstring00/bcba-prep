@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authFailure } from "@/lib/auth/failure";
 import { AuthError, signInWithPassword } from "@/lib/auth/supabase-auth";
 import { setSessionCookies, tokensFromAuthResponse } from "@/lib/auth/session";
 import { cleanEmail, validEmail } from "@/lib/auth/validate";
@@ -50,10 +51,6 @@ export async function POST(request: Request) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
-    console.error("[auth/sign-in]", error);
-    return NextResponse.json(
-      { error: "We could not sign you in. Please try again." },
-      { status: 500 },
-    );
+    return authFailure("auth/sign-in", error).response;
   }
 }

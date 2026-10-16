@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authFailure } from "@/lib/auth/failure";
 import { AuthError, updatePassword } from "@/lib/auth/supabase-auth";
 import { clearSessionCookies } from "@/lib/auth/session";
 import { MIN_PASSWORD_LENGTH, validPassword } from "@/lib/auth/validate";
@@ -54,10 +55,6 @@ export async function POST(request: Request) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error("[auth/reset-complete]", error);
-    return NextResponse.json(
-      { error: "We could not update your password. Please try again." },
-      { status: 500 },
-    );
+    return authFailure("auth/reset-complete", error).response;
   }
 }
