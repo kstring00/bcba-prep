@@ -27,6 +27,15 @@ from information_schema.columns
 where table_schema = 'public' and table_name = 'testimonials'
 order by ordinal_position;
 
+-- Exactly ONE policy must remain. Permissive policies OR together, so a
+-- single leftover `using (true)` would expose every pending and rejected
+-- row regardless of the policy 0004 creates. Anything other than 1 here
+-- means the sweep did not run or something re-added a policy afterwards.
+select count(*) as policy_count_MUST_BE_1,
+       coalesce(string_agg(polname, ' | ' order by polname), '(none)') as policies
+from pg_policy
+where polrelid = to_regclass('public.testimonials');
+
 -- Who can do what. There must be NO insert/update/delete row for anon or
 -- authenticated, and NO select row naming the `email` column.
 select grantee, privilege_type, column_name

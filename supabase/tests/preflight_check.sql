@@ -12,6 +12,10 @@
 --
 --   anon_can_insert     = yes  a stranger can publish to the site today
 --   anon_can_read_email = yes  submitter emails are readable by anyone
+--   policy_count              permissive policies OR together, so ANY extra
+--                             one can undo the restriction. Exactly 1 after
+--                             0004; policy_names shows what is actually on
+--                             the table right now.
 --
 -- Both must read "no" after 0004. Verified against PostgreSQL 16 on an empty
 -- database, on one with 0001+0002+a vulnerable table, and on the same
@@ -62,4 +66,13 @@ select
     select 1 from information_schema.column_privileges
     where table_schema='public' and table_name='testimonials'
       and grantee='anon' and column_name='email' and privilege_type='SELECT'
-  ) then 'yes  <-- submitter emails readable' else 'no' end             as anon_can_read_email;
+  ) then 'yes  <-- submitter emails readable' else 'no' end             as anon_can_read_email,
+  -- Postgres ORs permissive policies together, so a single leftover policy
+  -- of the shape `using (true)` exposes every pending and rejected row no
+  -- matter what the others say. After 0004 this must be exactly 1.
+  (select count(*) from pg_policy
+   where polrelid = to_regclass('public.testimonials'))                  as policy_count_SHOULD_BE_1_AFTER_0004,
+  coalesce((select string_agg(polname, ' | ' order by polname)
+            from pg_policy
+            where polrelid = to_regclass('public.testimonials')),
+           '(none)')                                                     as policy_names;
