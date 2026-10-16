@@ -1,8 +1,23 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import styles from "./testimonials.module.css";
+import styles from "./testimonials-minimal.module.css";
 
+/**
+ * Open to anyone — no sign-in.
+ *
+ * Requiring an account would put a wall in front of exactly the people whose
+ * words are worth having: someone who arrived from TikTok, liked what they
+ * saw, and would write two sentences right now but will not create a
+ * password to do it.
+ *
+ * What makes that safe is not the form, it is the layers behind it. 0004
+ * revoked anon's INSERT entirely and the route writes with the service-role
+ * key at status 'pending', so nothing reaches the page without Bryana
+ * approving it. The honeypot and the two-tier rate limit keep the queue
+ * worth reading. The worst case of leaving this open is spam in a queue she
+ * already reviews, not anything published.
+ */
 export function TestimonialForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -25,12 +40,16 @@ export function TestimonialForm() {
           displayName: String(data.get("displayName") ?? ""),
           email: String(data.get("email") ?? ""),
           quote: String(data.get("quote") ?? ""),
+          // Optional. Empty string means "not given", not "invalid".
+          passedOn: String(data.get("passedOn") ?? ""),
           consent: data.get("consent") === "on",
           company: String(data.get("company") ?? ""),
         }),
       });
 
-      const payload = (await response.json()) as { error?: string };
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
       if (!response.ok) {
         throw new Error(payload.error ?? "We could not send your note.");
       }
@@ -48,52 +67,63 @@ export function TestimonialForm() {
     }
   }
 
+  if (success) {
+    return (
+      <p className={styles.success} role="status">
+        Thank you — your note is with Bryana. Nothing is posted automatically,
+        so it will appear here once she has read it.
+      </p>
+    );
+  }
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <div className={styles.formRow}>
-        <label>
-          <span>Name to display</span>
-          <input
-            type="text"
-            name="displayName"
-            maxLength={80}
-            placeholder="First name + last initial"
-            autoComplete="name"
-            required
-          />
-        </label>
+    <form onSubmit={handleSubmit}>
+      <label className={styles.field}>
+        <span>Name to display</span>
+        <input
+          type="text"
+          name="displayName"
+          maxLength={80}
+          placeholder="First name and last initial"
+          autoComplete="name"
+          required
+        />
+      </label>
 
-        <label>
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            maxLength={320}
-            placeholder="you@example.com"
-            autoComplete="email"
-            required
-          />
-        </label>
-      </div>
+      <label className={styles.field}>
+        <span>Email</span>
+        <input
+          type="email"
+          name="email"
+          maxLength={320}
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+        />
+      </label>
 
-      <label>
-        <span>Your kind words</span>
+      <label className={styles.field}>
+        <span>
+          Passed on <span className={styles.optional}>— optional</span>
+        </span>
+        <input type="date" name="passedOn" />
+      </label>
+
+      <label className={styles.field}>
+        <span>Your note</span>
         <textarea
           name="quote"
           minLength={20}
           maxLength={1200}
-          rows={6}
-          placeholder="What did you love about the site or Bee's materials?"
+          rows={5}
+          placeholder="What helped?"
           required
         />
       </label>
 
       <label className={styles.consent}>
         <input type="checkbox" name="consent" required />
-        <span>
-          If approved, Bee may publish my words and the display name above on
-          this website. My email will stay private.
-        </span>
+        <span>Bryana may publish this note and the name above.</span>
       </label>
 
       <label className={styles.honeypot} aria-hidden="true">
@@ -101,18 +131,16 @@ export function TestimonialForm() {
         <input name="company" tabIndex={-1} autoComplete="off" />
       </label>
 
-      {error ? <p className={styles.formError}>{error}</p> : null}
-      {success ? (
-        <p className={styles.formSuccess}>
-          Thank you. Your note is waiting for Bee&apos;s review — nothing is
-          posted automatically.
-        </p>
-      ) : null}
-
-      <button type="submit" className={styles.submit} disabled={loading}>
-        {loading ? "Sending for review…" : "Send for review"}
-        {!loading ? <span aria-hidden="true">→</span> : null}
+      <button type="submit" className={styles.send} disabled={loading}>
+        {loading ? "Sending…" : "Send →"}
       </button>
+
+      {error ? <p className={styles.error}>{error}</p> : null}
+
+      <p className={styles.trust}>
+        Nothing is published without Bryana&rsquo;s approval. Your email stays
+        private.
+      </p>
     </form>
   );
 }
