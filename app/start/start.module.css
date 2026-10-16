@@ -290,6 +290,13 @@
 }
 
 .foot a {
+  /* Was 42x15, with 8px between the two — a miss landed on the neighbour.
+     Inline-flex with a 44px floor and side padding gives each one a real
+     target and pushes them apart without moving them visually. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 8px;
   color: var(--ink-dim);
   text-decoration: underline;
   text-underline-offset: 3px;
