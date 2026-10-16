@@ -62,6 +62,17 @@
 -- On a table that is already in the new shape, section 2 does nothing.
 -- ==========================================================================
 
+-- ==========================================================================
+-- ONE TRANSACTION. Everything below either applies together or not at all.
+--
+-- Postgres makes DDL transactional, so a failure halfway through — a typo, a
+-- constraint an existing row violates, a lost connection — rolls the whole
+-- thing back rather than leaving the table half-migrated with its old
+-- policies already dropped. That intermediate state is the dangerous one:
+-- policies gone, new policy not yet created, table still granted to anon.
+-- ==========================================================================
+begin;
+
 create extension if not exists pgcrypto;
 
 -- ==========================================================================
@@ -178,18 +189,55 @@ grant select (id, display_name, quote, created_at, status)
 -- service-role key and hard-codes status = 'pending'. The service role
 -- bypasses RLS and needs no policy here.
 
-drop policy if exists "published testimonials are public" on public.testimonials;
-drop policy if exists "approved testimonials are public" on public.testimonials;
+-- Drop EVERY existing policy on the table, by enumeration rather than by
+-- name.
+--
+-- This is the part that actually decides what is visible. Postgres ORs
+-- permissive policies together: one leftover policy of the shape
+-- `for select to anon using (true)` — the "Enable read access for all users"
+-- template the dashboard offers — grants every pending and rejected row no
+-- matter what the policy below says. Naming two known policies and dropping
+-- those was no protection at all on a table that was made by hand, because
+-- the whole problem is that nobody knows what is on it.
+--
+-- After this block the table has exactly one policy, and it is the one
+-- created immediately below.
+do $$
+declare
+  existing record;
+begin
+  for existing in
+    select polname
+    from pg_policy
+    where polrelid = 'public.testimonials'::regclass
+  loop
+    execute format(
+      'drop policy if exists %I on public.testimonials', existing.polname
+    );
+    raise notice '0004: dropped pre-existing policy "%" on testimonials.', existing.polname;
+  end loop;
+end
+$$;
+
 create policy "approved testimonials are public"
 on public.testimonials
 for select
 to anon, authenticated
 using (status = 'approved');
 
+commit;
+
 -- ==========================================================================
--- DONE. This file runs clean from top to bottom — if the SQL Editor reports
--- an error anywhere above, nothing was half-applied; the whole thing is in
--- one implicit transaction per statement and re-running is safe.
+-- DONE.
+--
+-- Everything above is inside the single transaction opened at the top, so an
+-- error anywhere in it rolls the whole migration back — the table is never
+-- left with its old policies dropped and the new one not yet created. Run it
+-- again once the cause is fixed; it is idempotent.
+--
+-- If your SQL editor reports "no transaction in progress" at the COMMIT, it
+-- ran each statement in its own transaction. The migration still applied
+-- correctly; only the all-or-nothing guarantee was absent.
 --
 -- The checks, and the three operations that must now be REFUSED, are in
 -- supabase/tests/testimonials_verify.sql. They are deliberately in a
