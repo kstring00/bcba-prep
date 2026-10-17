@@ -29,6 +29,10 @@
 }
 
 .back {
+  /* Was 182x19: wide enough, far too short. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -145,7 +149,8 @@
 }
 
 .tabs button {
-  min-height: 42px;
+  /* 42px was two short of the floor. */
+  min-height: 44px;
   border-radius: 999px;
   color: var(--ink-dim);
   font-size: 10px;
@@ -232,7 +237,12 @@
 
 .forgot {
   justify-self: end;
-  margin-top: -8px;
+  /* Was 113x21. The negative margin keeps it visually where it was while
+     the box grows to a tappable height around the text. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: -18px;
   color: var(--mauve-deep);
   font-size: 12px;
   text-decoration: underline;

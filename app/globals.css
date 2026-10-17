@@ -134,6 +134,21 @@ body {
   overflow-x: hidden;
 }
 
+/*
+ * 16px body on phones.
+ *
+ * 15px is fine on a desktop monitor at arm's length and is small on a phone
+ * held at reading distance — and iOS zooms the viewport on any form field
+ * under 16px, which throws the layout sideways mid-typing. Scoped to the
+ * phone range so desktop is untouched.
+ */
+@media (max-width: 767px) {
+  body {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+}
+
 /* A single low-opacity paper grain over everything. */
 body::before {
   content: "";
@@ -221,7 +236,13 @@ button {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 0 var(--pad);
+  /*
+   * The notch and the rounded corners eat into the sides in landscape and on
+   * some devices in portrait. max() keeps the normal gutter everywhere else
+   * rather than letting the inset shrink it.
+   */
+  padding-inline: max(var(--pad), env(safe-area-inset-left))
+                  max(var(--pad), env(safe-area-inset-right));
   background: rgba(248, 243, 236, 0.92);
   backdrop-filter: saturate(1.2) blur(8px);
   border-bottom: 1px solid var(--rule);
@@ -291,6 +312,15 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  /*
+   * Pins the group to the right edge.
+   *
+   * Without it the row is: brand, then .site-nav (flex: 1 1 auto), then this.
+   * At phone widths .site-nav is display:none, so it contributes no width and
+   * stops pushing — leaving the menu button floating 155px from the right on
+   * a 375px screen, which read as "awkwardly centred" because it was.
+   */
+  margin-left: auto;
 }
 
 .pill {
@@ -345,11 +375,67 @@ button {
 
 .nav-toggle {
   display: none;
+  /* 44x44 is the floor for a thumb; the bars inside are 20px so the target
+     is generous without the icon looking oversized. */
   width: 44px;
   height: 44px;
   align-items: center;
   justify-content: center;
   color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  /* The icon is 20px wide inside a 44px box, so its visual edge sits 12px in.
+     Pulling the box out by that much lines the BARS up with the brand's left
+     edge rather than lining up the invisible box, which is what makes the
+     gutters look unequal even when they measure the same. */
+  margin-right: -12px;
+}
+
+.nav-toggle-bars {
+  position: relative;
+  display: block;
+  width: 20px;
+  /* Three 2px bars with two 5px gaps = 16px, an even number, so the middle
+     bar lands on a whole pixel instead of straddling one and looking soft. */
+  height: 16px;
+}
+
+.nav-toggle-bars span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 240ms var(--ease), opacity 140ms linear,
+    top 240ms var(--ease);
+}
+
+.nav-toggle-bars span:nth-child(1) { top: 0; }
+.nav-toggle-bars span:nth-child(2) { top: 7px; }
+.nav-toggle-bars span:nth-child(3) { top: 14px; }
+
+/* Morph to an X: the outer bars slide to the middle and rotate, the middle
+   one fades. One object changing state, not two icons swapping. */
+.nav-toggle--open .nav-toggle-bars span:nth-child(1) {
+  top: 7px;
+  transform: rotate(45deg);
+}
+
+.nav-toggle--open .nav-toggle-bars span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle--open .nav-toggle-bars span:nth-child(3) {
+  top: 7px;
+  transform: rotate(-45deg);
+}
+
+.nav-toggle:focus-visible {
+  outline: 2px solid var(--mauve-deep);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 @media (max-width: 1100px) {
@@ -357,7 +443,15 @@ button {
     display: none;
   }
 
-  .site-nav--open {
+  /*
+   * The panel is always in the layout, not display-toggled.
+   *
+   * display:none cannot be transitioned, so the previous version appeared
+   * instantly. Keeping it present and hidden with opacity + transform lets
+   * it animate, and visibility keeps it out of the tab order while closed —
+   * which opacity alone does not.
+   */
+  .site-nav {
     display: flex;
     position: absolute;
     top: var(--header-h);
@@ -366,14 +460,103 @@ button {
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding: 8px var(--pad) 18px;
+    padding: 6px max(var(--pad), env(safe-area-inset-left))
+             calc(14px + env(safe-area-inset-bottom))
+             max(var(--pad), env(safe-area-inset-right));
     background: var(--cream);
     border-bottom: 1px solid var(--rule);
+    box-shadow: 0 18px 40px -24px rgba(45, 31, 40, 0.45);
+
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    /* Under 300ms, ease-out: fast enough to feel like a response to the tap
+       rather than an animation being played at you. */
+    transition: opacity 200ms var(--ease), transform 240ms var(--ease),
+      visibility 0s linear 240ms;
   }
 
-  .site-nav--open a {
+  .site-nav--open {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition: opacity 180ms var(--ease), transform 240ms var(--ease),
+      visibility 0s linear 0s;
+  }
+
+  .site-nav a,
+  .site-nav .nav-signout {
     justify-content: flex-start;
     border-bottom: 1px solid var(--rule);
+    /* Bigger than the 44px floor: these are the only navigation on the page
+       and there is room, so they get a comfortable target and space to
+       breathe rather than a row of minimum-sized hit boxes. */
+    min-height: 54px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+  }
+
+  /*
+   * The founding list is the primary item, so it reads as the one thing to
+   * tap: gold fill, ink text (7.79:1), and no hairline rule under it because
+   * it is a button rather than another row in the list.
+   */
+  .site-nav .nav-cta {
+    margin-top: 14px;
+    margin-bottom: 4px;
+    justify-content: center;
+    min-height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .site-nav .nav-cta:hover {
+    background: var(--gold-deep);
+    color: var(--ink);
+  }
+
+  /* The last plain row sits directly above the CTA; its rule would read as a
+     stray line once the button is there. */
+  .site-nav .nav-login {
+    border-bottom: 0;
+  }
+
+  /*
+   * Active page, in the panel.
+   *
+   * The desktop treatment is a full-width underline, which works under a
+   * short horizontal item and reads as a heavy section divider when it runs
+   * the width of a stacked row. Here the state is carried by weight, colour
+   * and a gold marker in the gutter instead.
+   */
+  .site-nav a[aria-current="page"] {
+    border-bottom-color: var(--rule);
+    color: var(--ink);
+    font-weight: 600;
+    position: relative;
+  }
+
+  .site-nav a[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    width: 3px;
+    height: 18px;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    background: var(--gold);
   }
 
   .nav-toggle {
@@ -407,6 +590,22 @@ button {
   .site-nav .nav-login,
   .site-nav .nav-signout {
     display: none;
+  }
+}
+
+/*
+ * Someone who has asked for less motion still needs the menu to work; what
+ * they do not need is it sliding. The state change stays, the travel goes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .site-nav,
+  .site-nav--open,
+  .nav-toggle-bars span {
+    transition-duration: 1ms !important;
+  }
+
+  .site-nav {
+    transform: none;
   }
 }
 
@@ -1388,6 +1587,9 @@ button {
   color: var(--on-night-dim);
   position: relative;
   z-index: 2;
+  /* Clears the home-bar on a gesture-navigation iPhone, where the last line
+     of the footer otherwise sits under it. */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .footer-inner {
@@ -2440,4 +2642,76 @@ textarea:focus-visible,
   color: var(--ink-dim);
   font-size: 14px;
   line-height: 1.7;
+}
+
+/* ==========================================================================
+   MOBILE TAP TARGETS
+   ==========================================================================
+
+   Measured at 375, 390 and 430px with a touch viewport, then fixed. Each
+   rule below is a control that was under the 44px floor — small enough that
+   hitting it is a matter of luck with a thumb, and the links sat close
+   enough together that a miss hits the neighbour.
+
+   Scoped to phones: these are touch ergonomics, not a design change, and
+   stretching the same controls on a desktop pointer would just add slack.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  /* "Read my story →" on the home teaser: was 106x16. */
+  .teaser-link,
+  .bryana-teaser a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* /start footer: "Privacy" and "Contact" were 42x15 and sat 8px apart, so
+     the gap between two mis-taps was smaller than a fingertip. */
+  .foot p a,
+  .footer-legal a,
+  .footer-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 6px;
+  }
+
+  /* The study-break settings control: was 38x38. */
+  .timer-settings-toggle,
+  button[aria-label="Timer settings"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Sign-in: the tab pair was 42px tall, the back link 19px, and "Forgot
+     password?" 21px. */
+  .auth-tab,
+  .auth-switch button,
+  .back-link,
+  .auth-forgot,
+  button.linklike {
+    min-height: 44px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ==========================================================================
+   SAFE AREAS
+   ==========================================================================
+   Anything that runs to the edge of the screen keeps its gutter on a device
+   with a notch or rounded corners, rather than losing it to the inset.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  .shell,
+  .col-text,
+  .col-section {
+    padding-left: max(var(--pad), env(safe-area-inset-left));
+    padding-right: max(var(--pad), env(safe-area-inset-right));
+  }
 }
