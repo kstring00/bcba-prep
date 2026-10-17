@@ -1037,3 +1037,17 @@ a.contentLink:hover {
     justify-content: center;
   }
 }
+
+/* The bookshelf above the library sections (sales gate open only). */
+.shelfWrap {
+  margin: clamp(28px, 4vw, 48px) 0 clamp(36px, 5vw, 64px);
+}
+
+.shelfTitle {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.1;
+  color: var(--ink);
+}
