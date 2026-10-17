@@ -16,7 +16,7 @@ export function SafetyBar() {
           <strong>{SAFETY_NOTE}</strong> {CRISIS_LINE}
         </p>
         <p className={`${styles.safetyText} ${styles.safetyShort}`}>
-          <strong>Not therapy.</strong> In crisis?
+          <strong>This is not therapy.</strong>
         </p>
         <span className={styles.safetyActions}>
           <a href="tel:988" className={styles.safetyLink}>

@@ -9,8 +9,14 @@
 /* ---------- safety bar ---------- */
 
 .safety {
-  position: sticky;
+  /* fixed, not sticky: sticky lives inside the route wrapper and leaves
+     the screen once the footer scrolls in; fixed stays through the last
+     pixel of the page, which is what "every screen" means. The hero pads
+     for it (see .hero). */
+  position: fixed;
   top: var(--header-h);
+  left: 0;
+  right: 0;
   z-index: 120;
   background: var(--night);
   color: var(--on-night);
@@ -22,17 +28,17 @@
   flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 20px;
-  padding-block: 8px;
+  gap: 8px 12px;
+  padding-block: 6px;
 }
 
 .safetyFull { display: none; }
 .safetyShort { display: block; }
 
-@media (min-width: 760px) {
+@media (min-width: 1024px) {
   .safetyFull { display: block; }
   .safetyShort { display: none; }
-  .safetyInner { padding-block: 10px; }
+  .safetyInner { padding-block: 10px; gap: 8px 20px; }
 }
 
 .safetyText {
@@ -57,8 +63,9 @@
 .safetyLink {
   display: inline-flex;
   align-items: center;
+  font-size: 11px;
   min-height: 44px;
-  padding: 0 12px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--gold);
   white-space: nowrap;
@@ -79,9 +86,18 @@
 
 /* ---------- hero ---------- */
 
+/* --safety-h: the fixed bar's height, which the hero pads for. */
 .hero {
+  --safety-h: 56px;
   position: relative;
   overflow: clip;
+  padding-top: calc(clamp(56px, 7vw, 104px) + var(--safety-h));
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    --safety-h: 65px;
+  }
 }
 
 .heroHex {
@@ -155,7 +171,13 @@
 .taps {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .taps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .tap {
@@ -169,7 +191,7 @@
   column-gap: 12px;
   row-gap: 2px;
   align-content: start;
-  min-height: 84px;
+  min-height: 64px;
   padding: 16px 16px 14px;
   border: 1px solid var(--rule-strong);
   border-radius: 16px;
@@ -250,7 +272,8 @@
   }
 }
 
-@media (min-width: 1024px) {
+/* Six-up only once each tap has 180px+ to itself. */
+@media (min-width: 1280px) {
   .taps {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 14px;
@@ -283,7 +306,7 @@
 .plan {
   position: relative;
   animation: planIn 420ms var(--ease) both;
-  scroll-margin-top: calc(var(--header-h) + 72px);
+  scroll-margin-top: calc(var(--header-h) + 84px);
   padding: clamp(24px, 3vw, 44px) clamp(20px, 3vw, 44px);
   border: 1px solid var(--gold-dim);
   border-radius: 22px;
@@ -344,6 +367,20 @@
   font-size: 15px;
   line-height: 1.65;
   color: var(--ink-body);
+}
+
+/* The hero cluster signs the corner below 1024px instead of sitting in
+   the reading column. */
+@media (max-width: 1023px) {
+  .heroCluster {
+    position: absolute;
+    top: 24px;
+    right: 0;
+    width: 72px;
+  }
+  .heroAside {
+    position: relative;
+  }
 }
 
 .steps {
@@ -407,6 +444,7 @@
 .supportList li {
   display: grid;
   gap: 2px;
+  align-content: start;
   font-size: 14px;
   line-height: 1.55;
   color: var(--ink-body);
@@ -415,7 +453,7 @@
 .resources a,
 .resources strong {
   display: inline-block;
-  padding: 12px 0 8px;
+  padding: 12px 0 11px;
   font-weight: 700;
   color: var(--ink);
   text-decoration: underline;
@@ -433,7 +471,7 @@
   border-top: 1px solid var(--rule);
   font-size: 13px;
   line-height: 1.6;
-  color: var(--ink-dim);
+  color: var(--ink-body);
 }
 
 .planSafety strong {
@@ -497,6 +535,7 @@
 
 .support {
   position: relative;
+  scroll-margin-top: calc(var(--header-h) + 72px);
 }
 
 .supportGrid {

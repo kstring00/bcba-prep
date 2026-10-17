@@ -194,7 +194,6 @@ export function SiteHeader() {
       <Link
         href="/"
         className="brand"
-        aria-label="BCBA Prep by Bee the Behavior Bae"
       >
         <span className={`brand-mark ${brandStyles.mark}`} aria-hidden="true">
           <BeeMark size={38} />

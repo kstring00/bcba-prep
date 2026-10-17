@@ -80,7 +80,11 @@ export function FeelingsCheckIn({ counts }: { counts: FeelingCounts }) {
     }
     // Bring the plan into view on phones, where it renders below the taps.
     requestAnimationFrame(() => {
-      document.getElementById("care-plan")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const el = document.getElementById("care-plan");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Keyboard and screen-reader users land on the plan, not back on the
+      // row of taps.
+      el?.focus({ preventScroll: true });
     });
   }
 
@@ -88,7 +92,7 @@ export function FeelingsCheckIn({ counts }: { counts: FeelingCounts }) {
 
   return (
     <div className={styles.checkin}>
-      <div className={styles.taps} role="group" aria-label="How are you feeling?">
+      <div className={styles.taps} role="radiogroup" aria-label="How are you feeling?">
         {FEELINGS_IN_ORDER.map((f) => {
           const on = selected === f.slug;
           const n = counts[f.slug];
@@ -97,7 +101,8 @@ export function FeelingsCheckIn({ counts }: { counts: FeelingCounts }) {
               key={f.slug}
               type="button"
               className={`${styles.tap}${on ? ` ${styles.tapOn}` : ""}`}
-              aria-pressed={on}
+              role="radio"
+              aria-checked={on}
               onClick={() => choose(f.slug)}
             >
               <span className={styles.tapCell} aria-hidden="true">
@@ -125,9 +130,9 @@ export function FeelingsCheckIn({ counts }: { counts: FeelingCounts }) {
         >
           <header className={styles.planHead}>
             <p className="eyebrow">A small care plan</p>
-            <h2 className={styles.planTitle} id="care-plan-title">
+            <h3 className={styles.planTitle} id="care-plan-title">
               {plan.label}
-            </h2>
+            </h3>
             {plan.encouragement.map((line) => (
               <p className={styles.planLede} key={line}>
                 {line}
@@ -137,7 +142,7 @@ export function FeelingsCheckIn({ counts }: { counts: FeelingCounts }) {
 
           <div className={styles.planGrid}>
             <section className={styles.planBlock}>
-              <h3 className={styles.planBlockTitle}>{plan.reset.title}</h3>
+              <h4 className={styles.planBlockTitle}>{plan.reset.title}</h4>
               <ol className={styles.steps}>
                 {plan.reset.steps.map((step) => (
                   <li key={step}>{step}</li>
@@ -146,13 +151,13 @@ export function FeelingsCheckIn({ counts }: { counts: FeelingCounts }) {
             </section>
 
             <section className={styles.planBlock}>
-              <h3 className={styles.planBlockTitle}>What to say to your supervisor</h3>
+              <h4 className={styles.planBlockTitle}>What to say to your supervisor</h4>
               <p className={styles.planText}>{plan.supervisor.intro}</p>
               <blockquote className={styles.say}>{plan.supervisor.say}</blockquote>
             </section>
 
             <section className={`${styles.planBlock} ${styles.planBlockWide}`}>
-              <h3 className={styles.planBlockTitle}>If you want more than two minutes</h3>
+              <h4 className={styles.planBlockTitle}>If you want more than two minutes</h4>
               <ul className={styles.resources}>
                 {plan.resources.map((r) => (
                   <li key={r.label}>

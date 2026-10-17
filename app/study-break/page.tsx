@@ -30,11 +30,19 @@ export default async function StudyBreakPage() {
     <>
       <StudyBreak signedIn={Boolean(user)} ownedSkus={ownedSkus} />
       {/* The toolkit rule: not therapy, and 988, on every one of its screens.
-          A quiet line under the timer rather than the sticky bar, which
-          would take space from a screen sized to fit a phone exactly. */}
-      <p className="toolkit-safety-line" role="note">
-        <strong>{SAFETY_NOTE}</strong> {CRISIS_LINE}{" "}
-        <a href="tel:988">Call 988</a> · <a href="sms:988">Text 988</a>
+          Fixed to the top of the viewport under the header, as on /toolkit,
+          so it is there on the first phone screen and the last. */}
+      <p className="toolkit-safety-line" role="note" aria-label="Safety information">
+        <span className="toolkit-safety-full">
+          <strong>{SAFETY_NOTE}</strong> {CRISIS_LINE}
+        </span>
+        <span className="toolkit-safety-short">
+          <strong>This is not therapy.</strong>
+        </span>
+        <span className="toolkit-safety-actions">
+          <a href="tel:988">Call 988</a>
+          <a href="sms:988">Text 988</a>
+        </span>
       </p>
     </>
   );

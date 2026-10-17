@@ -23,6 +23,9 @@ export const dynamic = "force-dynamic";
  *
  * The rules (lib/toolkit/config.ts): "not therapy" and 988 on every screen,
  * no free-text input, nothing reads what anyone types, no login, no names.
+ * That is why the Study Break's wins journal (a textarea that is saved) is
+ * NOT linked from here: it stays a members' feature on /study-break, but
+ * the toolkit does not route anyone to a box that reads what they type.
  */
 const TOOLS = [
   {
@@ -48,12 +51,6 @@ const TOOLS = [
     name: "Something to listen to",
     body: "Low-key sound for studying, so the room is not silent and the phone is not the answer.",
     tag: "Sound",
-  },
-  {
-    href: "/study-break?tool=write",
-    name: "Small wins",
-    body: "Write down one thing that went right. Members can keep theirs; everyone can write one.",
-    tag: "Keep",
   },
   {
     href: "#support",
@@ -110,7 +107,7 @@ export default async function ToolkitPage() {
               Small, free tools for the long middle of exam prep: a check-in
               that meets you where you are, two-minute resets, and the words
               for asking for help. Nothing here reads what you type, because
-              you never type anything.
+              nothing here asks you to type.
             </p>
           </div>
         </div>
@@ -160,7 +157,7 @@ export default async function ToolkitPage() {
       </section>
 
       {/* ---------- support: night band ---------- */}
-      <section className={`sec sec--band ${styles.support}`} id="support" aria-labelledby="support-title">
+      <section className={`sec sec--band ${styles.support}`} id="support" aria-labelledby="support-title">{/* scroll-margin in .support */}
         <HexField className="hex-field" size={40} opacity={0.06} />
         <div className={`container ${styles.supportGrid}`}>
           <div data-reveal>
