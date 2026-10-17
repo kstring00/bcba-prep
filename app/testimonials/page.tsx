@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BeeMark } from "@/components/BeeMark";
+import { supabaseConfig, supabaseHeaders } from "@/lib/supabase/config";
 import { TestimonialForm } from "./TestimonialForm";
-import styles from "./testimonials.module.css";
-import compact from "./testimonials-compact.module.css";
-
-import { supabaseConfig } from "@/lib/supabase/config";
+import styles from "./testimonials-minimal.module.css";
 
 export const metadata: Metadata = {
   title: "Testimonials | BCBA Prep by Bee the Behavior Bae",
   description:
-    "Kind words shared by students using BCBA Prep by Bee the Behavior Bae.",
+    "What students say about BCBA Prep by Bee the Behavior Bae. Every note is reviewed by Bryana before it appears.",
 };
 
 export const dynamic = "force-dynamic";
@@ -19,151 +18,126 @@ type Testimonial = {
   display_name: string;
   quote: string;
   created_at: string;
+  /** Optional. Null for anyone who submitted while still studying. */
+  passed_on: string | null;
 };
 
 /*
  * Approved rows only.
  *
- * Submissions are written with status 'pending' by app/api/testimonials/route.ts
- * and stay invisible until someone sets the row's status to 'approved' in
- * Supabase. The `status=eq.approved` filter is what makes the promise on this
- * page ("every testimonial below is reviewed before it is published") true —
- * it was missing, and without it every submission published instantly.
+ * Submissions are written with status 'pending' by the service role in
+ * app/api/testimonials/route.ts and stay invisible until Bryana sets the
+ * status to 'approved'. The `status=eq.approved` filter is what makes this
+ * page's trust line true.
  *
- * Do not remove the filter. If the column is ever renamed, change it here and
- * in app/api/testimonials/route.ts together.
+ * It is not the only thing making it true any more — 0004 revoked anon's
+ * INSERT and 0004/0006 restrict SELECT to approved rows at the database — but
+ * do not remove the filter on that basis. Two independent limits is the
+ * design.
+ *
+ * An empty array is the right answer for every failure here: the page renders
+ * its "be one of the first" state, which is a real design rather than an
+ * error. A Supabase outage should not show a broken page.
  */
 async function getApprovedTestimonials(): Promise<Testimonial[]> {
   try {
-    const { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY } =
-      supabaseConfig();
+    const { url, publishableKey } = supabaseConfig();
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/testimonials?select=id,display_name,quote,created_at&status=eq.approved&order=created_at.desc&limit=16`,
-      {
-        headers: {
-          apikey: SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        cache: "no-store",
-      },
+      `${url}/rest/v1/testimonials` +
+        `?select=id,display_name,quote,created_at,passed_on` +
+        `&status=eq.approved&order=created_at.desc&limit=16`,
+      { headers: supabaseHeaders(publishableKey), cache: "no-store" },
     );
 
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error("[testimonials] read failed", response.status);
+      return [];
+    }
     return (await response.json()) as Testimonial[];
-  } catch {
+  } catch (error) {
+    console.error("[testimonials] read threw", error);
     return [];
   }
 }
 
-const noteClasses = [
-  styles.noteCream,
-  styles.noteLavender,
-  styles.noteBlush,
-  styles.noteIvory,
-  styles.noteLilac,
-  styles.noteWarm,
-  styles.notePearl,
-  styles.noteMauve,
-];
-
-const rotations = ["-1.7deg", "0.9deg", "-0.7deg", "1.8deg", "0.8deg", "-1deg", "0.5deg", "-0.9deg"];
+/**
+ * "9.15.26" — the format Bryana uses.
+ *
+ * Parsed as UTC rather than local: a bare "2026-09-15" is midnight UTC, and
+ * formatting that in a timezone behind UTC would render the day before,
+ * which on the one line carrying the proof is not a detail.
+ *
+ * Returns null for anything unparseable so a malformed value renders nothing
+ * instead of "Passed Invalid Date".
+ */
+function formatPassed(value: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return null;
+  const m = date.getUTCMonth() + 1;
+  const d = date.getUTCDate();
+  const y = String(date.getUTCFullYear()).slice(2);
+  return `${m}.${d}.${y}`;
+}
 
 export default async function TestimonialsPage() {
   const testimonials = await getApprovedTestimonials();
 
   return (
     <section className={styles.page}>
-      <div className={styles.floralLeft} aria-hidden="true" />
-      <div className={styles.floralRight} aria-hidden="true" />
-
-      <div className={`${styles.shell} ${compact.shell}`}>
-        <header className={`${styles.hero} ${compact.hero}`}>
-          <h1 className={compact.title}>What Students Are Saying</h1>
-          <div className={`${styles.ornament} ${compact.ornament}`} aria-hidden="true">
-            <span />
-            <BeeMark size={28} />
-            <span />
-          </div>
-          <p className={`${styles.intro} ${compact.intro}`}>
-            Notes shared by students who chose to tell Bee what they loved.
-            Every testimonial below is reviewed before it is published.
-          </p>
-          <a href="#leave-a-note" className={compact.leaveNoteCta}>
-            Leave a Note <span aria-hidden="true">↓</span>
-          </a>
+      <div className={styles.shell}>
+        <header className={styles.head}>
+          {/* The one brand touch. */}
+          <span className={styles.mark} aria-hidden="true">
+            <BeeMark size={26} />
+          </span>
+          <h1 className={styles.title}>What students say</h1>
         </header>
 
         {testimonials.length > 0 ? (
-          <div className={`${styles.wall} ${compact.wall}`} aria-label="Approved student testimonials">
-            {testimonials.map((testimonial, index) => (
-              <article
-                className={`${styles.note} ${noteClasses[index % noteClasses.length]}`}
-                style={{
-                  "--note-rotation": rotations[index % rotations.length],
-                } as React.CSSProperties}
-                key={testimonial.id}
-              >
-                <span className={styles.pin} aria-hidden="true" />
-                <blockquote>“{testimonial.quote}”</blockquote>
-                <p>— {testimonial.display_name}</p>
-              </article>
-            ))}
-          </div>
+          <ul className={styles.quotes}>
+            {testimonials.map((item) => {
+              const passed = formatPassed(item.passed_on);
+              return (
+                <li className={styles.quote} key={item.id}>
+                  <blockquote className={styles.quoteText}>
+                    &ldquo;{item.quote}&rdquo;
+                  </blockquote>
+                  <p className={styles.attribution}>
+                    <span className={styles.name}>{item.display_name}</span>
+                    {/* Only when the date is actually there. */}
+                    {passed ? (
+                      <span className={styles.passed}>Passed {passed}</span>
+                    ) : null}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
         ) : (
-          <div className={`${styles.emptyWall} ${compact.emptyWall}`}>
-            <div className={styles.emptyPaper}>
-              <span className={styles.pin} aria-hidden="true" />
-              <p className={styles.emptyScript}>The wall is ready.</p>
-              <h2>Real kind words will live here.</h2>
-              <p>
-                We are not filling this page with placeholder reviews. When
-                students submit their experience and Bee approves it, their note
-                will appear here.
-              </p>
-            </div>
+          <div className={styles.empty}>
+            <h2 className={styles.emptyHeading}>Be one of the first.</h2>
+            <p className={styles.emptyBody}>
+              No notes here yet — and none will be invented. When someone
+              writes one and Bryana approves it, it appears here.
+            </p>
           </div>
         )}
 
-        <div className={styles.closing}>
-          <span className={styles.closingLine} aria-hidden="true" />
-          <p>
-            Every resource is created with <em>care, intention,</em> and a whole
-            lot of heart.
+        <section className={styles.form} id="leave-a-note">
+          <h2 className={styles.formTitle}>Leave a note</h2>
+          <p className={styles.formLead}>
+            If something here helped, telling the next person is the kindest
+            thing you can do.
           </p>
-          <span className={styles.closingLine} aria-hidden="true" />
-        </div>
-
-        <section className={styles.submitSection} id="leave-a-note">
-          <div
-            className={styles.formCard}
-            style={{
-              gridColumn: "1 / -1",
-              width: "min(760px, 100%)",
-              justifySelf: "center",
-            }}
-          >
-            <div style={{ textAlign: "center", marginBottom: 28 }}>
-              <p className={styles.script}>Leave a little note</p>
-              <h2
-                style={{
-                  margin: "8px 0 12px",
-                  fontFamily: "var(--font-display)",
-                  fontSize: "clamp(38px, 4vw, 54px)",
-                  fontWeight: 400,
-                  lineHeight: 1,
-                  color: "#241d1a",
-                }}
-              >
-                Tell Bee what you loved.
-              </h2>
-              <p style={{ margin: "0 auto", maxWidth: "58ch", color: "#685d56", lineHeight: 1.7 }}>
-                Your note goes into a private review queue first. Bee decides
-                what gets published, and your email is never shown publicly.
-              </p>
-            </div>
-            <TestimonialForm />
-          </div>
+          <TestimonialForm />
         </section>
+
+        <p className={styles.next}>
+          Not studying with Bryana yet?{" "}
+          <Link href="/start">Join the founding list</Link> and you&rsquo;ll
+          hear first when the materials open.
+        </p>
       </div>
     </section>
   );

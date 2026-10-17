@@ -1,0 +1,473 @@
+/* ==========================================================================
+   Testimonials — one column, no decoration
+   ==========================================================================
+
+   The page has one job: answer "does this work for someone like me?" and
+   send them to the founding list. Everything that is not evidence for that
+   question was removed — the sticky-note collage, pins, tape, tilt, framed
+   box, ornament row, honeycomb divider and intro paragraph.
+
+   ONE brand touch survives, the bee above the heading, so the page still
+   reads as Bryana's rather than as a generic review wall. One is the point;
+   a second would start rebuilding the collage.
+
+   Mobile first: the traffic arrives from TikTok, so the stacked column is
+   the base. From 1024px the PAGE splits into two columns — quotes on the
+   left, the form on the right — because a single 640px column on a desktop
+   screen turned a short page into a long scroll with half the window empty.
+
+   Note what does NOT become a grid: the quotes themselves. They stay a
+   single stack inside their column at every width. That is the distinction
+   that keeps one testimonial looking deliberate — see the note on the quote
+   list below.
+   ========================================================================== */
+
+/*
+ * SMALL-TEXT COLOURS.
+ *
+ * --ink-dim, --ink-faint and --gold-deep are tuned for the sizes they are
+ * used at elsewhere on the site, where 3:1 is the bar. Everything they would
+ * carry here is 12-13px, where AA wants 4.5:1, and all three fall short on
+ * cream: 4.15, 2.47 and 3.05 respectively.
+ *
+ * These are the same hues, darkened until they pass. The gold one matters
+ * most: it is the "Passed 9.15.26" tag, which is the single most persuasive
+ * line on the page and was the least legible thing on it.
+ */
+.page {
+  --t-dim: #6f6760;   /* 5.03:1 on cream, replaces --ink-dim at 12-13px */
+  --t-gold: #7d6232;  /* 5.19:1 on cream, replaces --gold-deep at 12px   */
+
+  background: var(--cream);
+  /* 56px mobile, 96px desktop — set once here, widened at the breakpoint. */
+  padding: 56px 0 72px;
+}
+
+.shell {
+  width: min(var(--w-text), 100%);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ---------------- heading ---------------- */
+
+.head {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+/* The single brand touch. */
+.mark {
+  display: block;
+  margin: 0 auto 18px;
+  color: var(--gold-deep);
+  line-height: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  /* A size down from the old page: the quotes are the evidence, not the
+     heading announcing them. */
+  font-size: clamp(30px, 7vw, 40px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+/* ---------------- the quotes ---------------- */
+
+.quotes {
+  list-style: none;
+  margin: 0 0 56px;
+  padding: 0;
+}
+
+/*
+ * The quotes are always one stack, at every width.
+ *
+ * A grid of quote cards is what forces the "looks broken with one" problem:
+ * a lone card in a three-column row reads as two that failed to load. One
+ * stack is the same shape whether there are one, three or twelve.
+ *
+ * The desktop layout gets its width back by putting the FORM beside this
+ * column rather than by splitting this column, so the page uses the screen
+ * without reintroducing that problem.
+ */
+.quote {
+  padding: 32px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.quote:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* Otherwise the last quote's padding stacks with the list margin and the
+   form's own padding, which on the one-quote page reads as a dead gap. */
+.quote:last-child {
+  padding-bottom: 0;
+}
+
+.quoteText {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(19px, 4.6vw, 22px);
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+
+.attribution {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 16px 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t-dim);
+}
+
+.name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/*
+ * Rendered only when passed_on is set. An empty or absent date renders
+ * nothing at all rather than "Passed —", because a dash where a date should
+ * be reads as missing data on the one line that is doing the persuading.
+ */
+.passed {
+  color: var(--t-gold);
+  white-space: nowrap;
+}
+
+/* ---------------- the zero state ---------------- */
+
+/*
+ * Not a fallback — the real design for a real situation. No skeleton, no
+ * placeholder card, and never an invented testimonial. It reads as an
+ * invitation so that arriving before anyone has written still feels like
+ * arriving somewhere finished.
+ */
+.empty {
+  margin: 0 0 56px;
+  padding: 0;
+  text-align: center;
+}
+
+.emptyHeading {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(21px, 5vw, 25px);
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.emptyBody {
+  margin: 0 auto;
+  max-width: 44ch;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+
+/* ---------------- the form ---------------- */
+
+.form {
+  border-top: 1px solid var(--rule);
+  padding-top: 40px;
+}
+
+.formTitle {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5vw, 26px);
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.formLead {
+  margin: 0 0 28px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+
+.field {
+  display: block;
+  margin: 0 0 24px;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 7px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t-dim);
+}
+
+.optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--t-dim);
+}
+
+/*
+ * Hairline inputs: a bottom rule, no box. 16px is not a style choice — any
+ * smaller and iOS zooms the viewport on focus, which on a phone throws the
+ * whole page sideways mid-typing.
+ */
+.field input,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  transition: border-color 0.18s var(--ease);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 108px;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--mauve-deep);
+}
+
+/* Focus must stay visible for keyboard users, which the border alone is too
+   subtle to carry. */
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--mauve-deep);
+  outline-offset: 3px;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+
+.consent input {
+  margin-top: 3px;
+  accent-color: var(--mauve-deep);
+  flex: none;
+}
+
+/* Hidden from people and assistive tech, irresistible to bots. */
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*
+ * A text button, not a filled pill. The page's call to action is the
+ * founding list; this one should read as "finish the thing you started",
+ * not compete with it.
+ */
+.send {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 6px 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--mauve-deep);
+  cursor: pointer;
+}
+
+.send:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.send:disabled {
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--mauve-deep);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.trust {
+  margin: 18px 0 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--t-dim);
+}
+
+.error {
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #8c2f2f;
+}
+
+.success {
+  margin: 16px 0 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------- the push to the founding list ---------------- */
+
+.next {
+  margin: 48px 0 0;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+
+.next a {
+  color: var(--mauve-deep);
+  font-weight: 600;
+}
+
+/* ---------------- desktop: more room, same shape ---------------- */
+
+/* A little more air once there is room, still one column. */
+@media (min-width: 760px) and (max-width: 1023px) {
+  .page {
+    padding: 72px 0 88px;
+  }
+
+  .quote {
+    padding: 36px 0;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP — quotes and form side by side
+   ==========================================================================
+
+   The single column was correct and too tall: on a laptop it pushed the form
+   below the fold and left half the window empty, so the page read as a long
+   scroll rather than a short answer to "does this work for someone like me?"
+
+   Source order is heading, quotes, form, footer — the right reading order on
+   a phone. Grid areas rearrange it, so the markup is untouched and a screen
+   reader still meets the page in the order it was written.
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .page {
+    padding: 64px 0 72px;
+  }
+
+  .shell {
+    width: min(var(--w-section), 100%);
+    display: grid;
+    /* The quotes earn the wider side; the form is a column of short fields
+       and gets narrow and tidy rather than stretched. */
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-areas:
+      "head  head"
+      "body  form"
+      "next  next";
+    column-gap: clamp(48px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .head {
+    grid-area: head;
+    margin-bottom: 40px;
+  }
+
+  /* Both the quote list and the zero state occupy the same slot, so the
+     page has one shape whether or not anyone has written yet. */
+  .quotes,
+  .empty {
+    grid-area: body;
+    margin-bottom: 0;
+  }
+
+  .empty {
+    text-align: left;
+  }
+
+  .emptyBody {
+    margin-left: 0;
+  }
+
+  .quote {
+    padding: 28px 0;
+  }
+
+  .form {
+    grid-area: form;
+    /* The rule above it is the mobile separator; side by side the column gap
+       does that job and a line across the top of the form just boxes it in. */
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /*
+   * Tighter fields, and a shorter note box.
+   *
+   * The form is the tallest thing on the page, so its height sets the whole
+   * layout's. On the one-quote page that left a column of dead space beside
+   * it; shrinking the form closes most of that gap AND takes the page height
+   * down, which is the actual ask — fit more on the screen.
+   *
+   * The box still grows: it is resizable, and the field scrolls, so a long
+   * note is not cramped by a short starting height.
+   */
+  .field {
+    margin-bottom: 18px;
+  }
+
+  .field textarea {
+    min-height: 84px;
+  }
+
+  .next {
+    grid-area: next;
+    margin-top: 48px;
+  }
+}

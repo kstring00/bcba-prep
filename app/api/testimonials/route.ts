@@ -9,9 +9,45 @@ type Submission = {
   displayName?: unknown;
   email?: unknown;
   quote?: unknown;
+  /** Optional ISO date, "YYYY-MM-DD". Empty means not given. */
+  passedOn?: unknown;
   consent?: unknown;
   company?: unknown;
 };
+
+/**
+ * The optional "passed on" date.
+ *
+ * Returns null for absent OR unusable, deliberately: a date is a bonus on a
+ * testimonial, and rejecting the whole submission because someone's browser
+ * sent an odd value would throw away the words, which are the point.
+ *
+ * Rejects the future outright. "Passed 3.4.27" on a note written today is
+ * either a typo or a fiction, and this line is the one doing the persuading
+ * — it has to be the most trustworthy thing on the page, not the least.
+ *
+ * The floor matches the CHECK constraint in 0006. The ceiling cannot live in
+ * the database, because now() is not immutable in a constraint.
+ */
+function cleanPassedOn(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return null;
+
+  const parsed = new Date(`${trimmed}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  // Round-trip guard: Date accepts 2026-02-31 and silently rolls it to March.
+  if (parsed.toISOString().slice(0, 10) !== trimmed) return null;
+
+  // One day of slack, so somebody ahead of UTC submitting on the day they
+  // passed is not told their own date is in the future.
+  const tomorrow = Date.now() + 24 * 60 * 60 * 1000;
+  if (parsed.getTime() > tomorrow) return null;
+  if (parsed.getTime() < Date.parse("2000-01-01T00:00:00Z")) return null;
+
+  return trimmed;
+}
 
 function cleanString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -21,6 +57,7 @@ async function notifyReviewer(input: {
   displayName: string;
   email: string;
   quote: string;
+  passedOn: string | null;
 }) {
   // Submissions are stored for review whether or not email is configured.
   // Never fail a visitor's submission because notification infrastructure is
@@ -39,6 +76,7 @@ async function notifyReviewer(input: {
       "",
       `Display name: ${input.displayName}`,
       `Reply email:  ${input.email}`,
+      `Passed on:    ${input.passedOn ?? "not given"}`,
       "",
       input.quote,
       "",
@@ -112,6 +150,7 @@ export async function POST(request: Request) {
   const email = cleanString(body.email).toLowerCase();
   const quote = cleanString(body.quote);
   const consent = body.consent === true;
+  const passedOn = cleanPassedOn(body.passedOn);
 
   if (displayName.length < 1 || displayName.length > 80) {
     return NextResponse.json(
@@ -180,6 +219,9 @@ export async function POST(request: Request) {
       display_name: displayName,
       email,
       quote,
+      // null when not given or not usable; the column is nullable and the
+      // page renders nothing at all rather than an empty "Passed" label.
+      passed_on: passedOn,
       consent_to_publish: true,
       status: "pending",
     }),
@@ -194,7 +236,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await notifyReviewer({ displayName, email, quote });
+    await notifyReviewer({ displayName, email, quote, passedOn });
   } catch (error) {
     console.error("[testimonials] reviewer notification threw", error);
   }
