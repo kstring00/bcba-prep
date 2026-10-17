@@ -14,7 +14,9 @@
 
 .hero {
   position: relative;
-  overflow: hidden;
+  /* clip, not hidden: `hidden` makes the section a scroll container and
+     the sticky portrait would stick to it instead of the viewport. */
+  overflow: clip;
   padding-block: clamp(40px, 6vw, 88px) clamp(48px, 6vw, 88px);
 }
 
@@ -72,11 +74,21 @@
 }
 
 .story {
+  margin-top: clamp(24px, 3vw, 36px);
   border-top: 1px solid var(--rule);
   padding-top: clamp(24px, 3vw, 32px);
 }
 
-.story p {
+/* Emoji inherit the display size and out-shout the words. Her copy is
+   untouched; the glyphs are set smaller. */
+.emoji {
+  font-size: 0.58em;
+  vertical-align: -0.04em;
+  margin-left: 0.1em;
+}
+
+/* :not(.eyebrow) so the global eyebrow keeps its own size and colour. */
+.story p:not(:global(.eyebrow)) {
   margin: 0 0 1.1em;
   font-size: 17px;
   line-height: 1.7;
@@ -102,8 +114,10 @@
 
   .media {
     order: 0;
-    grid-column: 9 / span 4;
+    grid-column: 8 / span 5;
     width: 100%;
+    max-width: 440px;
+    justify-self: end;
     margin: 0;
     /* Offset above the text's first line and pinned while the story
        scrolls past — the editorial template's spread, not a table row. */
@@ -113,8 +127,7 @@
   }
 
   .story {
-    column-count: 1;
-    max-width: 64ch;
+    max-width: 68ch;
   }
 }
 
@@ -136,6 +149,14 @@
 
 .cred {
   position: relative;
+  display: grid;
+  /* Subgrid where supported: every cell's value and label share the two
+     row tracks, so the four labels sit on one line whatever the value
+     wraps to. Without subgrid each cell aligns itself; still tidy. */
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  align-items: end;
+  row-gap: 6px;
   padding: clamp(22px, 3vw, 34px) 8px;
   text-align: center;
   border-top: 1px solid var(--rule);
@@ -146,8 +167,10 @@
 }
 
 .credValue {
-  display: block;
-  margin: 0 0 6px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(26px, 2.6vw, 38px);
@@ -159,14 +182,18 @@
 /* The long cell. Same fact, set smaller so the row reads as one line of
    figures rather than three short cells and a paragraph. */
 .credValueLong {
-  font-size: clamp(20px, 1.6vw, 26px);
-  line-height: 1.2;
-  max-width: 22ch;
+  font-size: clamp(22px, 1.9vw, 30px);
+  line-height: 1.15;
+}
+.credValueLong > span {
+  display: block;
+  max-width: 19ch;
   margin-inline: auto;
 }
 
 .credLabel {
   display: block;
+  align-self: start;
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 700;
@@ -221,9 +248,10 @@
     display: block;
     position: absolute;
     top: 50%;
-    right: -5px;
+    right: -8px;
     transform: translateY(-50%);
     color: var(--gold);
+    opacity: 0.7;
   }
 
   .cred:last-child .credDot {
@@ -236,7 +264,8 @@
 .mission {
   position: relative;
   color: var(--ink);
-  background: linear-gradient(135deg, #d9c083 0%, var(--gold) 52%, #b9965c 100%);
+  /* Same stops as .sec--band-gold, so gold bands match site-wide. */
+  background: linear-gradient(135deg, #d4b878 0%, var(--gold) 55%, #b8955a 100%);
   overflow: hidden;
 }
 
@@ -495,8 +524,13 @@
   color: var(--on-night-dim);
 }
 
-@media (min-width: 640px) {
-  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* 640–1023: six tracks, two per step, so five steps sit 3 + 2 centred
+   rather than 2 + 2 + 1 with the last one orphaned. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .steps { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .step { grid-column: span 2; }
+  .step:nth-child(4) { grid-column: 2 / span 2; }
+  .step:nth-child(5) { grid-column: 4 / span 2; }
 }
 
 @media (min-width: 1024px) {
@@ -506,7 +540,7 @@
 /* ---------- 6. resources: split ---------- */
 
 .resources {
-  padding-block: clamp(56px, 7vw, 104px);
+  padding-block: clamp(44px, 5vw, 72px);
 }
 
 .resGrid {
@@ -547,8 +581,9 @@
     column-gap: var(--gutter);
     align-items: start;
   }
-  .resTitle { grid-column: 1 / span 5; }
-  .resBody  { grid-column: 7 / span 6; }
+  /* Flipped: the two splits above both run title-left, body-right. */
+  .resTitle { grid-column: 8 / span 5; grid-row: 1; }
+  .resBody  { grid-column: 1 / span 6; grid-row: 1; }
 }
 
 /* ---------- 7. closing: centred and balanced ---------- */

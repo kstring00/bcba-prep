@@ -86,12 +86,10 @@ export default function AboutPage() {
         <div className={`container ${styles.heroGrid}`}>
           <div className={styles.text}>
             <p className="eyebrow">Hi, I&rsquo;m Bryana</p>
-            <h1 className={styles.title}>Meet the Bae Behind the Bees 🐝💗</h1>
-            <p className={styles.lede}>
-              Welcome to Bee the Behavior Bae, where we&rsquo;re making BCBA
-              exam preparation feel{" "}
-              <em>a little less overwhelming and a lot more empowering.</em>
-            </p>
+            <h1 className={styles.title}>
+              Meet the Bae Behind the Bees{" "}
+              <span className={styles.emoji}>🐝💗</span>
+            </h1>
 
             <div className={styles.story}>
               <p className="eyebrow">My Story</p>
@@ -141,7 +139,7 @@ export default function AboutPage() {
                 <span
                   className={`${styles.credValue}${"long" in c && c.long ? ` ${styles.credValueLong}` : ""}`}
                 >
-                  {c.value}
+                  <span>{c.value}</span>
                 </span>
               ) : (
                 /* TODO — CONFIRM WITH BRYANA: the awarding university. */
@@ -152,7 +150,7 @@ export default function AboutPage() {
                 </span>
               )}
               <span className={styles.credLabel}>{c.label}</span>
-              <HexDot size={10} className={styles.credDot} />
+              <HexDot size={16} className={styles.credDot} />
             </li>
           ))}
         </ul>
@@ -165,7 +163,9 @@ export default function AboutPage() {
         </div>
         <div className={`container ${styles.missionInner}`}>
           <p className={styles.missionEyebrow}>Bee the Behavior Bae</p>
-          <h2 className={styles.missionTitle}>🩷 My Mission</h2>
+          <h2 className={styles.missionTitle}>
+            <span className={styles.emoji}>🩷</span> My Mission
+          </h2>
           <p className={styles.missionBody}>
             My mission is to create study resources that make learning ABA
             concepts more approachable, encourage critical thinking, and help
@@ -182,7 +182,9 @@ export default function AboutPage() {
         <div className={`container ${styles.whyGrid}`}>
           <div className={styles.whyHead}>
             <HexCluster className={styles.cluster} size={20} honey={1} />
-            <h2 className={styles.whyTitle}>✨ Why Bee the Behavior Bae?</h2>
+            <h2 className={styles.whyTitle}>
+              <span className={styles.emoji}>✨</span> Why Bee the Behavior Bae?
+            </h2>
           </div>
 
           <div className={styles.whyBody}>
