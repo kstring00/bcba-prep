@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BeeMark } from "@/components/BeeMark";
+import { Bookshelf } from "@/components/Bookshelf";
 import { LibrarySections } from "./LibrarySections";
+import { SALES_ENABLED } from "@/lib/launch";
 import { getSessionUser } from "@/lib/auth/session";
 import { getOwnedSkus } from "@/lib/entitlements/server";
 import { getLibraryContent } from "@/lib/entitlements/library";
@@ -70,6 +72,19 @@ export default async function MemberPage({
             You&rsquo;re signed in as <strong>{user.email ?? "your account"}</strong>.
           </p>
         </header>
+
+        {/* The bookshelf: nine spines, owned in colour, locked in grey.
+            Behind the sales gate — before sales open every book is locked
+            and a shelf of grey spines is a wall, not a library. Preview it
+            any time at /preview/bookshelf. */}
+        {SALES_ENABLED ? (
+          <div className={styles.shelfWrap}>
+            <h2 className={styles.shelfTitle} id="library-shelf">
+              Your bookshelf
+            </h2>
+            <Bookshelf ownedSkus={ownedSkus} labelledBy="library-shelf" />
+          </div>
+        ) : null}
 
         <LibrarySections
           ownedSkus={ownedSkus}

@@ -1,0 +1,31 @@
+.page {
+  padding-block: clamp(40px, 6vw, 80px) clamp(64px, 8vw, 120px);
+  background: var(--cream);
+}
+
+.head {
+  display: grid;
+  gap: 12px;
+  max-width: 64ch;
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.note {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
+.note code {
+  font-size: 13px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--cream-deep);
+  color: var(--ink);
+}
+
+.note a {
+  color: var(--mauve-deep);
+  font-weight: 600;
+}

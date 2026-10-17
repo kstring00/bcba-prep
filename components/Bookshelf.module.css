@@ -1,0 +1,319 @@
+/* ==========================================================================
+   Bookshelf — nine spines on one shelf, facing the viewer
+   ========================================================================== */
+
+.shelf {
+  position: relative;
+}
+
+/* Phones scroll the shelf sideways; the board scrolls with the books so the
+   row never floats. Desktop fits the whole shelf in the container. */
+.scroller {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 24px 0 0;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0 var(--pad) 0;
+  list-style: none;
+  justify-content: center;
+}
+
+.slot {
+  flex: none;
+  width: var(--w);
+  scroll-snap-align: center;
+  /* Perspective per slot, so each book tilts on its own hinge. */
+  perspective: 900px;
+}
+
+.book {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transform-origin: 50% 100%;
+  transition: transform 260ms var(--ease), filter 260ms var(--ease);
+}
+
+/* The spine: a tall cloth face with a lit top edge. */
+.spine {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  align-items: center;
+  justify-items: center;
+  width: var(--w);
+  height: calc(300px + var(--lift));
+  padding: 14px 0 12px;
+  border-radius: 3px 3px 2px 2px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0%, rgba(255, 255, 255, 0.06) 8%, rgba(0, 0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0.14) 100%),
+    var(--cloth);
+  color: var(--foil);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 10px 24px -14px rgba(27, 21, 18, 0.5);
+  overflow: hidden;
+}
+
+/* The page block visible above the boards: the top edge of the book. */
+.top {
+  position: absolute;
+  top: 0;
+  left: 3px;
+  right: 3px;
+  height: 7px;
+  border-radius: 2px 2px 0 0;
+  background: repeating-linear-gradient(90deg, #f3ebdd 0 1px, #e3d8c6 1px 2px);
+  opacity: 0.9;
+}
+
+.letter {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.rule {
+  width: 60%;
+  height: 1px;
+  margin: 8px 0 6px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* The name runs up the spine, bottom to top, like a real shelf. */
+.name {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #f6f0e4;
+  align-self: stretch;
+  padding: 6px 0;
+}
+
+.spineLight .name {
+  color: #2a241f;
+}
+
+.motif {
+  width: 80%;
+  opacity: 0.7;
+  line-height: 0;
+}
+
+.motif svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.edition {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+/* A soft sweep of light across the cloth, moved on hover. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.16) 48%, transparent 62%);
+  transform: translateX(-100%);
+  transition: transform 500ms var(--ease);
+  pointer-events: none;
+}
+
+/* ---- states ---- */
+
+/* Pulled out, not levitated: the base keeps contact with the board, the
+   top tips toward the viewer, and the shadow deepens. */
+.book:hover,
+.book:focus-visible {
+  transform: translateY(-2px) rotateX(-6deg) translateZ(16px);
+  outline: none;
+}
+
+.book:hover .spine,
+.book:focus-visible .spine {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 22px 32px -18px rgba(27, 21, 18, 0.6);
+}
+
+.book:hover .sheen,
+.book:focus-visible .sheen {
+  transform: translateX(100%);
+}
+
+.book:focus-visible .spine {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 0 3px var(--cream),
+    0 0 0 5px var(--mauve-deep);
+}
+
+/* Locked: greyscale (which keeps luminance, so the stamped text still
+   clears 4.5:1 — fading with opacity did not), a hairline so the two pale
+   cloths do not dissolve into the cream, and a gentle "Unlock" that rises
+   on hover and focus. Always in the accessible name, see the component. */
+.locked .spine {
+  filter: grayscale(1) brightness(1.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(27, 21, 18, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 10px 24px -14px rgba(27, 21, 18, 0.5);
+  transition: filter 260ms var(--ease), padding 200ms var(--ease);
+}
+
+.locked .book:hover .spine,
+.locked .book:focus-visible .spine {
+  filter: grayscale(0.4) brightness(1);
+  padding-bottom: 46px;
+}
+
+.unlock {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translate(-50%, 6px);
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--gold-honey);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+  pointer-events: none;
+}
+
+.locked .book:hover .unlock,
+.locked .book:focus-visible .unlock {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Touch screens cannot hover: the label is always on, quietly. */
+@media (hover: none) {
+  .unlock {
+    opacity: 0.9;
+    transform: translate(-50%, 0);
+  }
+  /* Room under the edition mark so the always-on label covers nothing. */
+  .locked .spine {
+    padding-bottom: 46px;
+  }
+}
+
+/* ---- the shelf board ---- */
+
+.board {
+  position: sticky;
+  left: 0;
+  height: 18px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #e7dccb 0%, #d8c9b2 55%, #c9b79c 100%);
+  box-shadow:
+    inset 0 6px 8px -6px rgba(27, 21, 18, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 14px 28px -14px rgba(27, 21, 18, 0.45),
+    0 2px 0 rgba(27, 21, 18, 0.08);
+}
+
+.caption {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* ---- desktop ---- */
+
+@media (min-width: 1024px) {
+  .scroller {
+    /* Still a scroller as a safety net; the scale below keeps the nine
+       inside the container from 1024px up, so it never needs to. */
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-top: 32px;
+  }
+  .row {
+    /* Bigger books on a big shelf, stepped: 1.12x fits a 954px container
+       with the gaps; 1.45x from 1244px, where the nine fill the board. */
+    --scale: 1.12;
+    width: 100%;
+    gap: 12px;
+    padding: 0 clamp(24px, 4vw, 64px);
+  }
+  .slot {
+    width: calc(var(--w) * var(--scale));
+  }
+  .spine {
+    width: calc(var(--w) * var(--scale));
+    height: calc(390px + var(--lift) * 1.5);
+    padding-top: 18px;
+  }
+  .letter {
+    font-size: 22px;
+  }
+  .name {
+    font-size: 22px;
+  }
+  .edition {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book,
+  .sheen,
+  .unlock,
+  .locked .spine {
+    transition: none;
+  }
+  .book:hover,
+  .book:focus-visible {
+    transform: none;
+  }
+}
+
+@media (min-width: 1140px) {
+  .row { --scale: 1.28; }
+}
+@media (min-width: 1244px) {
+  .row { --scale: 1.45; }
+}
