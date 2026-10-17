@@ -231,6 +231,12 @@ export function SiteHeader() {
         >
           {signedIn ? "My Library" : "Member Login"}
         </Link>
+        {/*
+          No "Join the founding list" here, on purpose. It is the sticky CTA
+          (components/FoundingCta.tsx), which is present on every page except
+          /start. As a nav tab it was one more equal-weight row competing with
+          six others; as a pill it is the one thing on the page asking.
+        */}
         {signedIn ? (
           <button
             type="button"
@@ -244,18 +250,6 @@ export function SiteHeader() {
           </button>
         ) : null}
 
-        {/*
-          The primary item in the menu, and the only one styled as a button.
-          Nothing is on sale, so the founding list is the single action this
-          site is asking anyone for — the menu should say so rather than
-          presenting six equal-weight rows.
-
-          Menu-only: /start suppresses the header entirely, so this cannot
-          appear on the page it links to.
-        */}
-        <Link href="/start" className="nav-cta" onClick={() => setOpen(false)}>
-          Join the founding list
-        </Link>
       </nav>
 
       <div className="header-end">

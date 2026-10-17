@@ -6,7 +6,8 @@ import { useState } from "react";
 import { Book } from "@/components/Book";
 import { BryanaTeaser } from "@/components/BryanaTeaser";
 import { BundleCard } from "@/components/BundleCard";
-import { Florals, Ornament } from "@/components/Florals";
+import { Ornament } from "@/components/Florals";
+import { HexField } from "@/components/HexMotif";
 import { BOOK_TRANSITION } from "@/components/motion-config";
 import { domains } from "@/lib/domains";
 import { domainSku } from "@/lib/catalog";
@@ -28,11 +29,22 @@ export default function LibraryPage() {
   return (
     <>
       <section className="bleed">
-        <Florals variant="hero-left" className="floral floral--hero-left" />
-        <Florals variant="hero-right" className="floral floral--hero-right" />
+        {/* The signature motif behind the hero. Florals are retired here;
+            see DESIGN_DIRECTION.md. Desktop only — on a phone the pile fills
+            the width and a field behind it is just noise. */}
+        <div className="home-hex" aria-hidden="true">
+          <HexField size={34} opacity={0.14} />
+        </div>
 
         <div className="bleed-inner">
-          <div className="home-head">
+          {/*
+            Desktop: the introduction sits in a sticky left column while the
+            pile scrolls on the right, so the page uses the screen instead of
+            centring a 940px pile in 1440px of cream. Phones keep the stacked
+            order, introduction then pile.
+          */}
+          <div className="home-grid">
+          <div className="home-head" data-reveal>
             <p className="script">The library</p>
             <h1 className="display">
               Nine domains. <span className="accent">One standard.</span>
@@ -42,6 +54,15 @@ export default function LibraryPage() {
               Every domain of the BACB<sup>&reg;</sup> Task List, bound and
               weighted the way the exam is. Open one to see what is inside.
             </p>
+            {/* The conversion, where the eye lands first on desktop. */}
+            <div className="home-cta">
+              <Link href="/start" className="btn--gold">
+                Join the founding list <span aria-hidden="true">→</span>
+              </Link>
+              <Link href="/about" className="link-gold home-cta-quiet">
+                Meet Bryana
+              </Link>
+            </div>
           </div>
 
           <ul className="stack" id="stack">
@@ -118,9 +139,12 @@ export default function LibraryPage() {
               );
             })}
           </ul>
+          </div>
 
-          <BundleCard />
-          <BryanaTeaser />
+          <div className="home-foot" data-reveal-group>
+            <div data-reveal><BundleCard /></div>
+            <div data-reveal><BryanaTeaser /></div>
+          </div>
         </div>
       </section>
     </>

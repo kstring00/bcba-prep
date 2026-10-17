@@ -74,6 +74,18 @@
   --w-text: 640px;
   --w-section: 1100px;
 
+  /* DESIGN SYSTEM — see DESIGN_DIRECTION.md.
+     One container, twelve columns. Desktop composes inside it; feature bands
+     bleed past it. Phones keep --pad as the gutter. */
+  --container: 1280px;
+  --gutter: 24px;
+
+  /* Gold is a fill and a line colour. For TEXT under 24px it is this darker
+     cut, which clears 4.5:1 on cream; #c6a667 itself is 2.1:1 and may not
+     carry small text anywhere. */
+  --gold-text: #7d6232;
+  --gold-honey: #e3c57a;
+
   --rule: rgba(27, 21, 18, 0.11);
   --rule-strong: rgba(27, 21, 18, 0.2);
   --rule-night: rgba(242, 235, 224, 0.14);
@@ -504,27 +516,6 @@ button {
     border-top: 0;
   }
 
-  /*
-   * The founding list is the primary item, so it reads as the one thing to
-   * tap: gold fill, ink text (7.79:1), and no hairline rule under it because
-   * it is a button rather than another row in the list.
-   */
-  .site-nav .nav-cta {
-    margin-top: 14px;
-    margin-bottom: 4px;
-    justify-content: center;
-    min-height: 52px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--gold);
-    color: var(--ink);
-    font-weight: 600;
-  }
-
-  .site-nav .nav-cta:hover {
-    background: var(--gold-deep);
-    color: var(--ink);
-  }
 
   /* The last plain row sits directly above the CTA; its rule would read as a
      stray line once the button is there. */
@@ -2713,5 +2704,517 @@ textarea:focus-visible,
   .col-section {
     padding-left: max(var(--pad), env(safe-area-inset-left));
     padding-right: max(var(--pad), env(safe-area-inset-right));
+  }
+}
+
+/* ==========================================================================
+   DESIGN SYSTEM — layout, sections, motion, motif
+   ==========================================================================
+   See DESIGN_DIRECTION.md. Every page composes from these.
+   ========================================================================== */
+
+/* ---------- container + grid ---------- */
+
+.container {
+  width: min(var(--container), 100% - 2 * var(--pad));
+  margin-inline: auto;
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: var(--gutter);
+}
+
+/* ---------- section rhythm ---------- */
+
+.sec {
+  position: relative;
+  padding-block: clamp(56px, 7vw, 104px);
+}
+
+.sec--tight {
+  padding-block: clamp(36px, 5vw, 64px);
+}
+
+/* Eyebrow: small caps in the text-safe gold. */
+.eyebrow {
+  margin: 0 0 14px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+/* The large display heading. Light weight, tight leading, left-aligned on
+   desktop by default — centring is a per-section decision. */
+.display-xl {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 5.6vw, 76px);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.display-lg {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 3.8vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0;
+  font-size: clamp(17px, 1.35vw, 20px);
+  line-height: 1.6;
+  color: var(--ink-body);
+  max-width: 58ch;
+  text-wrap: pretty;
+}
+
+/* ---------- template: split ---------- */
+/* Text beside a visual. 6/6 by default; .sec--split-5-7 weights the visual. */
+
+.sec--split .container {
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .sec--split .container {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+  }
+  .sec--split .split-a { grid-column: 1 / span 6; }
+  .sec--split .split-b { grid-column: 7 / span 6; }
+  .sec--split-5-7 .split-a { grid-column: 1 / span 5; }
+  .sec--split-5-7 .split-b { grid-column: 6 / span 7; }
+  .sec--split-7-5 .split-a { grid-column: 1 / span 7; }
+  .sec--split-7-5 .split-b { grid-column: 8 / span 5; }
+}
+
+/* ---------- template: editorial ---------- */
+/* Large type + an image that sits higher than the text, so the two overlap
+   the way a magazine spread does rather than lining up like a table. */
+
+.sec--editorial .container {
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .sec--editorial .container {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+  }
+  .sec--editorial .ed-text  { grid-column: 1 / span 7; }
+  .sec--editorial .ed-media { grid-column: 9 / span 4; margin-top: -40px; position: sticky; top: calc(var(--header-h) + 32px); }
+  .sec--editorial.sec--editorial-flip .ed-text  { grid-column: 6 / span 7; grid-row: 1; }
+  .sec--editorial.sec--editorial-flip .ed-media { grid-column: 1 / span 4; grid-row: 1; }
+}
+
+/* ---------- template: card grid ---------- */
+
+.card-grid {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px)  { .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) {
+  .card-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .card-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: clamp(22px, 2.4vw, 30px);
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  background: var(--cream-card);
+  color: var(--ink-body);
+  transition: transform 220ms var(--ease), border-color 220ms var(--ease),
+    box-shadow 220ms var(--ease);
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 22px 48px -28px rgba(45, 31, 40, 0.35);
+}
+
+.card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.card p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ---------- template: feature band ---------- */
+
+.sec--band {
+  background: var(--night);
+  color: var(--on-night);
+  overflow: hidden;
+}
+
+.sec--band .eyebrow { color: var(--gold); }
+.sec--band .display-lg,
+.sec--band .display-xl { color: #f7efe2; }
+.sec--band .lede { color: var(--on-night-dim); }
+
+.sec--band-gold {
+  background: linear-gradient(135deg, #d4b878 0%, var(--gold) 55%, #b8955a 100%);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.sec--band-gold .eyebrow { color: var(--ink); opacity: 0.72; }
+.sec--band-gold .lede { color: var(--ink); }
+
+/* The tessellated field that sits behind a band. */
+.hex-field {
+  position: absolute;
+  inset: 0;
+  color: currentColor;
+  pointer-events: none;
+}
+
+.sec--band .hex-field { color: var(--gold); }
+.sec--band-gold .hex-field { color: var(--ink); }
+
+/* ---------- motif: hex frame ---------- */
+
+.hex-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 0.866 / 1;
+}
+
+.hex-frame-clip {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  overflow: hidden;
+  background: var(--cream-deep);
+}
+
+.hex-frame-clip img,
+.hex-frame-clip .portrait-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hex-frame-line {
+  position: absolute;
+  inset: 0;
+  transform: translate(var(--hex-offset), var(--hex-offset));
+  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  background: var(--gold);
+  /* A hairline: the gold shape with a cream shape punched out of it. */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  padding: 1.5px;
+  pointer-events: none;
+}
+
+.hex-cluster {
+  color: var(--gold);
+  pointer-events: none;
+}
+
+/* ---------- motion: scroll reveal ---------- */
+
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 480ms var(--ease) var(--reveal-delay, 0ms),
+    transform 480ms var(--ease) var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* The honey cell in a cluster fills as its section reveals. */
+html.js [data-reveal] .hex-cluster [data-honey] {
+  opacity: 0;
+  transition: opacity 600ms var(--ease) 240ms;
+}
+html.js [data-reveal].is-in .hex-cluster [data-honey] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html.js [data-reveal] .hex-cluster [data-honey] {
+    opacity: 1;
+    transition: none;
+  }
+  .card { transition: none; }
+  .card:hover { transform: none; }
+}
+
+/* ---------- gold hover: underline draws in from the left ---------- */
+
+.link-gold {
+  position: relative;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-gold::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1.5px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms var(--ease);
+}
+
+.link-gold:hover::after,
+.link-gold:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* ---------- buttons: the gold rule ---------- */
+/* Gold fill carries INK text. White on gold is 2.3:1 and fails; ink is 7.8:1. */
+
+.btn--solid {
+  color: var(--ink);
+}
+
+.btn--solid:hover {
+  color: var(--ink);
+}
+
+.btn--gold {
+  min-height: 52px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 180ms var(--ease), transform 180ms var(--ease);
+}
+
+.btn--gold:hover {
+  background: var(--gold-deep);
+  transform: translateY(-1px);
+}
+
+.btn--gold:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.btn--ghost {
+  min-height: 52px;
+  padding: 0 22px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 180ms var(--ease), background 180ms var(--ease);
+}
+
+.btn--ghost:hover {
+  border-color: var(--gold);
+  background: rgba(198, 166, 103, 0.08);
+}
+
+/* ---------- the mobile founding bar reserves its height ---------- */
+
+@media (max-width: 1023px) {
+  body.has-founding-bar .footer {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------- home: desktop composition ---------- */
+
+/* Off on phones; positioned inside the desktop block below. */
+.home-hex {
+  display: none;
+}
+
+.home-grid {
+  display: grid;
+  gap: clamp(20px, 3vw, 36px);
+}
+
+/*
+ * The pile inside the grid.
+ *
+ * .stack carries `margin: 0 auto` from its life as a block-level child. As a
+ * grid item, auto margins win over `justify-self: stretch` and the item sizes
+ * to its content — and a column of 3D-transformed books has almost no
+ * intrinsic width, so it collapsed to 16px on a phone. Zero the margins here
+ * and let the track size it.
+ */
+.home-grid > .stack {
+  margin-inline: 0;
+  width: 100%;
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.home-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 22px;
+  margin-top: 26px;
+}
+
+.home-cta-quiet {
+  font-size: 15px;
+}
+
+.home-foot {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  margin-top: clamp(40px, 5vw, 64px);
+}
+
+/* The two cards keep their own max-widths on phones; in the two-column foot
+   they fill their cell. */
+.home-foot .bundle,
+.home-foot .bryana-teaser {
+  max-width: none;
+  margin: 0;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/*
+ * The bundle card was built as a wide 1fr/auto grid for a 940px row. In a
+ * half-width cell the `auto` side kept its intrinsic width and the text
+ * column collapsed to a character per line. Stack it instead.
+ */
+.home-foot .bundle {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 18px;
+}
+
+@media (min-width: 1024px) {
+  .bleed-inner {
+    max-width: var(--container);
+  }
+
+  .home-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(40px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .home-head {
+    position: sticky;
+    top: calc(var(--header-h) + 40px);
+    text-align: left;
+    padding-top: clamp(24px, 3vw, 48px);
+  }
+
+  .home-head h1 {
+    font-size: clamp(44px, 4.6vw, 68px);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .home-head .ornament {
+    margin-left: 0;
+  }
+
+  .home-head p {
+    max-width: 46ch;
+    margin-left: 0;
+    margin-right: 0;
+    font-size: 17px;
+  }
+
+  .home-cta {
+    justify-content: flex-start;
+  }
+
+  .stack {
+    max-width: none;
+    margin: 0;
+    /* Match the introduction's top padding so the first book is not tucked
+       under the sticky header on arrival. */
+    padding-top: clamp(24px, 3vw, 48px);
+  }
+
+  /* The field behind the hero — honeycomb, not florals. */
+  .home-hex {
+    display: block;
+    position: absolute;
+    inset: -10% -5% auto;
+    height: 70%;
+    color: var(--gold);
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 60% 55% at 70% 30%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse 60% 55% at 70% 30%, #000 0%, transparent 70%);
+  }
+
+  .home-foot {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
