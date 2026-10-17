@@ -62,6 +62,19 @@ export function StudyBreak({ signedIn, ownedSkus }: Props) {
   const [announcement, setAnnouncement] = useState("");
   const [guided, setGuided] = useState(false);
   const [manual, setManual] = useState<ManualModule>(null);
+  /* /study-break?tool=breathe opens that module on arrival — the Mental
+     Health Toolkit links to each one directly. */
+  const toolParam = searchParams.get("tool");
+  useEffect(() => {
+    if (
+      toolParam === "breathe" ||
+      toolParam === "stretch" ||
+      toolParam === "listen" ||
+      toolParam === "write"
+    ) {
+      setManual(toolParam);
+    }
+  }, [toolParam]);
   const [pouring, setPouring] = useState<number | null>(null);
   const [combGlow, setCombGlow] = useState(false);
   /* True once a break has finished, so the domain CTA appears then and not

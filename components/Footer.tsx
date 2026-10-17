@@ -41,7 +41,7 @@ export function Footer() {
           </Link>
           <nav className="footer-links" aria-label="Site">
             <Link href="/mock-exams">Mock Exams</Link>
-            <Link href="/study-break">Study Break</Link>
+            <Link href="/toolkit">Mental Health Toolkit</Link>
             <Link href="/about">About</Link>
           </nav>
           <nav className="footer-links" aria-label="Legal">

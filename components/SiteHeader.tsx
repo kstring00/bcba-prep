@@ -23,7 +23,7 @@ import brandStyles from "./Brand.module.css";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/mock-exams", label: "Mock Exams" },
-  { href: "/study-break", label: "Study Break" },
+  { href: "/toolkit", label: "Mental Health Toolkit" },
   { href: "/about", label: "About" },
   { href: "/testimonials", label: "Testimonials" },
   { href: "/contact", label: "Contact" },

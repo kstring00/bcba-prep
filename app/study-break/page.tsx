@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getSessionUser } from "@/lib/auth/session";
 import { getOwnedSkus } from "@/lib/entitlements/server";
 import { StudyBreak } from "./StudyBreak";
+import { CRISIS_LINE, SAFETY_NOTE } from "@/lib/toolkit/config";
 
 export const metadata: Metadata = {
   title: "Study Break | BCBA Prep by Bee the Behavior Bae",
@@ -25,5 +26,16 @@ export default async function StudyBreakPage() {
   // Used by the post-break CTA to offer a domain the member actually owns.
   const ownedSkus = user ? await getOwnedSkus() : [];
 
-  return <StudyBreak signedIn={Boolean(user)} ownedSkus={ownedSkus} />;
+  return (
+    <>
+      <StudyBreak signedIn={Boolean(user)} ownedSkus={ownedSkus} />
+      {/* The toolkit rule: not therapy, and 988, on every one of its screens.
+          A quiet line under the timer rather than the sticky bar, which
+          would take space from a screen sized to fit a phone exactly. */}
+      <p className="toolkit-safety-line" role="note">
+        <strong>{SAFETY_NOTE}</strong> {CRISIS_LINE}{" "}
+        <a href="tel:988">Call 988</a> · <a href="sms:988">Text 988</a>
+      </p>
+    </>
+  );
 }
