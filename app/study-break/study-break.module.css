@@ -20,7 +20,7 @@
   --golden: 0;
 
   position: relative;
-  min-height: calc(100vh - var(--header-h));
+  min-height: calc(100vh - var(--header-h) - var(--safety-h, 0px));
   /* Temperature shift: cream warms toward amber as --golden rises. */
   background: color-mix(in oklab, #f8f3ec, #f2e3c9 calc(var(--golden) * 100%));
   transition: background var(--slower) var(--ease);
@@ -68,7 +68,7 @@
 .stage {
   position: relative;
   z-index: 1;
-  min-height: calc(100svh - var(--header-h));
+  min-height: calc(100svh - var(--header-h) - var(--safety-h, 0px));
   display: grid;
   grid-template-rows: auto 1fr auto;
   align-content: center;

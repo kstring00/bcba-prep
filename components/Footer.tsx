@@ -20,7 +20,6 @@ export function Footer() {
           <Link
             href="/"
             className="brand"
-            aria-label="BCBA Prep by Bee the Behavior Bae"
           >
             <span
               className={`brand-mark ${brandStyles.mark}`}
@@ -41,7 +40,7 @@ export function Footer() {
           </Link>
           <nav className="footer-links" aria-label="Site">
             <Link href="/mock-exams">Mock Exams</Link>
-            <Link href="/study-break">Study Break</Link>
+            <Link href="/toolkit">Mental Health Toolkit</Link>
             <Link href="/about">About</Link>
           </nav>
           <nav className="footer-links" aria-label="Legal">

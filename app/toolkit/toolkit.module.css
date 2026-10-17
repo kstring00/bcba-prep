@@ -1,0 +1,593 @@
+/* ==========================================================================
+   Mental Health Toolkit — the hub
+   ==========================================================================
+   On the design system (DESIGN_DIRECTION.md). Calm cream, gold and plum;
+   the honeycomb as field and cluster; the night band for support. The
+   safety bar is sticky under the header so it is on every screen.
+   ========================================================================== */
+
+/* ---------- safety bar ---------- */
+
+.safety {
+  /* fixed, not sticky: sticky lives inside the route wrapper and leaves
+     the screen once the footer scrolls in; fixed stays through the last
+     pixel of the page, which is what "every screen" means. The hero pads
+     for it (see .hero). */
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 120;
+  background: var(--night);
+  color: var(--on-night);
+  border-bottom: 1px solid rgba(198, 166, 103, 0.45);
+}
+
+.safetyInner {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding-block: 6px;
+}
+
+.safetyFull { display: none; }
+.safetyShort { display: block; }
+
+@media (min-width: 1024px) {
+  .safetyFull { display: block; }
+  .safetyShort { display: none; }
+  .safetyInner { padding-block: 10px; gap: 8px 20px; }
+}
+
+.safetyText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--on-night-dim);
+  max-width: 78ch;
+}
+
+.safetyText strong {
+  color: #f7efe2;
+  font-weight: 600;
+}
+
+.safetyActions {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+}
+
+.safetyLink {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gold);
+  white-space: nowrap;
+  color: #f7efe2;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 180ms var(--ease), color 180ms var(--ease);
+}
+
+.safetyLink:hover,
+.safetyLink:focus-visible {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* ---------- hero ---------- */
+
+/* --safety-h: the fixed bar's height, which the hero pads for. */
+.hero {
+  --safety-h: 56px;
+  position: relative;
+  overflow: clip;
+  padding-top: calc(clamp(56px, 7vw, 104px) + var(--safety-h));
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    --safety-h: 65px;
+  }
+}
+
+.heroHex {
+  position: absolute;
+  top: -10%;
+  right: -6%;
+  width: 60%;
+  height: 90%;
+  color: var(--gold);
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 55% 60% at 65% 35%, #000, transparent 72%);
+  mask-image: radial-gradient(ellipse 55% 60% at 65% 35%, #000, transparent 72%);
+}
+
+.heroGrid {
+  position: relative;
+  display: grid;
+  gap: 28px;
+}
+
+.em {
+  font-style: normal;
+  color: var(--mauve-deep);
+}
+
+.heroAside {
+  display: grid;
+  gap: 18px;
+  align-content: end;
+}
+
+.heroCluster {
+  width: 110px;
+  color: var(--gold);
+}
+
+@media (min-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: clamp(40px, 5vw, 80px);
+    align-items: end;
+  }
+}
+
+/* ---------- feelings ---------- */
+
+.feelings {
+  padding-block: clamp(36px, 5vw, 64px) clamp(56px, 7vw, 96px);
+  border-top: 1px solid var(--rule);
+}
+
+.feelingsHead {
+  display: grid;
+  gap: 12px;
+  margin-bottom: clamp(24px, 3vw, 36px);
+}
+
+.feelingsSub {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+
+.checkin {
+  display: grid;
+  gap: clamp(24px, 3vw, 40px);
+}
+
+.taps {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .taps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tap {
+  appearance: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "cell label"
+    "cell hint"
+    "cell count";
+  column-gap: 12px;
+  row-gap: 2px;
+  align-content: start;
+  min-height: 64px;
+  padding: 16px 16px 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 16px;
+  background: var(--cream-card);
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 200ms var(--ease), background-color 200ms var(--ease),
+    transform 200ms var(--ease), box-shadow 200ms var(--ease);
+}
+
+.tap:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -24px rgba(45, 31, 40, 0.4);
+}
+
+.tap:focus-visible {
+  outline: 2px solid var(--mauve-deep);
+  outline-offset: 3px;
+}
+
+.tapOn {
+  border-color: var(--gold-deep);
+  background: linear-gradient(160deg, #f6e9c6 0%, var(--gold-honey) 100%);
+}
+
+.tapCell {
+  grid-area: cell;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 34px;
+  margin-top: 1px;
+  color: var(--gold);
+  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  background: var(--cream-deep);
+}
+
+.tapOn .tapCell {
+  background: var(--ink);
+  color: var(--gold-honey);
+}
+
+.tapLabel {
+  grid-area: label;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.tapHint {
+  grid-area: hint;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+.tapOn .tapHint {
+  color: var(--ink-body);
+}
+
+/* Shown only when the server returned a count at or above the threshold. */
+.tapCount {
+  grid-area: count;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+@media (min-width: 760px) {
+  .taps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Six-up only once each tap has 180px+ to itself. */
+@media (min-width: 1280px) {
+  .taps {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .tap {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "cell"
+      "label"
+      "hint"
+      "count";
+    row-gap: 6px;
+    min-height: 150px;
+    padding: 18px 18px 16px;
+  }
+  .tapCell {
+    margin-bottom: 6px;
+  }
+}
+
+/* ---------- the care plan ---------- */
+
+/* Mounted on tap, so it cannot use the scroll-reveal observer (which only
+   sees what was on the page at load). Its own fade, keyed per plan. */
+@keyframes planIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.plan {
+  position: relative;
+  animation: planIn 420ms var(--ease) both;
+  scroll-margin-top: calc(var(--header-h) + 84px);
+  padding: clamp(24px, 3vw, 44px) clamp(20px, 3vw, 44px);
+  border: 1px solid var(--gold-dim);
+  border-radius: 22px;
+  background: var(--cream-card);
+  box-shadow: 0 24px 60px -40px rgba(45, 31, 40, 0.3);
+}
+
+.plan:focus {
+  outline: none;
+}
+
+.planHead {
+  display: grid;
+  gap: 12px;
+  max-width: 68ch;
+  margin-bottom: clamp(24px, 3vw, 36px);
+}
+
+.planTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.06;
+  color: var(--ink);
+}
+
+.planLede {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-body);
+  text-wrap: pretty;
+}
+
+.planGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.planBlock {
+  padding: clamp(18px, 2.4vw, 26px);
+  border-radius: 16px;
+  background: var(--cream-deep);
+}
+
+.planBlockTitle {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.planText {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+
+/* The hero cluster signs the corner below 1024px instead of sitting in
+   the reading column. */
+@media (max-width: 1023px) {
+  .heroCluster {
+    position: absolute;
+    top: 24px;
+    right: 0;
+    width: 72px;
+  }
+  .heroAside {
+    position: relative;
+  }
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  padding-left: 34px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-body);
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 22px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  background: var(--gold-honey);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.say {
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 2px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  background: var(--cream-card);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.resources,
+.supportList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.resources li,
+.supportList li {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+
+.resources a,
+.resources strong {
+  display: inline-block;
+  padding: 12px 0 11px;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 3px;
+}
+
+.resources strong {
+  text-decoration: none;
+}
+
+.planSafety {
+  margin: clamp(20px, 3vw, 28px) 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+
+.planSafety strong {
+  color: var(--ink-body);
+}
+
+@media (min-width: 760px) {
+  .planGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .planBlockWide {
+    grid-column: 1 / -1;
+  }
+  .resources {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+/* ---------- tools ---------- */
+
+.tools {
+  background: var(--cream-deep);
+  border-top: 1px solid var(--rule);
+}
+
+.toolsHead {
+  display: grid;
+  gap: 4px;
+  margin-bottom: clamp(24px, 3vw, 36px);
+}
+
+.toolGrid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tool {
+  height: 100%;
+  text-decoration: none;
+}
+
+.toolTag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+.toolGo {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mauve-deep);
+}
+
+/* ---------- support ---------- */
+
+.support {
+  position: relative;
+  scroll-margin-top: calc(var(--header-h) + 72px);
+}
+
+.supportGrid {
+  position: relative;
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+}
+
+.supportGrid .lede {
+  color: var(--on-night-dim);
+}
+
+.supportGrid .lede strong {
+  color: #f7efe2;
+  font-weight: 600;
+}
+
+.supportList li {
+  padding: 16px 18px;
+  border: 1px solid var(--rule-night);
+  border-radius: 14px;
+  color: var(--on-night-dim);
+}
+
+.supportList a,
+.supportList strong {
+  display: inline-block;
+  padding: 12px 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f7efe2;
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 3px;
+}
+
+.supportList strong {
+  text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  .supportGrid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(40px, 5vw, 80px);
+    align-items: start;
+  }
+  .supportList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tap:hover { transform: none; }
+  .plan { animation: none; }
+}

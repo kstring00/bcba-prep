@@ -53,7 +53,9 @@
 
   --ink: #1b1512;
   --ink-body: #4f4740;
-  --ink-dim: #7d746c;
+  /* 5.03:1 on cream. Was #7d746c (4.14:1), short of AA at the 11-13px
+     sizes this colour mostly carries. */
+  --ink-dim: #6f6760;
   --ink-faint: #a49b93;
   --on-night: #f2ebe0;
   --on-night-dim: #a89e93;
@@ -234,8 +236,10 @@ button {
   margin: 0;
 }
 
+/* Display-size plum. --mauve-light measured 2.69:1 on cream, under the
+   3:1 that even large text needs; --mauve clears it. */
 .accent {
-  color: var(--mauve-light);
+  color: var(--mauve);
 }
 
 /* ---------------- header ---------------- */
@@ -3343,4 +3347,74 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
 }
 .portrait-fallback-mark {
   position: relative;
+}
+
+/* Toolkit safety bar on the Study Break page: same rule as /toolkit, fixed
+   under the header so it is on every screen. The page pads for it. */
+.toolkit-safety-line {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 0;
+  padding: 6px max(var(--pad), (100% - var(--container)) / 2);
+  background: var(--night);
+  color: var(--on-night-dim);
+  border-bottom: 1px solid rgba(198, 166, 103, 0.45);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.toolkit-safety-line strong {
+  color: #f7efe2;
+  font-weight: 600;
+}
+.toolkit-safety-full { display: none; max-width: 78ch; }
+.toolkit-safety-short { display: block; }
+.toolkit-safety-actions {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+}
+.toolkit-safety-line a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gold);
+  color: #f7efe2;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.toolkit-safety-line a:hover,
+.toolkit-safety-line a:focus-visible {
+  background: var(--gold);
+  color: var(--ink);
+}
+@media (min-width: 1024px) {
+  .toolkit-safety-full { display: block; }
+  .toolkit-safety-short { display: none; }
+  .toolkit-safety-line { padding-block: 10px; gap: 8px 20px; }
+}
+/* The Study Break screen makes room for the bar above its stage, and its
+   one-screen stage subtracts the same height (see study-break.module.css). */
+body:has(.toolkit-safety-line) {
+  --safety-h: 56px;
+}
+body:has(.toolkit-safety-line) .main {
+  padding-top: var(--safety-h);
+}
+@media (min-width: 1024px) {
+  body:has(.toolkit-safety-line) {
+    --safety-h: 65px;
+  }
 }

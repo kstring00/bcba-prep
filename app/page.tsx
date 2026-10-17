@@ -123,8 +123,8 @@ export default function LibraryPage() {
                       onClick={() => setOpeningSlug(domain.slug)}
                       aria-label={
                         owned
-                          ? `Open Domain ${domain.letter}, ${domain.title}, in your library`
-                          : `Domain ${domain.letter}. ${domain.title} — ${domain.questions} questions, ${domain.percent}% of the exam. Not yet unlocked.`
+                          ? `Open Domain ${domain.letter}, ${domain.short}, in your library`
+                          : `Domain ${domain.letter}, ${domain.short}: ${domain.title} — ${domain.questions} questions, ${domain.percent}% of the exam. Not yet unlocked.`
                       }
                     >
                       <Book domain={domain} variant="stack" index={index} />

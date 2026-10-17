@@ -23,7 +23,7 @@ import brandStyles from "./Brand.module.css";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/mock-exams", label: "Mock Exams" },
-  { href: "/study-break", label: "Study Break" },
+  { href: "/toolkit", label: "Mental Health Toolkit" },
   { href: "/about", label: "About" },
   { href: "/testimonials", label: "Testimonials" },
   { href: "/contact", label: "Contact" },
@@ -194,7 +194,6 @@ export function SiteHeader() {
       <Link
         href="/"
         className="brand"
-        aria-label="BCBA Prep by Bee the Behavior Bae"
       >
         <span className={`brand-mark ${brandStyles.mark}`} aria-hidden="true">
           <BeeMark size={38} />
