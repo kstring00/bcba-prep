@@ -92,7 +92,7 @@
 .title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(38px, 8vw, 64px);
+  font-size: clamp(38px, 8vw, 72px);
   font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.012em;
@@ -107,8 +107,8 @@
 
 .lead {
   margin: 4px 0 0;
-  max-width: 48ch;
-  font-size: 16px;
+  max-width: 52ch;
+  font-size: clamp(16px, 1.3vw, 19px);
   line-height: 1.65;
   color: var(--ink-body);
 }
@@ -154,11 +154,12 @@
 
 .cell {
   grid-row: 1 / span 2;
-  width: 52px;
-  height: 58px;
+  width: 58px;
+  height: 52px;
   display: grid;
   place-items: center;
-  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  /* Flat-top, like the cluster and the field beside it. */
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%);
   background: linear-gradient(160deg, var(--gold-honey) 0%, var(--gold) 70%);
   font-family: var(--font-display);
   font-size: 24px;
@@ -181,9 +182,30 @@
 .quoteText::before {
   content: "\201C";
   position: absolute;
-  margin-left: -0.55em;
+  margin-left: -0.62em;
+  top: -0.08em;
+  font-size: 1.7em;
+  line-height: 1;
   color: var(--gold);
   font-style: normal;
+}
+
+/* Phones: the cell sits above the quote so the text gets the full card
+   width (37ch instead of 28ch) and the attribution fits on one line. */
+@media (max-width: 479px) {
+  .quote {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cell {
+    grid-row: 1;
+    width: 50px;
+    height: 44px;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .quoteText::before {
+    margin-left: -0.5em;
+  }
 }
 
 .attribution {
@@ -247,6 +269,8 @@
   inset: 0;
   color: var(--gold);
   pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000, transparent 78%);
 }
 
 .emptyInner {
@@ -296,12 +320,12 @@
   position: absolute;
   top: -10%;
   right: -10%;
-  width: 60%;
-  height: 50%;
+  width: 72%;
+  height: 58%;
   color: var(--gold);
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 80% 20%, #000, transparent 70%);
-  mask-image: radial-gradient(ellipse 60% 60% at 80% 20%, #000, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 92% 6%, #000, transparent 70%);
+  mask-image: radial-gradient(ellipse 70% 70% at 92% 6%, #000, transparent 70%);
 }
 
 .formInner {
@@ -318,7 +342,7 @@
 }
 
 .formLead {
-  margin: 0 0 26px;
+  margin: 0 0 20px;
   font-size: 15px;
   line-height: 1.65;
   color: var(--ink-body);
@@ -369,7 +393,7 @@
 
 .field textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 108px;
 }
 
 .field input:focus,
@@ -443,7 +467,7 @@
 }
 
 .send:disabled {
-  background: var(--ink-faint);
+  opacity: 0.55;
   cursor: default;
 }
 
@@ -504,6 +528,10 @@
 @media (min-width: 1024px) {
   .shell {
     grid-template-columns: repeat(12, minmax(0, 1fr));
+    /* Row 2 is exactly the quotes' height, so the founding push sits
+       directly under them and surplus falls below the conversion rather
+       than between it and the quotes. */
+    grid-template-rows: auto auto 1fr;
     column-gap: var(--gutter);
     grid-template-areas:
       "head head head head head head head head head head head head"
@@ -548,16 +576,22 @@
 
   .form {
     grid-area: form;
-    position: sticky;
-    top: calc(var(--header-h) + 24px);
   }
 
   .field {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   .field textarea {
-    min-height: 100px;
+    min-height: 88px;
+  }
+
+  /* One quote should still hold its column. */
+  .quotes:has(> li:only-child) .quoteText {
+    font-size: 27px;
+  }
+  .quotes:has(> li:only-child) .quote {
+    padding: 36px 34px;
   }
 
   /* The founding-list push sits under the quotes, beside the form, so the
@@ -565,6 +599,7 @@
      instead of air. */
   .next {
     grid-area: next;
+    align-self: start;
     justify-items: start;
     text-align: left;
     margin-top: 36px;
@@ -579,5 +614,33 @@
 @media (prefers-reduced-motion: reduce) {
   .send:hover:not(:disabled) {
     transform: none;
+  }
+}
+
+/* The form sticks only where a whole form fits under the header; on a
+   1366x768 laptop a stuck form put the Send button below the fold. */
+@media (min-width: 1024px) and (min-height: 960px) {
+  .form {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+  }
+}
+
+/* Tablets: two columns of fields so inputs are not 674px wide. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+  .formGrid .field:nth-of-type(n + 4),
+  .formGrid .consent,
+  .formGrid .send,
+  .formGrid .error,
+  .formGrid .trust {
+    grid-column: 1 / -1;
+  }
+  .formGrid .send {
+    justify-self: start;
   }
 }

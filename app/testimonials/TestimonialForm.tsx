@@ -77,7 +77,7 @@ export function TestimonialForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={styles.formGrid}>
       <label className={styles.field}>
         <span>Name to display</span>
         <input

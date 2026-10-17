@@ -107,7 +107,7 @@ export default async function TestimonialsPage() {
           <p className={styles.lead}>
             Every note is reviewed by Bryana before it appears.
           </p>
-          <HexCluster className={styles.cluster} size={22} honey={1} />
+          <HexCluster className={`hex-cluster ${styles.cluster}`} size={22} honey={1} />
         </header>
 
         {testimonials.length > 0 ? (
@@ -141,10 +141,10 @@ export default async function TestimonialsPage() {
         ) : (
           <div className={styles.empty} data-reveal>
             <div className={styles.emptyHex} aria-hidden="true">
-              <HexField size={30} opacity={0.08} />
+              <HexField size={30} opacity={0.06} />
             </div>
             <div className={styles.emptyInner}>
-              <HexCluster className={styles.emptyCluster} size={22} honey={1} />
+              <HexCluster className={`hex-cluster ${styles.emptyCluster}`} size={22} honey={1} />
               <h2 className={styles.emptyHeading}>Be one of the first.</h2>
               <p className={styles.emptyBody}>
                 No notes here yet — and none will be invented. When someone
@@ -156,7 +156,7 @@ export default async function TestimonialsPage() {
 
         <section className={styles.form} id="leave-a-note" data-reveal>
           <div className={styles.formHex} aria-hidden="true">
-            <HexField size={26} opacity={0.1} />
+            <HexField size={22} opacity={0.16} />
           </div>
           <div className={styles.formInner}>
             <h2 className={styles.formTitle}>Leave a note</h2>
