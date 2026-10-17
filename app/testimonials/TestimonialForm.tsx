@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import styles from "./testimonials-minimal.module.css";
+import styles from "./testimonials.module.css";
 
 /**
  * Open to anyone — no sign-in.
@@ -132,7 +132,8 @@ export function TestimonialForm() {
       </label>
 
       <button type="submit" className={styles.send} disabled={loading}>
-        {loading ? "Sending…" : "Send →"}
+        {loading ? "Sending…" : "Send my note"}
+        <span aria-hidden="true">→</span>
       </button>
 
       {error ? <p className={styles.error}>{error}</p> : null}
