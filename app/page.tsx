@@ -7,7 +7,7 @@ import { Book } from "@/components/Book";
 import { BryanaTeaser } from "@/components/BryanaTeaser";
 import { BundleCard } from "@/components/BundleCard";
 import { Ornament } from "@/components/Florals";
-import { HexField } from "@/components/HexMotif";
+import { HexCluster, HexField } from "@/components/HexMotif";
 import { BOOK_TRANSITION } from "@/components/motion-config";
 import { domains } from "@/lib/domains";
 import { domainSku } from "@/lib/catalog";
@@ -60,7 +60,7 @@ export default function LibraryPage() {
                 Join the founding list <span aria-hidden="true">→</span>
               </Link>
               <Link href="/about" className="link-gold home-cta-quiet">
-                Meet Bryana
+                Meet Bryana <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
@@ -144,6 +144,33 @@ export default function LibraryPage() {
           <div className="home-foot" data-reveal-group>
             <div data-reveal><BundleCard /></div>
             <div data-reveal><BryanaTeaser /></div>
+          </div>
+        </div>
+      </section>
+
+      {/*
+        The closing beat. Cream-on-cream from the nav to the footer had no
+        rhythm, and the last thing read before the legal text was "Not yet
+        available for purchase". The founding-list ask returns here, in night,
+        with the copy the sticky pill already uses. See DESIGN_DIRECTION.md,
+        template 4.
+      */}
+      <section className="sec sec--band home-band" data-reveal>
+        <HexField className="hex-field" size={40} opacity={0.06} />
+        <HexCluster className="hex-cluster" size={26} honey={1} />
+        <div className="container">
+          <div className="home-band-copy">
+            <p className="eyebrow">The founding list</p>
+            <h2 className="display-lg">Founding-member pricing, locked in.</h2>
+            <p className="lede">
+              Be first in when BCBA Prep opens. We&rsquo;ll email you before
+              anyone else.
+            </p>
+          </div>
+          <div className="home-band-action">
+            <Link href="/start" className="btn--gold">
+              Join the founding list <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
       </section>

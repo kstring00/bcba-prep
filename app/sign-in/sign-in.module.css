@@ -23,9 +23,9 @@
 .shell {
   position: relative;
   z-index: 1;
-  max-width: 1320px;
+  width: min(var(--container), 100% - 2 * var(--pad));
   margin: 0 auto;
-  padding: clamp(28px, 4vw, 58px) var(--pad) clamp(56px, 7vw, 96px);
+  padding: clamp(28px, 4vw, 58px) 0 clamp(56px, 7vw, 96px);
 }
 
 .back {

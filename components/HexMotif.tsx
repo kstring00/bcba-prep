@@ -154,7 +154,17 @@ type FrameProps = {
 export function HexFrame({ children, className, offset = 14 }: FrameProps) {
   return (
     <div className={`hex-frame${className ? ` ${className}` : ""}`} style={{ "--hex-offset": `${offset}px` } as CSSProperties}>
-      <span className="hex-frame-line" aria-hidden="true" />
+      {/* An SVG stroke, not a CSS mask: a masked rectangle ring clipped to a
+          hexagon keeps only the two points where the rect meets the hex. */}
+      <svg className="hex-frame-line" viewBox="0 0 86.6 100" aria-hidden="true" focusable="false">
+        <polygon
+          points="43.3,0 86.6,25 86.6,75 43.3,100 0,75 0,25"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
       <div className="hex-frame-clip">{children}</div>
     </div>
   );

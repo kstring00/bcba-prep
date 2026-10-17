@@ -253,8 +253,13 @@ button {
    * some devices in portrait. max() keeps the normal gutter everywhere else
    * rather than letting the inset shrink it.
    */
-  padding-inline: max(var(--pad), env(safe-area-inset-left))
-                  max(var(--pad), env(safe-area-inset-right));
+  /*
+   * Third term: the header's contents sit on the same 1280px container as
+   * every section below it. Without it the brand and the account control
+   * floated at the viewport edge while the page composed 60px inboard.
+   */
+  padding-inline: max(var(--pad), env(safe-area-inset-left), (100% - var(--container)) / 2)
+                  max(var(--pad), env(safe-area-inset-right), (100% - var(--container)) / 2);
   background: rgba(248, 243, 236, 0.92);
   backdrop-filter: saturate(1.2) blur(8px);
   border-bottom: 1px solid var(--rule);
@@ -359,29 +364,23 @@ button {
 }
 
 /*
-  Member Login / My Library: a filled gold pill, not an outline.
+  Member Login / My Library: a hairline pill, deliberately quiet.
 
-  The shared `.pill` is a quiet outlined control — gold-dim border, gold-deep
-  text on cream. Next to the solid buttons elsewhere on the page it read as
-  disabled rather than secondary, which is the opposite of what the primary
-  account action should look like.
-
-  Dark ink on gold rather than white: white on #c6a667 measures about 2.1:1,
-  which fails AA for small uppercase text. Ink on gold measures ~6.5:1.
+  Gold fill is reserved for the one conversion on every page (the founding
+  list). Pre-launch, signing in is a tertiary action, and a second gold pill
+  top-right pulled the eye before the hero's own button did. Ink-body on cream
+  measures 7.3:1; the hairline is the strong rule colour.
 */
 .pill--login {
-  background: var(--gold);
-  border-color: var(--gold-deep);
-  color: var(--ink);
-  font-weight: 700;
-  box-shadow: 0 2px 10px rgba(168, 135, 74, 0.26);
+  background: transparent;
+  border-color: var(--rule-strong);
+  color: var(--ink-body);
+  font-weight: 600;
 }
 
-/* Hover deepens the gold and KEEPS the ink. White on --gold-deep measures
-   3.37:1, which fails AA for small text; ink on it measures 5.36:1. */
 .pill--login:hover {
-  background: var(--gold-deep);
-  border-color: var(--gold-deep);
+  background: var(--cream-card);
+  border-color: var(--ink-dim);
   color: var(--ink);
 }
 
@@ -607,9 +606,9 @@ button {
 }
 
 .shell {
-  max-width: var(--measure);
+  width: min(var(--container), 100% - 2 * var(--pad));
   margin: 0 auto;
-  padding: 0 var(--pad) 90px;
+  padding: 0 0 90px;
 }
 
 .bleed {
@@ -617,12 +616,14 @@ button {
   overflow: hidden;
 }
 
+/* Same box as .container: the hero, the header and the footer share one
+   left edge at every width. */
 .bleed-inner {
   position: relative;
   z-index: 2;
-  max-width: var(--measure);
+  width: min(var(--container), 100% - 2 * var(--pad));
   margin: 0 auto;
-  padding: 0 var(--pad);
+  padding: 0;
 }
 
 /* Floral placement. Always behind, never tappable. */
@@ -1023,7 +1024,16 @@ button {
 }
 
 .home-head h1 {
-  font-size: clamp(34px, 5vw, 60px);
+  font-size: clamp(32px, 5vw, 60px);
+}
+
+/* The ink/plum device only works as two lines. Under 480px the second
+   sentence wrapped mid-way ("One" orphaned beside the first), so it takes
+   its own line there. */
+@media (max-width: 479px) {
+  .home-head h1 .accent {
+    display: block;
+  }
 }
 
 .home-head .ornament,
@@ -1423,6 +1433,16 @@ button {
   overflow-wrap: anywhere;
 }
 
+/* In the home foot the card already has a border; the pre-launch note inside
+   it is a tinted inset with a gold rule, not a second box. */
+.home-foot .bundle .prelaunch-note {
+  border: 0;
+  border-left: 2px solid var(--gold);
+  border-radius: 0 6px 6px 0;
+  background: var(--cream-deep);
+  max-width: none;
+}
+
 /* ---------------- cart ---------------- */
 
 .scrim {
@@ -1584,9 +1604,9 @@ button {
 }
 
 .footer-inner {
-  max-width: var(--measure);
+  width: min(var(--container), 100% - 2 * var(--pad));
   margin: 0 auto;
-  padding: clamp(34px, 4vw, 54px) var(--pad);
+  padding: clamp(34px, 4vw, 54px) 0;
   font-size: 12px;
   line-height: 1.75;
 }
@@ -2932,18 +2952,22 @@ textarea:focus-visible,
   display: block;
 }
 
+.hex-frame-clip .portrait-fallback {
+  display: grid;
+  place-items: center;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+}
+
 .hex-frame-line {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
   transform: translate(var(--hex-offset), var(--hex-offset));
-  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
-  background: var(--gold);
-  /* A hairline: the gold shape with a cream shape punched out of it. */
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  padding: 1.5px;
+  color: var(--gold);
   pointer-events: none;
 }
 
@@ -3124,14 +3148,63 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
   margin-top: 26px;
 }
 
+/* The secondary action speaks in the quiet second voice: plum, not ink. */
 .home-cta-quiet {
   font-size: 15px;
+  color: var(--mauve-deep);
+}
+.home-cta-quiet::after {
+  background: var(--mauve-deep);
 }
 
+/* Founder teaser: the hex frame is the motif's primary use (see
+   DESIGN_DIRECTION.md); the circle it replaced was dead space on a phone. */
+.bryana-teaser .hex-frame {
+  flex: 0 0 120px;
+  width: 120px;
+}
+.bryana-teaser .hex-frame img {
+  border: 0;
+  border-radius: 0;
+}
+.bryana-teaser .hex-frame .portrait-fallback {
+  border-radius: 0;
+}
+
+/* Closing band: the founding-list ask once more before the footer, in night,
+   so the page has a tonal beat and does not end on a placeholder. */
+.home-band .container {
+  display: grid;
+  gap: 28px;
+  align-items: center;
+  text-align: center;
+  justify-items: center;
+}
+.home-band .lede {
+  max-width: 52ch;
+}
+.home-band-copy .display-lg {
+  margin-bottom: 18px;
+  text-wrap: balance;
+}
+/* The cluster signs the band's top-right corner on desktop only; on a phone
+   it would sit on the button. */
+.home-band .hex-cluster {
+  display: none;
+  position: absolute;
+  right: 2.5%;
+  top: 20px;
+  width: clamp(90px, 8vw, 128px);
+  opacity: 0.9;
+}
+
+/* The foot sits on the section scale top and bottom: the same clamp as
+   .sec, so the cards never land on the band below. */
 .home-foot {
   display: grid;
   gap: clamp(16px, 2vw, 24px);
-  margin-top: clamp(40px, 5vw, 64px);
+  padding-top: clamp(40px, 5vw, 64px);
+  padding-bottom: clamp(56px, 7vw, 104px);
 }
 
 /* The two cards keep their own max-widths on phones; in the two-column foot
@@ -3156,10 +3229,6 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
 }
 
 @media (min-width: 1024px) {
-  .bleed-inner {
-    max-width: var(--container);
-  }
-
   .home-grid {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     column-gap: clamp(40px, 5vw, 72px);
@@ -3174,9 +3243,26 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
   }
 
   .home-head h1 {
-    font-size: clamp(44px, 4.6vw, 68px);
+    font-size: clamp(44px, 4.6vw, 84px);
     line-height: 1.04;
     text-wrap: balance;
+  }
+
+  .bryana-teaser .hex-frame {
+    flex-basis: 160px;
+    width: 160px;
+  }
+
+  .home-band .container {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    text-align: left;
+    justify-items: start;
+  }
+  .home-band-action {
+    justify-self: end;
+  }
+  .home-band .hex-cluster {
+    display: block;
   }
 
   .home-head .ornament {
@@ -3216,5 +3302,14 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
 
   .home-foot {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Past 1680px the pile reads as 5/7 rather than 5/5-with-air: it leans a
+   little past the container's right edge. .bleed clips the overflow. */
+@media (min-width: 1680px) {
+  .home-grid > .stack {
+    margin-inline-end: -4vw;
+    width: calc(100% + 4vw);
   }
 }
