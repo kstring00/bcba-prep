@@ -1,0 +1,646 @@
+/* ==========================================================================
+   Testimonials — the hive
+   ==========================================================================
+
+   Bee-themed and alive, on the design system (DESIGN_DIRECTION.md): gold,
+   the honeycomb in frames and fields, warm texture. The structure that the
+   minimal pass got right is kept — one stack of quotes at every width, the
+   form beside them from 1024px, a zero state that is a design and never an
+   invented quote, the "Passed" tag only when the date is real, the trust
+   line verbatim.
+
+   Mobile first: the traffic arrives from TikTok. Source order is heading,
+   quotes, form, founding list; grid areas rearrange it on desktop.
+   ========================================================================== */
+
+/*
+ * SMALL-TEXT COLOURS. --ink-dim is 4.15:1 on cream, short of AA at 12-13px.
+ * --t-dim is the same hue darkened to 5.03:1. Gold text is --gold-text.
+ */
+.page {
+  --t-dim: #6f6760;
+
+  position: relative;
+  overflow: hidden;
+  background: var(--cream);
+  padding: clamp(48px, 7vw, 96px) 0 clamp(64px, 7vw, 104px);
+}
+
+/* Warm texture: two soft glows, honey top-right and plum bottom-left, the
+   way the contact page is lit. Behind everything, never tappable. */
+.glowA,
+.glowB {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(14px);
+}
+
+.glowA {
+  top: -220px;
+  right: -200px;
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, rgba(227, 197, 122, 0.3), rgba(227, 197, 122, 0));
+}
+
+.glowB {
+  left: -240px;
+  bottom: -260px;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(169, 140, 176, 0.18), rgba(169, 140, 176, 0));
+}
+
+/* The honeycomb field behind the heading, fading toward the content. */
+.hex {
+  position: absolute;
+  top: -6%;
+  right: -4%;
+  width: 56%;
+  height: 420px;
+  color: var(--gold);
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 55% 60% at 65% 30%, #000, transparent 72%);
+  mask-image: radial-gradient(ellipse 55% 60% at 65% 30%, #000, transparent 72%);
+}
+
+.shell {
+  position: relative;
+  display: grid;
+  gap: 0;
+}
+
+/* ---------------- heading ---------------- */
+
+.head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: clamp(36px, 5vw, 56px);
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(38px, 8vw, 72px);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.title em {
+  font-style: normal;
+  color: var(--mauve-deep);
+}
+
+.lead {
+  margin: 4px 0 0;
+  max-width: 52ch;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+
+/* The cluster signs the heading's corner; its honey cell fills on reveal. */
+.cluster {
+  /* Desktop only: on a phone a lone cluster under the lead reads as a
+     stray icon; the zero-state card carries its own. */
+  display: none;
+  width: 96px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+/* ---------------- the quotes ---------------- */
+
+.quotes {
+  list-style: none;
+  margin: 0 0 clamp(40px, 5vw, 56px);
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+/*
+ * One stack, at every width. A grid of cards is what makes a single quote
+ * look like two that failed to load; a stack is the same shape with one,
+ * three or twelve. Each quote is a warm card: cream-card ground, gold
+ * hairline, the writer's initial in a honey hexagon — the hex frame at its
+ * smallest.
+ */
+.quote {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 18px;
+  padding: clamp(22px, 3vw, 30px) clamp(20px, 2.6vw, 30px);
+  border: 1px solid var(--gold-dim);
+  border-radius: 18px;
+  background: var(--cream-card);
+  box-shadow: 0 10px 30px rgba(45, 31, 40, 0.05);
+}
+
+.cell {
+  grid-row: 1 / span 2;
+  width: 58px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  /* Flat-top, like the cluster and the field beside it. */
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%);
+  background: linear-gradient(160deg, var(--gold-honey) 0%, var(--gold) 70%);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.quoteText {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(19px, 4.6vw, 23px);
+  line-height: 1.5;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* The opening mark hangs in the margin, gold, so the line starts on the
+   first word. */
+.quoteText::before {
+  content: "\201C";
+  position: absolute;
+  margin-left: -0.62em;
+  top: -0.08em;
+  font-size: 1.7em;
+  line-height: 1;
+  color: var(--gold);
+  font-style: normal;
+}
+
+/* Phones: the cell sits above the quote so the text gets the full card
+   width (37ch instead of 28ch) and the attribution fits on one line. */
+@media (max-width: 479px) {
+  .quote {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cell {
+    grid-row: 1;
+    width: 50px;
+    height: 44px;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .quoteText::before {
+    margin-left: -0.5em;
+  }
+}
+
+.attribution {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin: 14px 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t-dim);
+}
+
+.name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/*
+ * Rendered only when passed_on is set. A honey pill: ink on --gold-honey is
+ * 10:1, so the most persuasive line on the page is also the most legible.
+ */
+.passed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--gold-honey);
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.passed svg {
+  flex: none;
+}
+
+/* ---------------- the zero state ---------------- */
+
+/*
+ * Not a fallback — the real design for a real situation. No skeleton, no
+ * placeholder card, and never an invented testimonial.
+ */
+.empty {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 clamp(40px, 5vw, 56px);
+  padding: clamp(28px, 4vw, 44px) clamp(22px, 3vw, 40px);
+  border: 1px solid var(--gold-dim);
+  border-radius: 20px;
+  background: var(--cream-card);
+  text-align: center;
+}
+
+.emptyHex {
+  position: absolute;
+  inset: 0;
+  color: var(--gold);
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000, transparent 78%);
+}
+
+.emptyInner {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.emptyCluster {
+  width: 110px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.emptyHeading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 5vw, 34px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.emptyBody {
+  margin: 0 auto;
+  max-width: 44ch;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+
+/* ---------------- the form ---------------- */
+
+/* A warm card with the honeycomb in its top-right corner. */
+.form {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(24px, 3vw, 36px) clamp(20px, 2.6vw, 32px) clamp(26px, 3vw, 36px);
+  border: 1px solid var(--gold-dim);
+  border-radius: 22px;
+  background: var(--cream-card);
+  box-shadow: 0 18px 50px rgba(45, 31, 40, 0.07);
+}
+
+.formHex {
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 72%;
+  height: 58%;
+  color: var(--gold);
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 92% 6%, #000, transparent 70%);
+  mask-image: radial-gradient(ellipse 70% 70% at 92% 6%, #000, transparent 70%);
+}
+
+.formInner {
+  position: relative;
+}
+
+.formTitle {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 5vw, 32px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.formLead {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+
+.field {
+  display: block;
+  margin: 0 0 20px;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 7px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--t-dim);
+}
+
+.optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--t-dim);
+}
+
+/*
+ * Soft inputs on the card: cream ground, hairline, 12px radius. 16px type is
+ * not a style choice — any smaller and iOS zooms the viewport on focus.
+ */
+.field input,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 12px;
+  background: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 108px;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--gold-deep);
+  box-shadow: 0 0 0 3px rgba(198, 166, 103, 0.25);
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--mauve-deep);
+  outline-offset: 2px;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-body);
+}
+
+.consent input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold-deep);
+  flex: none;
+}
+
+/* Hidden from people and assistive tech, irresistible to bots. */
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*
+ * The send is a night pill: solid, but not gold. Gold fill is the founding
+ * list's; this should read as "finish the thing you started", not compete.
+ */
+.send {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--night);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--on-night);
+  cursor: pointer;
+  transition: background-color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+
+.send:hover:not(:disabled) {
+  background: var(--mauve-deep);
+  transform: translateY(-1px);
+}
+
+.send:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--mauve-deep);
+  outline-offset: 3px;
+}
+
+.trust {
+  margin: 18px 0 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--t-dim);
+}
+
+.error {
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #8c2f2f;
+}
+
+.success {
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--cream-deep);
+  border-left: 3px solid var(--gold);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-body);
+}
+
+/* ---------------- the push to the founding list ---------------- */
+
+.next {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin: clamp(40px, 5vw, 64px) 0 0;
+  padding-top: clamp(28px, 4vw, 40px);
+  border-top: 1px solid var(--rule);
+  text-align: center;
+}
+
+.nextText {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-body);
+}
+
+/* ==========================================================================
+   DESKTOP — quotes and form side by side
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  .shell {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    /* Row 2 is exactly the quotes' height, so the founding push sits
+       directly under them and surplus falls below the conversion rather
+       than between it and the quotes. */
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--gutter);
+    grid-template-areas:
+      "head head head head head head head head head head head head"
+      "body body body body body body body . form form form form"
+      "next next next next next next next . form form form form";
+    align-items: start;
+  }
+
+  .head {
+    grid-area: head;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    column-gap: 40px;
+  }
+
+  .cluster {
+    display: block;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    width: 128px;
+    align-self: center;
+    margin: 0;
+  }
+
+  .quotes,
+  .empty {
+    grid-area: body;
+    margin-bottom: 0;
+  }
+
+  .empty {
+    text-align: left;
+  }
+
+  .emptyInner {
+    justify-items: start;
+  }
+
+  .emptyBody {
+    margin-left: 0;
+  }
+
+  .form {
+    grid-area: form;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field textarea {
+    min-height: 88px;
+  }
+
+  /* One quote should still hold its column. */
+  .quotes:has(> li:only-child) .quoteText {
+    font-size: 27px;
+  }
+  .quotes:has(> li:only-child) .quote {
+    padding: 36px 34px;
+  }
+
+  /* The founding-list push sits under the quotes, beside the form, so the
+     zero- and one-quote pages fill their column with the conversion
+     instead of air. */
+  .next {
+    grid-area: next;
+    align-self: start;
+    justify-items: start;
+    text-align: left;
+    margin-top: 36px;
+    padding-top: 32px;
+  }
+
+  .nextText {
+    max-width: 40ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .send:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* The form sticks only where a whole form fits under the header; on a
+   1366x768 laptop a stuck form put the Send button below the fold. */
+@media (min-width: 1024px) and (min-height: 960px) {
+  .form {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+  }
+}
+
+/* Tablets: two columns of fields so inputs are not 674px wide. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+  .formGrid .field:nth-of-type(n + 4),
+  .formGrid .consent,
+  .formGrid .send,
+  .formGrid .error,
+  .formGrid .trust {
+    grid-column: 1 / -1;
+  }
+  .formGrid .send {
+    justify-self: start;
+  }
+}
