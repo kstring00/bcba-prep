@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FounderPortrait } from "@/app/about/FounderPortrait";
+import { HexFrame } from "@/components/HexMotif";
 
 /**
  * Short founder teaser on the homepage. She is the brand, so she appears
@@ -11,7 +12,11 @@ import { FounderPortrait } from "@/app/about/FounderPortrait";
 export function BryanaTeaser() {
   return (
     <aside className="bryana-teaser">
-      <FounderPortrait rounded />
+      {/* The motif's primary use: the founder in a hex frame, with the
+          offset gold hairline behind. Sized in globals (.bryana-teaser). */}
+      <HexFrame offset={8}>
+        <FounderPortrait />
+      </HexFrame>
       <div className="bryana-teaser-copy">
         <p>Hi, I&rsquo;m Bryana 🐝💗</p>
         <p>

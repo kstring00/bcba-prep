@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Parisienne } from "next/font/google";
 import { CartPanel } from "@/components/CartPanel";
 import { Footer } from "@/components/Footer";
+import { FoundingCta } from "@/components/FoundingCta";
 import { MicrosoftClarity } from "@/components/MicrosoftClarity";
+import { Reveal } from "@/components/Reveal";
 import { PageTransition } from "@/components/PageTransition";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CartProvider } from "@/lib/cart-context";
@@ -114,9 +116,13 @@ export default async function RootLayout({
             </main>
             <Footer />
             <CartPanel />
+            {/* The one ask on every page but /start. See the component. */}
+            <FoundingCta />
           </CartProvider>
         </OwnershipProvider>
         <MicrosoftClarity />
+        {/* Activates [data-reveal] site-wide; renders nothing. */}
+        <Reveal />
       </body>
     </html>
   );
