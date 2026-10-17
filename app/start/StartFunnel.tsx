@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { BeeMark } from "@/components/BeeMark";
 import { FounderPortrait } from "@/app/about/FounderPortrait";
+import { SALES_ENABLED } from "@/lib/launch";
 import { captureAttribution } from "@/lib/funnel/utm";
 import { WaitlistSignup } from "./WaitlistSignup";
 import styles from "./start.module.css";
@@ -20,6 +21,18 @@ type Destination = {
   href: string;
   label: string;
   note: string;
+  /**
+   * Shown only once the store is open.
+   *
+   * The domain and mock-exam pages exist but say their contents are being
+   * finalised. Sending cold traffic from a bio link onto a page that admits
+   * it is unfinished spends the one impression this page gets, and it
+   * undercuts the founding-list offer sitting directly above it: "join to
+   * hear when it opens" reads oddly next to a link that implies it already
+   * has. They come back on their own when NEXT_PUBLIC_SALES_ENABLED flips,
+   * rather than needing anyone to remember to re-add them.
+   */
+  gated?: boolean;
 };
 
 const DESTINATIONS: Destination[] = [
@@ -27,11 +40,13 @@ const DESTINATIONS: Destination[] = [
     href: "/",
     label: "Study materials by domain",
     note: "All nine BACB domains, A–I",
+    gated: true,
   },
   {
     href: "/mock-exams",
     label: "Mock exams",
     note: "Full-length practice",
+    gated: true,
   },
   {
     href: "/study-break",
@@ -73,7 +88,7 @@ export function StartFunnel({ signedIn }: { signedIn: boolean }) {
         <WaitlistSignup />
 
         <nav className={styles.links} aria-label="BCBA Prep">
-          {DESTINATIONS.map((item) => (
+          {DESTINATIONS.filter((item) => !item.gated || SALES_ENABLED).map((item) => (
             <Link key={item.href} href={item.href} className={styles.link}>
               <span className={styles.linkText}>
                 <strong>{item.label}</strong>
@@ -90,13 +105,17 @@ export function StartFunnel({ signedIn }: { signedIn: boolean }) {
             className={`${styles.link} ${styles.linkQuiet}`}
           >
             <span className={styles.linkText}>
-              <strong>{signedIn ? "My Library" : "Member sign in"}</strong>
+              {/*
+                * Not "My Library": nothing is on sale, so nobody has one,
+                * and offering a library implies a store that is not open.
+                */}
+              <strong>{signedIn ? "Member area" : "Member sign in"}</strong>
               <small>
                 {/*
                  * Not "already bought something?" — nothing is on sale, so
                  * that question implies a store this page is a waitlist for.
                  */}
-                {signedIn ? "Open what you already own" : "Already have an account?"}
+                {signedIn ? "Your account" : "Already have an account?"}
               </small>
             </span>
             <span className={styles.linkArrow} aria-hidden="true">
