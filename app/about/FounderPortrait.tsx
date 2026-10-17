@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BeeMark } from "@/components/BeeMark";
+import { HexField } from "@/components/HexMotif";
 
 /**
  * Bryana's portrait, with a branded fallback.
@@ -50,8 +51,13 @@ export function FounderPortrait({
         role="img"
         aria-label="Portrait of Bryana, founder of Bee the Behavior Bae, coming soon"
       >
+        {/* The honeycomb, so the fallback reads as the motif rather than a
+            missing image. */}
+        <span className="portrait-fallback-field" aria-hidden="true">
+          <HexField size={22} opacity={0.18} />
+        </span>
         <span className="portrait-fallback-mark" aria-hidden="true">
-          <BeeMark size={rounded ? 34 : 64} />
+          <BeeMark size={rounded ? 34 : 72} />
         </span>
       </div>
     );

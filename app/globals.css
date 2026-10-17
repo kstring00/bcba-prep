@@ -3313,3 +3313,34 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
     width: calc(100% + 4vw);
   }
 }
+
+/* About closing: the library link beside the gold founding-list button.
+   44px tall for the thumb; the underline still hugs the text. */
+.about-cta-quiet {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 6px;
+  font-size: 15px;
+  color: var(--mauve-deep);
+}
+.about-cta-quiet::after {
+  bottom: 8px;
+  background: var(--mauve-deep);
+}
+
+/* The honeycomb behind the fallback mark. The fallback is a grid; stack the
+   field and the mark in the same cell. */
+.portrait-fallback {
+  position: relative;
+  overflow: hidden;
+}
+.portrait-fallback-field {
+  position: absolute;
+  inset: 0;
+  color: var(--gold);
+  pointer-events: none;
+}
+.portrait-fallback-mark {
+  position: relative;
+}
