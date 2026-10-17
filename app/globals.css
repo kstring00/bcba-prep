@@ -3313,3 +3313,12 @@ html.js [data-reveal].is-in .hex-cluster [data-honey] {
     width: calc(100% + 4vw);
   }
 }
+
+/* About closing: the library link beside the gold founding-list button. */
+.about-cta-quiet {
+  font-size: 15px;
+  color: var(--mauve-deep);
+}
+.about-cta-quiet::after {
+  background: var(--mauve-deep);
+}
